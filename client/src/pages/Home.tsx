@@ -435,7 +435,7 @@ export default function Home() {
                           点击下方按钮直接下载 Windows 64 位预编译安装包：
                         </p>
                         <a
-                          href="/downloads/LAMMPS-64bit-latest.exe"
+                          href="https://github.com/dezhaohuang/lammps-tutorial/releases/download/v1.0.0/LAMMPS-64bit-latest.exe"
                           download
                           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 shadow-sm hover:shadow-md"
                           style={{ background: "linear-gradient(135deg, oklch(0.55 0.15 195), oklch(0.45 0.12 220))", color: "white" }}
@@ -1594,13 +1594,13 @@ plt.show()
                     </p>
                   </div>
                   <a
-                    href="/downloads/1-SC6/in.nvt"
+                    href="https://github.com/dezhaohuang/lammps-tutorial/releases/download/v1.0.0/1-SC6.tar.gz"
                     download
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 shadow-sm hover:shadow-md shrink-0"
                     style={{ background: "linear-gradient(135deg, oklch(0.55 0.15 195), oklch(0.45 0.12 220))", color: "white" }}
                   >
                     <Download size={16} />
-                    下载输入文件
+                    下载全部文件 (1-SC6.tar.gz)
                   </a>
                 </div>
               </div>
