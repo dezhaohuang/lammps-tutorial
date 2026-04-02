@@ -6,3 +6,4 @@ client/public/downloads/
 .env
 .env.*
 .DS_Store
+.vercel
