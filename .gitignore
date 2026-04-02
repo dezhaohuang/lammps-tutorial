@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.manus-logs/
+tutorial_files/
+client/public/downloads/
+.env
+.env.*
+.DS_Store
