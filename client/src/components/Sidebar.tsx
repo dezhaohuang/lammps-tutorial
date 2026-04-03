@@ -43,6 +43,7 @@ const sectionGroups: SectionGroup[] = [
     icon: FlaskConical,
     items: [
       { id: "case-lj-thermal", label: "LJ 液体热导率" },
+      { id: "case-spce-water", label: "SPC/E 液态水" },
       { id: "case-nano-channel", label: "纳米通道水流动" },
       { id: "case-interface-resistance", label: "固-液界面热阻" },
       { id: "case-sam-gold", label: "SAM-Au-水界面平衡" },

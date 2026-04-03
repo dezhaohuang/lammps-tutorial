@@ -1213,14 +1213,313 @@ plt.show()`} />
 
         <div className="section-divider-animated" />
 
-        {/* ═══════════ 案例二：纳米通道水流动 ═══════════ */}
+        {/* ═══════════ 案例：SPC/E 液态水模拟 ═══════════ */}
+        <section id="case-spce-water" className="py-20 md:py-28 relative overflow-hidden">
+          <MoleculeDecoration className="absolute top-10 right-0 opacity-40 hidden lg:block" variant="right" />
+          <div className="container max-w-5xl relative z-10">
+            <ScrollReveal>
+              <SectionHeading
+                id="case-spce-water-title"
+                title="案例二：SPC/E 液态水模拟"
+                subtitle="搭建纯水体系，用经典的 SPC/E 水模型完成从建模到平衡的完整流程，学习真实分子的力场设置、SHAKE 约束和基本物性分析。"
+                badge="案例实战"
+              />
+            </ScrollReveal>
+
+            <ScrollReveal>
+              <div className="mb-10 p-6 rounded-xl border border-border bg-card shadow-sm">
+                <h4 className="font-bold text-base mb-3" style={{ color: "oklch(0.25 0.06 260)" }}>
+                  为什么要模拟水？
+                </h4>
+                <div className="space-y-2 text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
+                  <p>
+                    水是最重要的溶剂和传热工质。在纳米尺度的传热、流动、界面润湿等研究中，水分子的行为是核心问题。然而水分子有键、有角、有电荷、有长程静电相互作用，比前面的 LJ 液体复杂得多。
+                  </p>
+                  <p>
+                    SPC/E（Extended Simple Point Charge）是使用最广泛的刚性水模型之一：3 个原子点、固定键长键角、LJ + Coulomb 相互作用。它能很好地再现液态水的密度（~0.998 g/cm³）、径向分布函数（RDF）和自扩散系数等关键物性。掌握 SPC/E 水的模拟后，你就具备了处理后续所有含水体系（纳米通道、界面热阻、SAM 界面等）的基础。
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Workflow steps */}
+            <div className="grid sm:grid-cols-5 gap-4 mb-10">
+              {[
+                { icon: Box, label: "建模", desc: "Packmol 生成水盒子" },
+                { icon: Settings, label: "力场设置", desc: "SPC/E 参数 + SHAKE" },
+                { icon: Layers, label: "平衡", desc: "NPT 恒温恒压平衡" },
+                { icon: BarChart3, label: "后处理", desc: "密度、RDF、扩散系数" },
+                { icon: Eye, label: "可视化", desc: "OVITO 观察水分子结构" },
+              ].map((step, i) => (
+                <ScrollReveal key={i} delay={i * 60}>
+                  <div className="text-center p-4 rounded-xl border border-border bg-card hover:shadow-md transition-all duration-300">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2"
+                      style={{ background: "oklch(0.93 0.05 230)" }}>
+                      <step.icon size={20} style={{ color: "oklch(0.40 0.14 230)" }} />
+                    </div>
+                    <div className="text-xs font-bold mb-1" style={{ color: "oklch(0.40 0.12 230)" }}>
+                      Step {i + 1}
+                    </div>
+                    <h4 className="font-bold text-sm mb-1" style={{ color: "oklch(0.25 0.06 260)" }}>{step.label}</h4>
+                    <p className="text-xs" style={{ color: "oklch(0.48 0.02 260)" }}>{step.desc}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+
+            <ScrollReveal>
+              <div className="space-y-1">
+                <StepIndicator number={1} title="生成水盒子：Packmol">
+                  <p className="mb-2">
+                    用 Packmol 在一个立方盒子中随机放置水分子。首先准备一个单个水分子的 PDB 文件：
+                  </p>
+                  <CodeBlock title="water.pdb" language="shell" code={`HETATM    1  O   WAT     1       0.000   0.000   0.000  1.00  0.00           O
+HETATM    2  H1  WAT     1       0.816   0.577   0.000  1.00  0.00           H
+HETATM    3  H2  WAT     1      -0.816   0.577   0.000  1.00  0.00           H
+END`} />
+                  <p className="mt-3 mb-2">
+                    然后编写 Packmol 输入文件，在 33.1 × 33.1 × 33.1 Å 的盒子中填充 1200 个水分子（密度约 0.998 g/cm³）：
+                  </p>
+                  <CodeBlock title="packmol.inp" language="shell" code={`tolerance 2.0
+filetype pdb
+output water_box.pdb
+
+structure water.pdb
+  number 1200
+  inside box 0. 0. 0. 33.1 33.1 33.1
+end structure`} />
+                  <CodeBlock title="终端" language="bash" code="packmol < packmol.inp" />
+                  <WarningBox type="info" title="Packmol 安装">
+                    Packmol 可以从 <IC>https://m3g.imi.unicamp.br/packmol/</IC> 下载。
+                    Linux 下也可以 <IC>sudo apt install packmol</IC>，macOS 下 <IC>brew install packmol</IC>。
+                    生成的 PDB 文件需要转换为 LAMMPS data 文件，可以用 <IC>moltemplate</IC>、<IC>TopoTools</IC>（VMD 插件）或 Python 脚本完成。
+                  </WarningBox>
+                </StepIndicator>
+
+                <StepIndicator number={2} title="SPC/E 水模型参数">
+                  <p className="mb-3">
+                    SPC/E 水模型的关键参数：
+                  </p>
+                  <div className="overflow-x-auto mb-4">
+                    <table className="w-full text-sm border-collapse">
+                      <thead>
+                        <tr style={{ background: "oklch(0.96 0.01 200)" }}>
+                          <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>参数</th>
+                          <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>值</th>
+                          <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>说明</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          ["O 电荷", "-0.8476 e", "氧原子带负电"],
+                          ["H 电荷", "+0.4238 e", "氢原子带正电，总电荷为零"],
+                          ["σ_OO", "3.166 Å", "LJ 特征长度（仅 O-O）"],
+                          ["ε_OO", "0.1553 kcal/mol", "LJ 能量深度（仅 O-O）"],
+                          ["r_OH", "1.0 Å", "O-H 键长（刚性，用 SHAKE 约束）"],
+                          ["θ_HOH", "109.47°", "H-O-H 键角（刚性，用 SHAKE 约束）"],
+                        ].map((row, i) => (
+                          <tr key={i} className="hover:bg-muted/30 transition-colors">
+                            <td className="p-3 border border-border font-mono text-xs" style={{ color: "oklch(0.40 0.12 195)" }}>{row[0]}</td>
+                            <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[1]}</td>
+                            <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[2]}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <WarningBox type="info" title="为什么 H 原子没有 LJ 参数？">
+                    SPC/E 是「3 点电荷」模型：LJ 相互作用只发生在氧原子之间，氢原子只参与库仑相互作用。这大幅降低了计算量，同时保持了水的关键物性。
+                  </WarningBox>
+                </StepIndicator>
+
+                <StepIndicator number={3} title="编写输入文件：NPT 平衡">
+                  <p className="mb-2">
+                    这是一个完整的 SPC/E 水模拟输入文件。关键点：
+                    使用 <IC>atom_style full</IC>（需要键、角、电荷）；
+                    用 <IC>fix shake</IC> 约束 O-H 键长和 H-O-H 键角（SPC/E 是刚性模型）；
+                    用 NPT 系综平衡密度。
+                  </p>
+                  <CodeBlock title="in.spce-water" language="lammps" code={`# SPC/E 液态水 NPT 平衡模拟
+units           real
+atom_style      full
+boundary        p p p
+
+read_data       water_box.data
+
+# SPC/E 力场参数
+pair_style      lj/cut/coul/long 10.0
+pair_coeff      1 1 0.1553 3.166    # O-O
+pair_coeff      1 2 0.0 0.0         # O-H (无 LJ)
+pair_coeff      2 2 0.0 0.0         # H-H (无 LJ)
+kspace_style    pppm 1.0e-5         # 长程静电用 PPPM
+
+bond_style      harmonic
+bond_coeff      1 600.0 1.0         # O-H 键 (SHAKE 会约束，此处给初始值)
+angle_style     harmonic
+angle_coeff     1 75.0 109.47       # H-O-H 角
+
+# SHAKE 约束 — 固定 O-H 键长和 H-O-H 键角
+fix             shake all shake 1.0e-4 200 0 b 1 a 1
+
+# 初始速度
+velocity        all create 300.0 12345 dist gaussian
+
+# 阶段 1：NPT 平衡 (300 K, 1 atm)
+fix             npt1 all npt temp 300.0 300.0 100.0 iso 1.0 1.0 1000.0
+thermo          500
+thermo_style    custom step temp press density pe ke etotal vol
+
+# dump 轨迹用于后续可视化
+dump            1 all custom 5000 dump.spce id type x y z
+
+run             100000              # 100 ps 平衡
+unfix           npt1
+
+# 阶段 2：NVT 采样 (固定体积，采集物性)
+fix             nvt1 all nvt temp 300.0 300.0 100.0
+
+# 计算径向分布函数 (O-O RDF)
+compute         rdf all rdf 200 1 1     # 200 个 bin, O-O 对
+fix             rdf_out all ave/time 100 10 1000 c_rdf[*] file rdf_OO.dat mode vector
+
+# 计算均方位移 (MSD) → 扩散系数
+compute         msd all msd
+fix             msd_out all ave/time 1 1 500 c_msd[4] file msd.dat
+
+thermo          500
+run             200000              # 200 ps 采样
+
+write_data      water_equilibrated.data`} />
+                </StepIndicator>
+
+                <StepIndicator number={4} title="运行模拟">
+                  <p className="mb-2">含长程静电（PPPM），建议至少 4 核并行：</p>
+                  <CodeBlock title="终端" language="bash" code={`# 本地并行
+mpirun -np 4 lmp -in in.spce-water
+
+# 超算
+srun lmp -in in.spce-water`} />
+                  <WarningBox type="warning" title="运行时间">
+                    1200 个水分子（3600 个原子）在 4 核上大约需要 10-30 分钟。
+                    如果只想快速验证，可以先将 <IC>run</IC> 步数减小到 10000。
+                  </WarningBox>
+                </StepIndicator>
+
+                <StepIndicator number={5} title="后处理：验证平衡 + 计算物性">
+                  <p className="mb-2">
+                    一个合格的水模拟应该能再现以下物性（300 K, 1 atm）：
+                  </p>
+                  <div className="overflow-x-auto mb-4">
+                    <table className="w-full text-sm border-collapse">
+                      <thead>
+                        <tr style={{ background: "oklch(0.96 0.01 200)" }}>
+                          <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>物性</th>
+                          <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>SPC/E 参考值</th>
+                          <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>实验值</th>
+                          <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>如何检查</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          ["密度", "~0.998 g/cm³", "0.997 g/cm³", "thermo 输出中的 density"],
+                          ["O-O RDF 第一峰", "~2.75 Å", "2.75 Å", "rdf_OO.dat"],
+                          ["自扩散系数", "~2.4 × 10⁻⁵ cm²/s", "2.3 × 10⁻⁵ cm²/s", "MSD 斜率 / 6"],
+                        ].map((row, i) => (
+                          <tr key={i} className="hover:bg-muted/30 transition-colors">
+                            <td className="p-3 border border-border font-medium" style={{ color: "oklch(0.35 0.06 260)" }}>{row[0]}</td>
+                            <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[1]}</td>
+                            <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[2]}</td>
+                            <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[3]}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <CodeBlock title="plot_water_analysis.py" language="python" code={`import numpy as np
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# ---- 1. O-O 径向分布函数 ----
+rdf = np.loadtxt("rdf_OO.dat", skiprows=4)
+r = rdf[:, 1]        # 距离 (Å)
+g_r = rdf[:, 2]      # g(r)
+
+axes[0].plot(r, g_r, 'b-', linewidth=1.5)
+axes[0].axhline(y=1, color='gray', ls='--', alpha=0.5)
+axes[0].set_xlabel("r (Å)")
+axes[0].set_ylabel("g(r)")
+axes[0].set_title("O-O Radial Distribution Function")
+axes[0].set_xlim(2, 8)
+
+# ---- 2. 均方位移 → 扩散系数 ----
+msd = np.loadtxt("msd.dat", skiprows=2)
+t = msd[:, 0] * 1.0   # timestep → fs (real units)
+msd_val = msd[:, 1]    # MSD (Å²)
+
+# 线性拟合 MSD 后半段
+from scipy.stats import linregress
+half = len(t) // 2
+slope, intercept, _, _, _ = linregress(t[half:], msd_val[half:])
+D = slope / 6.0        # D = MSD / (6t)，单位 Å²/fs
+D_cm2s = D * 1e-5      # 转换为 cm²/s
+print(f"自扩散系数 D = {D_cm2s:.2e} cm²/s")
+
+axes[1].plot(t / 1000, msd_val, 'r-', linewidth=1.5)
+axes[1].set_xlabel("Time (ps)")
+axes[1].set_ylabel("MSD (Å²)")
+axes[1].set_title(f"Mean Square Displacement (D={D_cm2s:.2e} cm²/s)")
+
+plt.tight_layout()
+plt.savefig("water_analysis.png", dpi=150)
+plt.show()`} />
+                </StepIndicator>
+
+                <StepIndicator number={6} title="OVITO 可视化">
+                  <p className="mb-2">用 OVITO 观察水分子结构：</p>
+                  <ul className="space-y-2 mb-3">
+                    {[
+                      "加载 dump.spce，可以看到氧原子和氢原子",
+                      "添加 Create bonds 修改器 → 设置 O-H 截断距离为 1.2 Å，显示水分子键",
+                      "用 Expression selection 选中氧原子（Type == 1），调整为较大的蓝色球体",
+                      "氢原子设为较小的白色球体，直观展示水分子取向",
+                      "添加 Coordination analysis 查看配位数分布（液态水中氧原子平均配位数约 4.5）",
+                      "使用 Slice 切一个薄片，观察氢键网络的局部结构",
+                    ].map((step, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: "oklch(0.38 0.02 260)" }}>
+                        <div className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{ background: "oklch(0.55 0.15 195)" }} />
+                        {step}
+                      </li>
+                    ))}
+                  </ul>
+                </StepIndicator>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal delay={100}>
+              <WarningBox type="tip" title="延伸">
+                <p className="mb-2">
+                  试着改变温度（280 K ~ 370 K）或压力（1 atm ~ 1000 atm），观察密度、RDF 和扩散系数的变化。
+                  你会发现 SPC/E 模型在常温常压下表现很好，但在极端条件下偏差会增大——这就是水模型研究的前沿问题。
+                </p>
+                <p>
+                  掌握了这个案例后，后面的纳米通道流动、固-液界面热阻、SAM 界面模拟都会用到完全相同的 SPC/E 水设置。
+                </p>
+              </WarningBox>
+            </ScrollReveal>
+          </div>
+        </section>
+
+        <div className="section-divider-animated" />
+
+        {/* ═══════════ 案例三：纳米通道水流动 ═══════════ */}
         <section id="case-nano-channel" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute top-10 right-0 opacity-40 hidden lg:block" variant="right" />
           <div className="container max-w-5xl relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="case-nano-channel-title"
-                title="案例二：纳米通道中的水流动"
+                title="案例三：纳米通道中的水流动（Poiseuille 流）"
                 subtitle="搭建石墨烯纳米通道，模拟受限水的 Poiseuille 流动，观察纳米尺度下速度滑移现象。"
                 badge="案例实战"
               />
@@ -1401,13 +1700,13 @@ plt.show()`} />
 
         <div className="section-divider-animated" />
 
-        {/* ═══════════ 案例三：固-液界面热阻 ═══════════ */}
+        {/* ═══════════ 案例四：固-液界面热阻 ═══════════ */}
         <section id="case-interface-resistance" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
           <div className="container max-w-5xl relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="case-interface-resistance-title"
-                title="案例三：固-液界面热阻（Kapitza 电阻）"
+                title="案例四：固-液界面热阻（Kapitza 电阻）"
                 subtitle="计算金属-水界面的 Kapitza 热阻，理解固液界面热输运的微观机制。"
                 badge="案例实战"
               />
@@ -1582,14 +1881,14 @@ plt.show()
 
         <div className="section-divider-animated" />
 
-        {/* ═══════════ 案例四：SAM-Au-水界面 NVT 平衡 ═══════════ */}
+        {/* ═══════════ 案例五：SAM-Au-水界面 NVT 平衡 ═══════════ */}
         <section id="case-sam-gold" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute top-10 right-0 opacity-40 hidden lg:block" variant="right" />
           <div className="container max-w-5xl relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="case-sam-gold-title"
-                title="案例四：SAM-Au-水界面 NVT 平衡"
+                title="案例五：SAM-Au-水界面 NVT 平衡"
                 subtitle="搭建硫醇自组装单分子层（SC6）修饰的金表面与水的界面体系，完成从能量最小化到 NVT 平衡的完整流程。这是课题组实际使用的建模案例。"
                 badge="案例实战"
               />
