@@ -190,7 +190,7 @@ function FAQSection() {
    ═══════════════════════════════════════════════════════════════ */
 export default function Home() {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex overflow-x-hidden">
       <ReadingProgress />
       <Sidebar />
       <BackToTop />
@@ -261,13 +261,13 @@ export default function Home() {
             ))}
           </svg>
 
-          <div className="relative z-10 container max-w-4xl text-center px-6">
+          <div className="relative z-10 container max-w-4xl text-center px-4 sm:px-6">
             <ScrollReveal>
               <a
                 href="https://www.whu-atmes.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-full mb-6 group transition-all duration-300 hover:scale-[1.03] hover:shadow-lg"
+                className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full mb-6 group transition-all duration-300 hover:scale-[1.03] hover:shadow-lg max-w-full"
                 style={{
                   background: "oklch(1 0 0 / 0.08)",
                   backdropFilter: "blur(16px) saturate(1.4)",
@@ -275,35 +275,36 @@ export default function Home() {
                   boxShadow: "0 4px 24px oklch(0 0 0 / 0.1), inset 0 1px 0 oklch(1 0 0 / 0.1)",
                 }}
               >
-                <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "oklch(0.55 0.15 195 / 0.2)" }}>
-                  <GraduationCap size={15} style={{ color: "oklch(0.80 0.12 195)" }} />
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: "oklch(0.55 0.15 195 / 0.2)" }}>
+                  <GraduationCap size={13} className="sm:hidden" style={{ color: "oklch(0.80 0.12 195)" }} />
+                  <GraduationCap size={15} className="hidden sm:block" style={{ color: "oklch(0.80 0.12 195)" }} />
                 </div>
-                <span className="text-sm font-semibold tracking-wide group-hover:underline" style={{ color: "oklch(0.92 0.02 200)" }}>
+                <span className="text-xs sm:text-sm font-semibold tracking-wide group-hover:underline truncate" style={{ color: "oklch(0.92 0.02 200)" }}>
                   武汉大学 · 先进热管理及储能技术实验室
                 </span>
               </a>
             </ScrollReveal>
 
             <ScrollReveal delay={100}>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-3" style={{ color: "white", letterSpacing: "0.02em", textShadow: "0 2px 30px oklch(0.35 0.10 260 / 0.5)" }}>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-3" style={{ color: "white", letterSpacing: "0.02em", textShadow: "0 2px 30px oklch(0.35 0.10 260 / 0.5)" }}>
                 LAMMPS 入门教学
               </h1>
-              <p className="text-base md:text-lg mb-8 tracking-wide shimmer-text font-medium">
+              <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 tracking-wide shimmer-text font-medium">
                 零基础分子动力学模拟上手指南
               </p>
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
-              <p className="text-base md:text-lg leading-relaxed mb-10 max-w-2xl mx-auto" style={{ color: "oklch(0.78 0.02 200)" }}>
+              <p className="text-sm sm:text-base md:text-lg leading-relaxed mb-8 sm:mb-10 max-w-2xl mx-auto px-2" style={{ color: "oklch(0.78 0.02 200)" }}>
                 从安装配置到超算提交，覆盖 Windows、macOS 和 Linux 三大平台，帮助各位同学跨过分子动力学模拟的第一道坎。
               </p>
             </ScrollReveal>
 
             <ScrollReveal delay={300}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0">
                 <Button
                   size="lg"
-                  className="text-base px-8 py-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                  className="text-sm sm:text-base px-6 sm:px-8 py-5 sm:py-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
                   style={{ background: "linear-gradient(135deg, oklch(0.55 0.15 195), oklch(0.45 0.12 220))", color: "white" }}
                   onClick={() => document.getElementById("why-lammps")?.scrollIntoView({ behavior: "smooth" })}
                 >
@@ -313,7 +314,7 @@ export default function Home() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="text-base px-8 py-6 rounded-xl font-semibold transition-all duration-300 hover:-translate-y-0.5"
+                  className="text-sm sm:text-base px-6 sm:px-8 py-5 sm:py-6 rounded-xl font-semibold transition-all duration-300 hover:-translate-y-0.5"
                   style={{ borderColor: "oklch(1 0 0 / 0.25)", color: "oklch(0.90 0.02 200)", background: "oklch(1 0 0 / 0.08)" }}
                   onClick={() => document.getElementById("windows-install")?.scrollIntoView({ behavior: "smooth" })}
                 >
@@ -323,7 +324,7 @@ export default function Home() {
             </ScrollReveal>
 
             <ScrollReveal delay={400}>
-              <p className="mt-8 text-xs tracking-wider" style={{ color: "oklch(0.50 0.02 200)" }}>
+              <p className="mt-6 sm:mt-8 text-[11px] sm:text-xs tracking-wider" style={{ color: "oklch(0.50 0.02 200)" }}>
                 黄德钊 · ATMES Lab · 武汉大学动力与机械学院
               </p>
             </ScrollReveal>
@@ -1067,7 +1068,7 @@ srun lmp -in in.lammps
             </ScrollReveal>
 
             {/* Workflow steps */}
-            <div className="grid sm:grid-cols-5 gap-4 mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-10">
               {[
                 { icon: Box, label: "建模", desc: "创建 LJ FCC 晶体结构" },
                 { icon: Settings, label: "输入文件", desc: "编写 NEMD / Green-Kubo 脚本" },
@@ -1243,7 +1244,7 @@ plt.show()`} />
             </ScrollReveal>
 
             {/* Workflow steps */}
-            <div className="grid sm:grid-cols-5 gap-4 mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-10">
               {[
                 { icon: Box, label: "建模", desc: "Packmol 生成水盒子" },
                 { icon: Settings, label: "力场设置", desc: "SPC/E 参数 + SHAKE" },
@@ -1541,7 +1542,7 @@ plt.show()`} />
               </div>
             </ScrollReveal>
 
-            <div className="grid sm:grid-cols-5 gap-4 mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-10">
               {[
                 { icon: Box, label: "建模", desc: "石墨烯通道 + SPC/E 水分子" },
                 { icon: Settings, label: "输入文件", desc: "势函数与外力驱动流动" },
@@ -1728,7 +1729,7 @@ plt.show()`} />
               </div>
             </ScrollReveal>
 
-            <div className="grid sm:grid-cols-5 gap-4 mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-10">
               {[
                 { icon: Box, label: "建模", desc: "Au (111) 表面 + SPC/E 水" },
                 { icon: Settings, label: "输入文件", desc: "NEMD 施加热流" },
@@ -1936,7 +1937,7 @@ plt.show()
             </ScrollReveal>
 
             {/* Workflow steps */}
-            <div className="grid sm:grid-cols-5 gap-4 mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-10">
               {[
                 { icon: Box, label: "体系构成", desc: "Au + SC6 硫醇 + TIP3P 水" },
                 { icon: Settings, label: "力场设置", desc: "class2 + Morse + LJ 混合力场" },
@@ -2327,7 +2328,7 @@ sacctmgr show assoc user=$USER`} />
                 <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-[2px] -translate-y-1/2 z-0"
                   style={{ background: "linear-gradient(90deg, oklch(0.35 0.10 260), oklch(0.45 0.12 230), oklch(0.50 0.14 200), oklch(0.55 0.15 195), oklch(0.60 0.15 180))" }} />
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 relative z-10">
                   {[
                     { step: 1, icon: Download, title: "安装 LAMMPS", desc: "选择适合你平台的安装方式，确保 lmp 命令可用。", color: "oklch(0.35 0.10 260)" },
                     { step: 2, icon: Play, title: "跑通第一个示例", desc: "用最小 LJ 液体示例验证安装，理解输入输出。", color: "oklch(0.45 0.12 230)" },
