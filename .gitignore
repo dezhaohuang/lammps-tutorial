@@ -7,3 +7,4 @@ client/public/downloads/
 .env.*
 .DS_Store
 .vercel
+.claude/
