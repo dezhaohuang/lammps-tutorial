@@ -18,10 +18,19 @@ MSYS_NO_PATHCONV=1 \
 OSS_ACCESS_KEY_ID=$OSS_AK \
 OSS_ACCESS_KEY_SECRET=$OSS_SK \
 /tmp/ossutil2/ossutil-2.2.1-windows-amd64/ossutil.exe cp dist/public/ oss://whu-atmes-hk/tutorial/ \
-  --recursive --force --region cn-hongkong
+  --recursive --force --region cn-hongkong && \
+MSYS_NO_PATHCONV=1 \
+OSS_ACCESS_KEY_ID=$OSS_AK \
+OSS_ACCESS_KEY_SECRET=$OSS_SK \
+/tmp/ossutil2/ossutil-2.2.1-windows-amd64/ossutil.exe api put-object \
+  --bucket whu-atmes-hk --key tutorial --region cn-hongkong \
+  --content-type "text/html; charset=utf-8" \
+  --body "file://dist/public/index.html"
 ```
 
 > **OSS 凭证**：`OSS_AK` 和 `OSS_SK` 的实际值见主站部署文档 `D:/Dropbox/03-Code/2026-website/atmes-lab-website/DEPLOYMENT.md`，或在 Claude 对话中直接引用该文件。
+>
+> **最后一步 `api put-object`**：OSS 的 `cp` 命令上传无扩展名对象时会设成 `application/octet-stream`，导致浏览器下载而不是显示网页。必须用 `api put-object --content-type "text/html"` 单独上传 `/tutorial` 对象。
 
 > **Windows 注意**：必须加 `MSYS_NO_PATHCONV=1`，否则 Git Bash 会把 `/tutorial/` 转换成 Windows 路径。
 > 如果构建报错找不到模块，先运行 `pnpm install`。
