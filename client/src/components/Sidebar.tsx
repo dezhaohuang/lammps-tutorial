@@ -4,6 +4,8 @@ import { Menu, X, Atom, GraduationCap, BookOpen, Monitor, Terminal, FlaskConical
 interface SectionItem {
   id: string;
   label: string;
+  /** Optional leading badge (e.g. case number) */
+  badge?: string;
 }
 
 interface SectionGroup {
@@ -42,11 +44,11 @@ const sectionGroups: SectionGroup[] = [
     group: "案例实战",
     icon: FlaskConical,
     items: [
-      { id: "case-lj-thermal", label: "LJ 液体热导率" },
-      { id: "case-spce-water", label: "SPC/E 液态水" },
-      { id: "case-nano-channel", label: "纳米通道水流动" },
-      { id: "case-interface-resistance", label: "固-液界面热阻" },
-      { id: "case-sam-gold", label: "SAM-Au-水界面平衡" },
+      { id: "case-lj-thermal", label: "LJ 液体热导率", badge: "01" },
+      { id: "case-spce-water", label: "SPC/E 液态水", badge: "02" },
+      { id: "case-nano-channel", label: "纳米通道水流动", badge: "03" },
+      { id: "case-interface-resistance", label: "固-液界面热阻", badge: "04" },
+      { id: "case-sam-gold", label: "SAM-Au-水界面平衡", badge: "05" },
     ],
   },
   {
@@ -127,20 +129,20 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen w-64 border-r border-border transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-40 h-screen w-72 border-r border-border transition-transform duration-300 lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ background: "oklch(0.99 0.002 90 / 0.95)", backdropFilter: "blur(12px)" }}
       >
         {/* Header */}
         <div className="p-5 border-b border-border">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center relative"
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ background: "linear-gradient(135deg, oklch(0.35 0.10 260), oklch(0.50 0.14 195))" }}>
-              <Atom size={18} color="white" />
+              <Atom size={20} color="white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold" style={{ color: "oklch(0.22 0.06 260)" }}>LAMMPS 教学</h1>
+              <h1 className="text-base font-bold" style={{ color: "oklch(0.22 0.06 260)" }}>LAMMPS 教学</h1>
               <p className="text-xs" style={{ color: "oklch(0.55 0.02 260)" }}>入门指南</p>
             </div>
           </div>
@@ -158,7 +160,7 @@ export default function Sidebar() {
         </div>
 
         {/* Scroll progress bar in sidebar */}
-        <div className="h-[2px] mx-4" style={{ background: "oklch(0.92 0.005 200)" }}>
+        <div className="h-[2px] mx-5" style={{ background: "oklch(0.92 0.005 200)" }}>
           <div
             className="h-full rounded-full transition-[width] duration-150 ease-out"
             style={{
@@ -168,39 +170,54 @@ export default function Sidebar() {
           />
         </div>
 
-        <nav className="p-3 overflow-y-auto" style={{ maxHeight: "calc(100vh - 140px)" }}>
+        <nav className="p-3 overflow-y-auto" style={{ maxHeight: "calc(100vh - 150px)" }}>
           {sectionGroups.map((group) => {
             const GroupIcon = group.icon;
             return (
-              <div key={group.group} className="mb-3">
+              <div key={group.group} className="mb-4">
                 <div
-                  className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-widest flex items-center gap-2"
-                  style={{ color: "oklch(0.50 0.04 195)" }}
+                  className="px-3 py-2 text-xs font-semibold uppercase tracking-widest flex items-center gap-2"
+                  style={{ color: "oklch(0.48 0.06 195)" }}
                 >
-                  <GroupIcon size={12} strokeWidth={2.5} />
+                  <GroupIcon size={13} strokeWidth={2.5} />
                   {group.group}
                 </div>
                 <div className="space-y-0.5">
-                  {group.items.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => scrollTo(s.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-[13px] transition-all duration-200 relative ${
-                        active === s.id ? "font-semibold" : "hover:bg-accent/50"
-                      }`}
-                      style={
-                        active === s.id
-                          ? {
-                              background: "oklch(0.94 0.04 195)",
-                              color: "oklch(0.28 0.10 200)",
-                              boxShadow: "inset 3px 0 0 oklch(0.55 0.15 195)",
+                  {group.items.map((s) => {
+                    const isActive = active === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => scrollTo(s.id)}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 flex items-center gap-2.5 ${
+                          isActive ? "font-semibold" : "hover:bg-accent/50"
+                        }`}
+                        style={
+                          isActive
+                            ? {
+                                background: "oklch(0.93 0.04 195)",
+                                color: "oklch(0.25 0.10 200)",
+                                boxShadow: "inset 3px 0 0 oklch(0.50 0.15 195)",
+                              }
+                            : { color: "oklch(0.40 0.02 260)" }
+                        }
+                      >
+                        {s.badge && (
+                          <span
+                            className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold tabular-nums"
+                            style={
+                              isActive
+                                ? { background: "oklch(0.50 0.15 195)", color: "white" }
+                                : { background: "oklch(0.94 0.02 200)", color: "oklch(0.48 0.08 200)" }
                             }
-                          : { color: "oklch(0.45 0.02 260)" }
-                      }
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+                          >
+                            {s.badge}
+                          </span>
+                        )}
+                        {s.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             );

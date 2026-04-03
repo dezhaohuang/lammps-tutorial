@@ -196,7 +196,7 @@ export default function Home() {
       <BackToTop />
 
       {/* Main content area — offset by sidebar on desktop */}
-      <main className="flex-1 lg:ml-64">
+      <main className="flex-1 lg:ml-72">
 
         {/* ═══════════ 1. Hero 区 ═══════════ */}
         <section
