@@ -211,32 +211,55 @@ export default function Home() {
             }} />
           </div>
 
-          {/* Floating particles decoration */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Molecule network decoration */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            {/* Connection lines */}
             {[
-              { x: "10%", y: "20%", size: 6, delay: 0 },
-              { x: "80%", y: "15%", size: 4, delay: 1 },
-              { x: "25%", y: "70%", size: 5, delay: 2 },
-              { x: "70%", y: "60%", size: 3, delay: 0.5 },
-              { x: "90%", y: "80%", size: 4, delay: 1.5 },
-              { x: "5%", y: "50%", size: 3, delay: 2.5 },
-              { x: "50%", y: "10%", size: 5, delay: 0.8 },
-              { x: "35%", y: "85%", size: 4, delay: 1.8 },
-            ].map((p, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  left: p.x,
-                  top: p.y,
-                  width: p.size,
-                  height: p.size,
-                  background: `oklch(0.75 0.12 195 / ${0.15 + Math.random() * 0.15})`,
-                  animation: `float ${3 + i * 0.5}s ease-in-out ${p.delay}s infinite alternate`,
-                }}
+              { x1: "10%", y1: "20%", x2: "25%", y2: "35%" },
+              { x1: "25%", y1: "35%", x2: "15%", y2: "55%" },
+              { x1: "80%", y1: "15%", x2: "70%", y2: "30%" },
+              { x1: "70%", y1: "30%", x2: "85%", y2: "50%" },
+              { x1: "85%", y1: "50%", x2: "75%", y2: "65%" },
+              { x1: "50%", y1: "10%", x2: "35%", y2: "25%" },
+              { x1: "35%", y1: "25%", x2: "25%", y2: "35%" },
+              { x1: "90%", y1: "80%", x2: "75%", y2: "65%" },
+              { x1: "15%", y1: "55%", x2: "30%", y2: "75%" },
+              { x1: "70%", y1: "30%", x2: "50%", y2: "10%" },
+            ].map((line, i) => (
+              <line
+                key={`line-${i}`}
+                x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
+                stroke="oklch(0.65 0.12 195 / 0.12)"
+                strokeWidth="1"
+                strokeDasharray="6 4"
+                className="molecule-line-animated"
+                style={{ animationDelay: `${i * 0.3}s` }}
               />
             ))}
-          </div>
+            {/* Nodes */}
+            {[
+              { cx: "10%", cy: "20%", r: 4 },
+              { cx: "25%", cy: "35%", r: 6 },
+              { cx: "15%", cy: "55%", r: 3 },
+              { cx: "30%", cy: "75%", r: 4 },
+              { cx: "80%", cy: "15%", r: 5 },
+              { cx: "70%", cy: "30%", r: 7 },
+              { cx: "85%", cy: "50%", r: 3 },
+              { cx: "75%", cy: "65%", r: 5 },
+              { cx: "50%", cy: "10%", r: 4 },
+              { cx: "35%", cy: "25%", r: 3 },
+              { cx: "90%", cy: "80%", r: 4 },
+              { cx: "5%", cy: "45%", r: 2 },
+              { cx: "95%", cy: "35%", r: 2 },
+            ].map((node, i) => (
+              <circle
+                key={`node-${i}`}
+                cx={node.cx} cy={node.cy} r={node.r}
+                fill={`oklch(0.75 0.12 ${195 + i * 10} / ${0.15 + (i % 3) * 0.05})`}
+                style={{ animation: `float ${3 + i * 0.4}s ease-in-out ${i * 0.2}s infinite alternate` }}
+              />
+            ))}
+          </svg>
 
           <div className="relative z-10 container max-w-4xl text-center px-6">
             <ScrollReveal>
@@ -244,10 +267,17 @@ export default function Home() {
                 href="https://www.whu-atmes.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full mb-6 group transition-all duration-300 hover:scale-105"
-                style={{ background: "oklch(1 0 0 / 0.10)", backdropFilter: "blur(12px)", border: "1px solid oklch(1 0 0 / 0.15)" }}
+                className="inline-flex items-center gap-3 px-6 py-3 rounded-full mb-6 group transition-all duration-300 hover:scale-[1.03] hover:shadow-lg"
+                style={{
+                  background: "oklch(1 0 0 / 0.08)",
+                  backdropFilter: "blur(16px) saturate(1.4)",
+                  border: "1px solid oklch(1 0 0 / 0.12)",
+                  boxShadow: "0 4px 24px oklch(0 0 0 / 0.1), inset 0 1px 0 oklch(1 0 0 / 0.1)",
+                }}
               >
-                <GraduationCap size={18} style={{ color: "oklch(0.75 0.12 195)" }} />
+                <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "oklch(0.55 0.15 195 / 0.2)" }}>
+                  <GraduationCap size={15} style={{ color: "oklch(0.80 0.12 195)" }} />
+                </div>
                 <span className="text-sm font-semibold tracking-wide group-hover:underline" style={{ color: "oklch(0.92 0.02 200)" }}>
                   武汉大学 · 先进热管理及储能技术实验室
                 </span>
@@ -255,10 +285,10 @@ export default function Home() {
             </ScrollReveal>
 
             <ScrollReveal delay={100}>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-3" style={{ color: "white", letterSpacing: "0.02em" }}>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-3" style={{ color: "white", letterSpacing: "0.02em", textShadow: "0 2px 30px oklch(0.35 0.10 260 / 0.5)" }}>
                 LAMMPS 入门教学
               </h1>
-              <p className="text-base md:text-lg mb-8 tracking-wide" style={{ color: "oklch(0.70 0.06 195)" }}>
+              <p className="text-base md:text-lg mb-8 tracking-wide shimmer-text font-medium">
                 零基础分子动力学模拟上手指南
               </p>
             </ScrollReveal>
@@ -371,10 +401,10 @@ export default function Home() {
                 },
               ].map((card, i) => (
                 <ScrollReveal key={i} delay={i * 80}>
-                  <div className="bg-card rounded-xl border border-border p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 h-full">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
-                      style={{ background: "oklch(0.94 0.04 195)" }}>
-                      <card.icon size={20} style={{ color: "oklch(0.45 0.12 195)" }} />
+                  <div className="bg-card rounded-xl border border-border p-6 shadow-sm card-hover-lift gradient-border h-full">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
+                      style={{ background: "linear-gradient(135deg, oklch(0.94 0.04 195), oklch(0.96 0.02 220))" }}>
+                      <card.icon size={20} style={{ color: "oklch(0.40 0.14 195)" }} />
                     </div>
                     <h4 className="font-bold text-base mb-2" style={{ color: "oklch(0.25 0.06 260)" }}>{card.title}</h4>
                     <p className="text-sm leading-relaxed" style={{ color: "oklch(0.45 0.02 260)" }}>{card.desc}</p>
@@ -385,7 +415,7 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 3. Windows 安装教程 ═══════════ */}
         <section id="windows-install" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
@@ -551,7 +581,7 @@ mpirun -np 4 lmp -in in.test`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 4. macOS 安装教程 ═══════════ */}
         <section id="macos-install" className="py-20 md:py-28 relative overflow-hidden">
@@ -668,7 +698,7 @@ sudo make install`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 5. 超算 / 集群教程 ═══════════ */}
         <section id="hpc-guide" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
@@ -843,7 +873,7 @@ cat lammps_123456.err`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 6. 第一份 LAMMPS 输入文件 ═══════════ */}
         <section id="input-file" className="py-20 md:py-28 relative overflow-hidden">
@@ -896,7 +926,7 @@ cat lammps_123456.err`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 7. 本地运行与并行运行 ═══════════ */}
         <section id="parallel-run" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
@@ -1006,7 +1036,7 @@ srun lmp -in in.lammps
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 案例一：LJ 液体热导率 ═══════════ */}
         <section id="case-lj-thermal" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
@@ -1181,7 +1211,7 @@ plt.show()`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 案例二：纳米通道水流动 ═══════════ */}
         <section id="case-nano-channel" className="py-20 md:py-28 relative overflow-hidden">
@@ -1369,7 +1399,7 @@ plt.show()`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 案例三：固-液界面热阻 ═══════════ */}
         <section id="case-interface-resistance" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
@@ -1550,7 +1580,7 @@ plt.show()
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 案例四：SAM-Au-水界面 NVT 平衡 ═══════════ */}
         <section id="case-sam-gold" className="py-20 md:py-28 relative overflow-hidden">
@@ -1832,7 +1862,7 @@ plt.show()`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 8. 常见问题与报错排查 ═══════════ */}
         <section id="troubleshooting" className="py-20 md:py-28 relative overflow-hidden">
@@ -1971,7 +2001,7 @@ sacctmgr show assoc user=$USER`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 9. 学习路线图 ═══════════ */}
         <section id="roadmap" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
@@ -2032,7 +2062,7 @@ sacctmgr show assoc user=$USER`} />
           </div>
         </section>
 
-        <div className="section-divider" />
+        <div className="section-divider-animated" />
 
         {/* ═══════════ 10. FAQ 区 ═══════════ */}
         <section id="faq" className="py-20 md:py-28 relative overflow-hidden">
@@ -2054,8 +2084,17 @@ sacctmgr show assoc user=$USER`} />
         </section>
 
         {/* ═══════════ Footer ═══════════ */}
-        <footer className="border-t border-border py-14" style={{ background: "oklch(0.16 0.04 260)" }}>
-          <div className="container max-w-5xl">
+        <footer className="relative overflow-hidden" style={{ background: "oklch(0.14 0.04 260)" }}>
+          {/* Top gradient accent line */}
+          <div className="h-[2px]" style={{ background: "linear-gradient(90deg, oklch(0.35 0.10 260), oklch(0.55 0.15 195), oklch(0.65 0.12 180), oklch(0.55 0.15 195), oklch(0.35 0.10 260))" }} />
+
+          {/* Background decoration */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full" style={{ background: "oklch(0.55 0.15 195 / 0.03)", filter: "blur(60px)" }} />
+            <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full" style={{ background: "oklch(0.35 0.10 260 / 0.04)", filter: "blur(80px)" }} />
+          </div>
+
+          <div className="container max-w-5xl relative z-10 py-14">
             {/* Lab branding block */}
             <div className="flex flex-col sm:flex-row items-center gap-6 mb-10 pb-8 border-b" style={{ borderColor: "oklch(1 0 0 / 0.08)" }}>
               <a
@@ -2064,8 +2103,8 @@ sacctmgr show assoc user=$USER`} />
                 rel="noopener noreferrer"
                 className="flex items-center gap-4 group shrink-0"
               >
-                <div className="flex items-center justify-center w-14 h-14 rounded-xl"
-                  style={{ background: "oklch(1 0 0 / 0.06)", border: "1px solid oklch(1 0 0 / 0.10)" }}>
+                <div className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-300 group-hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, oklch(0.25 0.06 260 / 0.8), oklch(0.30 0.08 200 / 0.6))", border: "1px solid oklch(1 0 0 / 0.10)" }}>
                   <GraduationCap size={28} style={{ color: "oklch(0.65 0.15 195)" }} />
                 </div>
                 <div>
@@ -2083,11 +2122,14 @@ sacctmgr show assoc user=$USER`} />
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-8 mb-10">
+            <div className="grid sm:grid-cols-3 gap-8 mb-10">
               {/* Quick links */}
               <div>
-                <h4 className="font-bold text-sm mb-3" style={{ color: "oklch(0.85 0.02 200)" }}>快速导航</h4>
-                <ul className="space-y-2">
+                <h4 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: "oklch(0.85 0.02 200)" }}>
+                  <span className="w-1 h-4 rounded-full" style={{ background: "oklch(0.55 0.15 195)" }} />
+                  快速导航
+                </h4>
+                <ul className="space-y-2.5">
                   {[
                     { label: "Windows 安装", id: "windows-install" },
                     { label: "macOS 安装", id: "macos-install" },
@@ -2098,11 +2140,41 @@ sacctmgr show assoc user=$USER`} />
                     <li key={link.id}>
                       <button
                         onClick={() => document.getElementById(link.id)?.scrollIntoView({ behavior: "smooth" })}
-                        className="text-sm hover:underline transition-colors"
+                        className="text-sm hover:underline transition-colors flex items-center gap-1.5"
                         style={{ color: "oklch(0.55 0.02 200)" }}
                         onMouseEnter={(e) => (e.currentTarget.style.color = "oklch(0.75 0.12 195)")}
                         onMouseLeave={(e) => (e.currentTarget.style.color = "oklch(0.55 0.02 200)")}
                       >
+                        <ChevronRight size={12} className="opacity-40" />
+                        {link.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Cases */}
+              <div>
+                <h4 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: "oklch(0.85 0.02 200)" }}>
+                  <span className="w-1 h-4 rounded-full" style={{ background: "oklch(0.65 0.12 195)" }} />
+                  案例实战
+                </h4>
+                <ul className="space-y-2.5">
+                  {[
+                    { label: "LJ 液体热导率", id: "case-lj-thermal" },
+                    { label: "纳米通道水流动", id: "case-nano-channel" },
+                    { label: "固-液界面热阻", id: "case-interface-resistance" },
+                    { label: "SAM-Au-水界面平衡", id: "case-sam-gold" },
+                  ].map((link) => (
+                    <li key={link.id}>
+                      <button
+                        onClick={() => document.getElementById(link.id)?.scrollIntoView({ behavior: "smooth" })}
+                        className="text-sm hover:underline transition-colors flex items-center gap-1.5"
+                        style={{ color: "oklch(0.55 0.02 200)" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = "oklch(0.75 0.12 195)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = "oklch(0.55 0.02 200)")}
+                      >
+                        <ChevronRight size={12} className="opacity-40" />
                         {link.label}
                       </button>
                     </li>
@@ -2112,8 +2184,11 @@ sacctmgr show assoc user=$USER`} />
 
               {/* Resources */}
               <div>
-                <h4 className="font-bold text-sm mb-3" style={{ color: "oklch(0.85 0.02 200)" }}>外部资源</h4>
-                <ul className="space-y-2">
+                <h4 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: "oklch(0.85 0.02 200)" }}>
+                  <span className="w-1 h-4 rounded-full" style={{ background: "oklch(0.50 0.12 260)" }} />
+                  外部资源
+                </h4>
+                <ul className="space-y-2.5">
                   {[
                     { label: "LAMMPS 官方文档", url: "https://docs.lammps.org/" },
                     { label: "LAMMPS GitHub", url: "https://github.com/lammps/lammps" },
@@ -2139,36 +2214,31 @@ sacctmgr show assoc user=$USER`} />
               </div>
             </div>
 
-            <div className="border-t pt-6" style={{ borderColor: "oklch(1 0 0 / 0.08)" }}>
+            <div className="border-t pt-6" style={{ borderColor: "oklch(1 0 0 / 0.06)" }}>
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div className="text-center sm:text-left">
                   <p className="text-xs" style={{ color: "oklch(0.45 0.02 200)" }}>
-                    © {new Date().getFullYear()} 武汉大学 先进热管理及储能技术实验室 (ATMES Lab) · 黄德钊 · All rights reserved
+                    © {new Date().getFullYear()} 武汉大学 先进热管理及储能技术实验室 (ATMES Lab) · 黄德钊
                   </p>
-                  <p className="text-xs mt-1" style={{ color: "oklch(0.38 0.02 200)" }}>
+                  <p className="text-xs mt-1" style={{ color: "oklch(0.35 0.02 200)" }}>
                     LAMMPS 是 Sandia National Laboratories 的开源项目 · 本站内容仅供学习参考
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <a href="https://www.whu-atmes.com/" target="_blank" rel="noopener noreferrer"
-                    className="transition-colors" style={{ color: "oklch(0.45 0.02 200)" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "oklch(0.75 0.12 195)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "oklch(0.45 0.02 200)")}
-                    title="实验室官网">
-                    <Globe size={16} />
-                  </a>
-                  <a href="https://github.com/lammps/lammps" target="_blank" rel="noopener noreferrer"
-                    className="transition-colors" style={{ color: "oklch(0.45 0.02 200)" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "oklch(0.75 0.12 195)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "oklch(0.45 0.02 200)")}>
-                    <Github size={16} />
-                  </a>
-                  <a href="https://www.lammps.org/mail.html" target="_blank" rel="noopener noreferrer"
-                    className="transition-colors" style={{ color: "oklch(0.45 0.02 200)" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "oklch(0.75 0.12 195)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "oklch(0.45 0.02 200)")}>
-                    <Mail size={16} />
-                  </a>
+                <div className="flex items-center gap-3">
+                  {[
+                    { icon: Globe, url: "https://www.whu-atmes.com/", title: "实验室官网" },
+                    { icon: Github, url: "https://github.com/lammps/lammps", title: "LAMMPS GitHub" },
+                    { icon: Mail, url: "https://www.lammps.org/mail.html", title: "LAMMPS 邮件列表" },
+                  ].map((item) => (
+                    <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5"
+                      style={{ color: "oklch(0.50 0.02 200)", background: "oklch(1 0 0 / 0.05)" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = "oklch(0.75 0.12 195)"; e.currentTarget.style.background = "oklch(1 0 0 / 0.10)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = "oklch(0.50 0.02 200)"; e.currentTarget.style.background = "oklch(1 0 0 / 0.05)"; }}
+                      title={item.title}>
+                      <item.icon size={15} />
+                    </a>
+                  ))}
                 </div>
               </div>
             </div>

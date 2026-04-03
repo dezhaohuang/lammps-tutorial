@@ -152,28 +152,34 @@
 
   /* Terminal-style code block */
   .terminal-block {
-    background: oklch(0.18 0.02 260);
+    background: oklch(0.16 0.02 260);
     border-radius: 0.75rem;
     overflow: hidden;
-    box-shadow: 0 4px 24px oklch(0 0 0 / 0.15);
+    box-shadow: 0 4px 24px oklch(0 0 0 / 0.18), 0 1px 3px oklch(0 0 0 / 0.10);
+    border: 1px solid oklch(0.25 0.02 260);
+    transition: box-shadow 0.3s ease;
+  }
+  .terminal-block:hover {
+    box-shadow: 0 8px 32px oklch(0 0 0 / 0.22), 0 2px 6px oklch(0 0 0 / 0.12);
   }
   .terminal-header {
-    background: oklch(0.22 0.02 260);
+    background: oklch(0.20 0.02 260);
     padding: 0.625rem 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    border-bottom: 1px solid oklch(0.25 0.02 260);
   }
   .terminal-dot {
-    width: 0.75rem;
-    height: 0.75rem;
+    width: 0.625rem;
+    height: 0.625rem;
     border-radius: 50%;
   }
   .terminal-body {
     padding: 1.25rem;
     overflow-x: auto;
-    font-size: 0.875rem;
-    line-height: 1.7;
+    font-size: 0.8125rem;
+    line-height: 1.75;
     color: oklch(0.90 0.01 200);
   }
   .terminal-body code {
@@ -191,5 +197,120 @@
   /* Smooth scroll */
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Glow effect for reading progress */
+  .progress-glow {
+    box-shadow: 0 0 8px oklch(0.55 0.15 195 / 0.5), 0 0 20px oklch(0.55 0.15 195 / 0.2);
+  }
+
+  /* Animated gradient border for featured cards */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(135deg, oklch(0.55 0.15 195), oklch(0.35 0.10 260), oklch(0.65 0.15 195));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .gradient-border:hover::before {
+    opacity: 1;
+  }
+
+  /* Glass effect */
+  .glass {
+    background: oklch(1 0 0 / 0.7);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  }
+
+  /* Subtle shimmer animation for hero elements */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer-text {
+    background: linear-gradient(90deg,
+      oklch(0.95 0.02 200) 0%,
+      oklch(1 0 0) 25%,
+      oklch(0.75 0.12 195) 50%,
+      oklch(1 0 0) 75%,
+      oklch(0.95 0.02 200) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 6s ease-in-out infinite;
+  }
+
+  /* Molecule network line animation */
+  @keyframes dash {
+    to { stroke-dashoffset: -20; }
+  }
+  .molecule-line-animated {
+    animation: dash 3s linear infinite;
+  }
+
+  /* Pulse ring for back-to-top */
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  /* Step indicator glow pulse */
+  @keyframes step-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 oklch(0.55 0.15 195 / 0.3); }
+    50% { box-shadow: 0 0 0 8px oklch(0.55 0.15 195 / 0); }
+  }
+
+  /* Sidebar active indicator slide */
+  .sidebar-active-pill {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Animated section divider */
+  .section-divider-animated {
+    height: 2px;
+    margin: 0 auto;
+    max-width: 60%;
+    position: relative;
+    overflow: hidden;
+  }
+  .section-divider-animated::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, oklch(0.65 0.15 195 / 0.4), oklch(0.35 0.10 260 / 0.4), oklch(0.65 0.15 195 / 0.4), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 4s ease-in-out infinite;
+  }
+
+  /* Code syntax highlight colors */
+  .syntax-keyword { color: oklch(0.75 0.16 280); }
+  .syntax-string { color: oklch(0.78 0.14 140); }
+  .syntax-comment { color: oklch(0.55 0.04 200); font-style: italic; }
+  .syntax-number { color: oklch(0.80 0.14 60); }
+  .syntax-function { color: oklch(0.78 0.14 210); }
+  .syntax-variable { color: oklch(0.82 0.10 50); }
+  .syntax-operator { color: oklch(0.80 0.12 350); }
+  .syntax-flag { color: oklch(0.72 0.10 170); }
+  .syntax-command { color: oklch(0.82 0.12 195); }
+
+  /* Hover card lift effect */
+  .card-hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card-hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px oklch(0 0 0 / 0.08), 0 4px 12px oklch(0 0 0 / 0.04);
   }
 }
