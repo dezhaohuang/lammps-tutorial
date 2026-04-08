@@ -909,7 +909,7 @@ cat lammps_123456.err`} />
                           ["报错 partition 不存在", "队列名写错", "用 sinfo 查看可用队列"],
                           ["报错 account 无效", "账户名写错", "联系超算管理员确认账户"],
                         ].map((row, i) => (
-                          <tr key={i} className="hover:bg-muted/30 transition-colors">
+                          <tr key={i} className="hover:bg-muted/50 transition-colors" style={i % 2 === 1 ? { background: "oklch(0.98 0.003 200)" } : undefined}>
                             <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[0]}</td>
                             <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[1]}</td>
                             <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[2]}</td>
@@ -1339,8 +1339,11 @@ plt.show()                       # 在屏幕上显示`} />
             <ScrollReveal>
               <div className="space-y-1">
                 <StepIndicator number={1} title="生成水盒子：Packmol">
+                  <p className="mb-3">
+                    <strong>Packmol 是什么？</strong> 它是一个专门用来「往盒子里填分子」的小工具——你告诉它要在多大的空间里放多少个什么分子，它会自动找到不重叠的随机摆放方式。LAMMPS 本身没有方便地创建多分子体系的命令（它擅长"跑模拟"而不是"建模型"），所以我们用 Packmol 来建初始构型，再把结果交给 LAMMPS。
+                  </p>
                   <p className="mb-2">
-                    用 Packmol 在一个立方盒子中随机放置水分子。首先准备一个单个水分子的 PDB 文件：
+                    首先准备一个单个水分子的 PDB 文件（描述一个水分子中 3 个原子的坐标）：
                   </p>
                   <CodeBlock title="water.pdb" language="shell" code={`HETATM    1  O   WAT     1       0.000   0.000   0.000  1.00  0.00           O
 HETATM    2  H1  WAT     1       0.816   0.577   0.000  1.00  0.00           H
@@ -1387,7 +1390,7 @@ end structure`} />
                           ["r_OH", "1.0 Å", "O-H 键长（刚性，用 SHAKE 约束）"],
                           ["θ_HOH", "109.47°", "H-O-H 键角（刚性，用 SHAKE 约束）"],
                         ].map((row, i) => (
-                          <tr key={i} className="hover:bg-muted/30 transition-colors">
+                          <tr key={i} className="hover:bg-muted/50 transition-colors" style={i % 2 === 1 ? { background: "oklch(0.98 0.003 200)" } : undefined}>
                             <td className="p-3 border border-border font-mono text-xs" style={{ color: "oklch(0.40 0.12 195)" }}>{row[0]}</td>
                             <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[1]}</td>
                             <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[2]}</td>
@@ -1499,7 +1502,7 @@ srun lmp -in in.spce-water`} />
                           ["O-O RDF 第一峰", "~2.75 Å", "2.75 Å", "rdf_OO.dat"],
                           ["自扩散系数", "~2.4 × 10⁻⁵ cm²/s", "2.3 × 10⁻⁵ cm²/s", "MSD 斜率 / 6"],
                         ].map((row, i) => (
-                          <tr key={i} className="hover:bg-muted/30 transition-colors">
+                          <tr key={i} className="hover:bg-muted/50 transition-colors" style={i % 2 === 1 ? { background: "oklch(0.98 0.003 200)" } : undefined}>
                             <td className="p-3 border border-border font-medium" style={{ color: "oklch(0.35 0.06 260)" }}>{row[0]}</td>
                             <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[1]}</td>
                             <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[2]}</td>
@@ -2063,7 +2066,7 @@ plt.show()
                           ["Au (下层)", "7361 – 12160", "4800", "金基底 (下)"],
                           ["Water", "12161 – 18160", "6000", "TIP3P 水分子"],
                         ].map((row, i) => (
-                          <tr key={i} className="hover:bg-muted/30 transition-colors">
+                          <tr key={i} className="hover:bg-muted/50 transition-colors" style={i % 2 === 1 ? { background: "oklch(0.98 0.003 200)" } : undefined}>
                             <td className="p-3 border border-border font-medium" style={{ color: "oklch(0.35 0.06 260)" }}>{row[0]}</td>
                             <td className="p-3 border border-border font-mono text-xs" style={{ color: "oklch(0.45 0.10 195)" }}>{row[1]}</td>
                             <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[2]}</td>
@@ -2259,6 +2262,7 @@ plt.show()`} />
               <Accordion type="multiple" className="space-y-3">
                 {[
                   {
+                    tag: "安装",
                     title: "命令找不到：'lmp' 不是内部或外部命令",
                     content: (
                       <div>
@@ -2278,6 +2282,7 @@ Get-Command lmp`} />
                     ),
                   },
                   {
+                    tag: "运行",
                     title: "MPI 启动失败：mpirun / mpiexec 报错",
                     content: (
                       <div>
@@ -2292,6 +2297,7 @@ Get-Command lmp`} />
                     ),
                   },
                   {
+                    tag: "运行",
                     title: "势函数文件找不到：Cannot open potential file",
                     content: (
                       <div>
@@ -2311,6 +2317,7 @@ pair_coeff * * /path/to/potentials/Cu_zhou.eam.alloy Cu`} />
                     ),
                   },
                   {
+                    tag: "超算",
                     title: "Slurm 提交后任务一直排队（PD 状态）",
                     content: (
                       <div>
@@ -2333,6 +2340,7 @@ sacctmgr show assoc user=$USER`} />
                     ),
                   },
                   {
+                    tag: "超算",
                     title: "输出日志为空",
                     content: (
                       <div>
@@ -2347,6 +2355,7 @@ sacctmgr show assoc user=$USER`} />
                     ),
                   },
                   {
+                    tag: "通用",
                     title: "路径错误：中文路径 / 空格 / 特殊字符",
                     content: (
                       <div>
@@ -2366,7 +2375,22 @@ sacctmgr show assoc user=$USER`} />
                   <AccordionItem key={i} value={`trouble-${i}`} className="border border-border rounded-xl overflow-hidden px-0">
                     <AccordionTrigger className="px-5 py-4 text-sm font-semibold text-left hover:no-underline"
                       style={{ color: "oklch(0.25 0.06 260)" }}>
-                      {item.title}
+                      <span className="flex items-center gap-2.5 flex-wrap">
+                        <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                          style={{
+                            background: item.tag === "安装" ? "oklch(0.94 0.04 195)" :
+                                       item.tag === "运行" ? "oklch(0.94 0.03 75)" :
+                                       item.tag === "超算" ? "oklch(0.94 0.03 260)" :
+                                       "oklch(0.94 0.02 200)",
+                            color: item.tag === "安装" ? "oklch(0.40 0.12 195)" :
+                                  item.tag === "运行" ? "oklch(0.45 0.12 75)" :
+                                  item.tag === "超算" ? "oklch(0.40 0.10 260)" :
+                                  "oklch(0.45 0.06 200)",
+                          }}>
+                          {item.tag}
+                        </span>
+                        {item.title}
+                      </span>
                     </AccordionTrigger>
                     <AccordionContent className="px-5 pb-5 text-sm leading-relaxed"
                       style={{ color: "oklch(0.40 0.02 260)" }}>
