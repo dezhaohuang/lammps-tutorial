@@ -1,228 +1,264 @@
-import { useState, useEffect } from "react";
-import { Menu, X, Atom, GraduationCap, BookOpen, Monitor, Terminal, FlaskConical, HelpCircle } from "lucide-react";
+import { ChevronRight, FlaskConical, Menu, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-interface SectionItem {
-  id: string;
-  label: string;
-  /** Optional leading badge (e.g. case number) */
-  badge?: string;
-}
-
-interface SectionGroup {
-  group: string;
-  icon: typeof BookOpen;
-  items: SectionItem[];
-}
-
-const sectionGroups: SectionGroup[] = [
-  {
-    group: "入门",
-    icon: BookOpen,
-    items: [
-      { id: "hero", label: "首页" },
-      { id: "why-lammps", label: "为什么学 LAMMPS" },
-    ],
-  },
-  {
-    group: "环境搭建",
-    icon: Monitor,
-    items: [
-      { id: "windows-install", label: "Windows 安装" },
-      { id: "macos-install", label: "macOS 安装" },
-      { id: "hpc-guide", label: "超算 / 集群" },
-    ],
-  },
-  {
-    group: "基础教程",
-    icon: Terminal,
-    items: [
-      { id: "input-file", label: "第一份输入文件" },
-      { id: "parallel-run", label: "本地与并行运行" },
-    ],
-  },
-  {
-    group: "案例实战",
-    icon: FlaskConical,
-    items: [
-      { id: "case-lj-thermal", label: "LJ 液体热导率", badge: "01" },
-      { id: "case-spce-water", label: "SPC/E 液态水", badge: "02" },
-      { id: "case-nano-channel", label: "纳米通道水流动", badge: "03" },
-      { id: "case-interface-resistance", label: "固-液界面热阻", badge: "04" },
-      { id: "case-sam-gold", label: "SAM-Au-水界面平衡", badge: "05" },
-    ],
-  },
-  {
-    group: "参考",
-    icon: HelpCircle,
-    items: [
-      { id: "troubleshooting", label: "常见问题排查" },
-      { id: "roadmap", label: "学习路线图" },
-      { id: "faq", label: "FAQ" },
-    ],
-  },
+const sections = [
+  { id: "hero", label: "首页导览" },
+  { id: "why-lammps", label: "为什么学习" },
+  { id: "windows-install", label: "Windows 安装" },
+  { id: "macos-install", label: "macOS 安装" },
+  { id: "hpc-guide", label: "超算教程" },
+  { id: "input-file", label: "输入文件" },
+  { id: "parallel-run", label: "运行与并行" },
+  { id: "case-lj-thermal", label: "案例一：LJ热导率" },
+  { id: "case-spce-water", label: "案例二：SPC/E水" },
+  { id: "case-nano-channel", label: "案例三：纳米通道" },
+  { id: "case-interface-resistance", label: "案例四：界面热阻" },
+  { id: "case-sam-gold", label: "案例五：SAM-Au" },
+  { id: "troubleshooting", label: "常见报错" },
+  { id: "roadmap", label: "学习路线图" },
+  { id: "faq", label: "FAQ" },
 ];
 
-const allSections = sectionGroups.flatMap((g) => g.items);
+function NavItems({
+  activeId,
+  clickedId,
+  onItemClick,
+}: {
+  activeId: string;
+  clickedId: string | null;
+  onItemClick: (id: string) => void;
+}) {
+  return (
+    <ul className="space-y-1.5">
+      {sections.map((section) => {
+        const isActive = activeId === section.id;
+        return (
+          <li key={section.id}>
+            <button
+              type="button"
+              onClick={() => onItemClick(section.id)}
+              className="group flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm"
+              style={{
+                transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                background: isActive
+                  ? "linear-gradient(135deg, oklch(0.52 0.15 195 / 0.22), oklch(0.38 0.1 240 / 0.18))"
+                  : clickedId === section.id
+                    ? "oklch(0.52 0.15 195 / 0.12)"
+                    : "transparent",
+                color: isActive ? "white" : "oklch(0.78 0.02 200)",
+                border: isActive
+                  ? "1px solid oklch(0.78 0.08 195 / 0.16)"
+                  : "1px solid transparent",
+                transform: clickedId === section.id ? "scale(0.97)" : "scale(1)",
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = "oklch(1 0 0 / 0.06)";
+                  e.currentTarget.style.color = "oklch(0.92 0.04 195)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "oklch(0.78 0.02 200)";
+                }
+              }}
+            >
+              <span
+                style={{
+                  transition: "transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                  transform: isActive ? "translateX(2px)" : "translateX(0)",
+                  display: "inline-block",
+                }}
+              >
+                {section.label}
+              </span>
+              <ChevronRight
+                size={14}
+                style={{
+                  transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                  opacity: isActive ? 0.9 : 0.35,
+                  transform: isActive ? "translateX(3px)" : "translateX(0)",
+                }}
+                className="group-hover:opacity-70"
+              />
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export default function Sidebar() {
-  const [active, setActive] = useState("hero");
+  const [activeId, setActiveId] = useState("hero");
+  const [clickedId, setClickedId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const clickTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  const handleClick = (id: string) => {
+    setClickedId(id);
+    clearTimeout(clickTimeout.current);
+    clickTimeout.current = setTimeout(() => setClickedId(null), 400);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMobileOpen(false);
+  };
 
   useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    const targets = sections
+      .map((section) => document.getElementById(section.id))
+      .filter((node): node is HTMLElement => Boolean(node));
+
+    if (targets.length === 0) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (visible.length > 0) {
-          const top = visible.reduce((a, b) =>
-            Math.abs(a.boundingClientRect.top) < Math.abs(b.boundingClientRect.top) ? a : b
-          );
-          setActive(top.target.id);
-        }
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visibleEntries[0]) setActiveId(visibleEntries[0].target.id);
       },
-      { rootMargin: "-10% 0px -60% 0px", threshold: 0.1 }
+      { rootMargin: "-15% 0px -60% 0px", threshold: [0.15, 0.35, 0.6] },
     );
 
-    allSections.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-
+    for (const target of targets) observer.observe(target);
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight > 0) {
-        setScrollProgress(Math.min((scrollTop / docHeight) * 100, 100));
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-      setMobileOpen(false);
-    }
-  };
+  const sidebarBg = "linear-gradient(180deg, oklch(0.12 0.05 260), oklch(0.16 0.04 235))";
+  const activeLabel = sections.find((s) => s.id === activeId)?.label ?? "";
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl shadow-lg border border-border backdrop-blur-md"
-        style={{ background: "oklch(1 0 0 / 0.85)" }}
+      {/* ── Mobile: floating bar ── */}
+      <div
+        className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 lg:hidden"
+        style={{
+          background: "oklch(0.13 0.05 260 / 0.92)",
+          backdropFilter: "blur(16px) saturate(1.4)",
+          borderBottom: "1px solid oklch(1 0 0 / 0.08)",
+        }}
       >
-        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+            style={{
+              background: "linear-gradient(135deg, oklch(0.5 0.14 195 / 0.22), oklch(0.72 0.1 175 / 0.18))",
+              color: "oklch(0.84 0.08 195)",
+            }}
+          >
+            <FlaskConical size={15} />
+          </div>
+          <span className="text-xs font-medium truncate" style={{ color: "oklch(0.70 0.02 200)" }}>
+            {activeLabel}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="flex h-9 w-9 items-center justify-center rounded-xl"
+          style={{ color: "oklch(0.85 0.04 195)", background: "oklch(1 0 0 / 0.06)" }}
+          aria-label="切换目录"
+        >
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      </div>
 
-      {/* Overlay */}
+      {/* ── Mobile: backdrop ── */}
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-30 bg-black/20 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+          style={{ background: "oklch(0 0 0 / 0.5)" }}
+          onClick={() => setMobileOpen(false)}
+        />
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 z-40 h-screen w-72 border-r border-border transition-transform duration-300 lg:translate-x-0 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-        style={{ background: "oklch(0.99 0.002 90 / 0.95)", backdropFilter: "blur(12px)" }}
+      {/* ── Mobile: drawer ── */}
+      <div
+        className="fixed inset-y-0 left-0 z-50 w-72 flex flex-col border-r border-white/10 lg:hidden"
+        style={{
+          background: sidebarBg,
+          transform: mobileOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
       >
-        {/* Header */}
-        <div className="p-5 border-b border-border">
+        <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-xl"
+              style={{
+                background: "linear-gradient(135deg, oklch(0.5 0.14 195 / 0.22), oklch(0.72 0.1 175 / 0.18))",
+                color: "oklch(0.84 0.08 195)",
+              }}
+            >
+              <FlaskConical size={17} />
+            </div>
+            <div className="text-sm font-semibold text-white">LAMMPS Tutorial</div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setMobileOpen(false)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg"
+            style={{ color: "oklch(0.7 0.02 200)", background: "oklch(1 0 0 / 0.06)" }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
+          <NavItems activeId={activeId} clickedId={clickedId} onItemClick={handleClick} />
+        </nav>
+      </div>
+
+      {/* ── Desktop: fixed sidebar ── */}
+      <aside
+        className="fixed inset-y-0 left-0 z-30 hidden w-72 flex-col border-r border-white/10 lg:flex"
+        style={{ background: sidebarBg }}
+      >
+        <div className="border-b border-white/8 px-6 py-7">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, oklch(0.35 0.10 260), oklch(0.50 0.14 195))" }}>
-              <Atom size={20} color="white" />
+            <div
+              className="flex h-11 w-11 items-center justify-center rounded-2xl"
+              style={{
+                background: "linear-gradient(135deg, oklch(0.5 0.14 195 / 0.22), oklch(0.72 0.1 175 / 0.18))",
+                color: "oklch(0.84 0.08 195)",
+              }}
+            >
+              <FlaskConical size={20} />
             </div>
             <div>
-              <h1 className="text-base font-bold" style={{ color: "oklch(0.22 0.06 260)" }}>LAMMPS 教学</h1>
-              <p className="text-xs" style={{ color: "oklch(0.55 0.02 260)" }}>入门指南</p>
+              <div className="text-sm font-semibold text-white">LAMMPS Tutorial</div>
+              <div className="text-xs text-white/55">Academic Notebook</div>
             </div>
           </div>
-          <a
-            href="https://www.whu-atmes.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 mt-3 pt-3 border-t border-border group"
-          >
-            <GraduationCap size={14} style={{ color: "oklch(0.50 0.08 195)" }} />
-            <span className="text-xs group-hover:underline" style={{ color: "oklch(0.45 0.04 260)" }}>
-              WHU ATMES Lab
-            </span>
-          </a>
+          <p className="mt-5 text-sm leading-7 text-white/68">
+            从安装、输入文件到超算提交，按章节逐步完成分子动力学入门。
+          </p>
         </div>
 
-        {/* Scroll progress bar in sidebar */}
-        <div className="h-[2px] mx-5" style={{ background: "oklch(0.92 0.005 200)" }}>
-          <div
-            className="h-full rounded-full transition-[width] duration-150 ease-out"
-            style={{
-              width: `${scrollProgress}%`,
-              background: "linear-gradient(90deg, oklch(0.55 0.15 195), oklch(0.45 0.12 260))",
-            }}
-          />
-        </div>
-
-        <nav className="p-3 overflow-y-auto" style={{ maxHeight: "calc(100vh - 150px)" }}>
-          {sectionGroups.map((group) => {
-            const GroupIcon = group.icon;
-            return (
-              <div key={group.group} className="mb-4">
-                <div
-                  className="px-3 py-2 text-xs font-semibold uppercase tracking-widest flex items-center gap-2"
-                  style={{ color: "oklch(0.48 0.06 195)" }}
-                >
-                  <GroupIcon size={13} strokeWidth={2.5} />
-                  {group.group}
-                </div>
-                <div className="space-y-0.5">
-                  {group.items.map((s) => {
-                    const isActive = active === s.id;
-                    return (
-                      <button
-                        key={s.id}
-                        onClick={() => scrollTo(s.id)}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 flex items-center gap-2.5 ${
-                          isActive ? "font-semibold" : "hover:bg-accent/50"
-                        }`}
-                        style={
-                          isActive
-                            ? {
-                                background: "oklch(0.93 0.04 195)",
-                                color: "oklch(0.25 0.10 200)",
-                                boxShadow: "inset 3px 0 0 oklch(0.50 0.15 195)",
-                              }
-                            : { color: "oklch(0.40 0.02 260)" }
-                        }
-                      >
-                        {s.badge && (
-                          <span
-                            className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold tabular-nums"
-                            style={
-                              isActive
-                                ? { background: "oklch(0.50 0.15 195)", color: "white" }
-                                : { background: "oklch(0.94 0.02 200)", color: "oklch(0.48 0.08 200)" }
-                            }
-                          >
-                            {s.badge}
-                          </span>
-                        )}
-                        {s.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-4 py-5">
+          <NavItems activeId={activeId} clickedId={clickedId} onItemClick={handleClick} />
         </nav>
+
+        <a
+          href="https://www.whu-atmes.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block border-t border-white/8 px-6 py-5 text-xs transition-colors duration-200"
+          style={{ color: "oklch(1 0 0 / 0.48)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "oklch(0.80 0.10 195)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "oklch(1 0 0 / 0.48)"; }}
+        >
+          Wuhan University · ATMES Lab
+        </a>
       </aside>
     </>
   );
