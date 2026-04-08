@@ -1,38 +1,68 @@
+import { Clock } from "lucide-react";
+
 interface SectionHeadingProps {
-  id: string;
+  id?: string;
   title: string;
   subtitle?: string;
   badge?: string;
+  readingTime?: string;
 }
 
-export default function SectionHeading({ id, title, subtitle, badge }: SectionHeadingProps) {
+export default function SectionHeading({
+  id,
+  title,
+  subtitle,
+  badge,
+  readingTime,
+}: SectionHeadingProps) {
   return (
-    <div className="mb-8 md:mb-10">
-      {badge && (
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase px-3.5 py-1.5 rounded-full mb-4"
-          style={{
-            background: "linear-gradient(135deg, oklch(0.94 0.04 195), oklch(0.96 0.02 220))",
-            color: "oklch(0.30 0.10 195)",
-            boxShadow: "0 1px 4px oklch(0.55 0.15 195 / 0.12)",
-          }}>
-          <span className="w-1.5 h-1.5 rounded-full" style={{ background: "oklch(0.55 0.15 195)" }} />
-          {badge}
-        </span>
-      )}
-      <h2 id={id} className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight"
-        style={{ color: "oklch(0.22 0.06 260)" }}>
+    <div className="mb-10 md:mb-12">
+      <div className="flex flex-wrap items-center gap-2">
+        {badge ? (
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.24em] uppercase"
+            style={{
+              background: "oklch(0.96 0.03 195)",
+              color: "oklch(0.42 0.12 195)",
+            }}
+          >
+            <span
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ background: "oklch(0.55 0.15 195)" }}
+            />
+            {badge}
+          </div>
+        ) : null}
+        {readingTime ? (
+          <div
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium"
+            style={{
+              background: "oklch(0.96 0.01 240)",
+              color: "oklch(0.48 0.04 240)",
+            }}
+          >
+            <Clock size={11} />
+            {readingTime}
+          </div>
+        ) : null}
+      </div>
+
+      <h2
+        id={id}
+        className="mt-4 font-serif text-3xl font-black tracking-[0.01em] sm:text-4xl"
+        style={{ color: "oklch(0.24 0.05 260)" }}
+      >
         {title}
       </h2>
-      {subtitle && (
-        <p className="mt-3 text-base md:text-lg leading-relaxed max-w-3xl" style={{ color: "oklch(0.45 0.02 260)" }}>
+
+      {subtitle ? (
+        <p
+          className="mt-4 max-w-3xl text-sm leading-7 sm:text-base"
+          style={{ color: "oklch(0.46 0.02 250)" }}
+        >
           {subtitle}
         </p>
-      )}
-      <div className="mt-5 flex items-center gap-2">
-        <div className="w-12 h-1 rounded-full" style={{ background: "linear-gradient(90deg, oklch(0.55 0.15 195), oklch(0.35 0.10 260))" }} />
-        <div className="w-2 h-2 rounded-full" style={{ background: "oklch(0.65 0.15 195)" }} />
-        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "oklch(0.55 0.12 260 / 0.5)" }} />
-      </div>
+      ) : null}
     </div>
   );
 }

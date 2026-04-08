@@ -365,6 +365,7 @@ export default function Home() {
                 title="为什么学习 LAMMPS？"
                 subtitle="传热、流动、相变、储能——你关心的能源与动力问题，很多都能用分子动力学从微观尺度找到答案。"
                 badge="背景知识"
+                readingTime="3 分钟"
               />
             </ScrollReveal>
 
@@ -478,6 +479,7 @@ export default function Home() {
                 title="Windows 安装教程"
                 subtitle="Windows 用户有两条路线：预编译安装包（别人已经帮你把源代码编译好的现成程序，下载即用）和 WSL2（在 Windows 里跑一个 Linux 子系统，功能最全）。"
                 badge="Windows"
+                readingTime="10 分钟"
               />
             </ScrollReveal>
 
@@ -644,6 +646,7 @@ mpirun -np 4 lmp -in in.test`} />
                 title="macOS 安装教程"
                 subtitle="macOS 用户推荐使用 Homebrew 安装，一条命令搞定。如有特殊需求，也可以源码编译。"
                 badge="macOS"
+                readingTime="5 分钟"
               />
             </ScrollReveal>
 
@@ -760,6 +763,7 @@ sudo make install`} />
                 title="超算 / 集群使用教程"
                 subtitle="当你的模拟体系变大、需要更多计算资源时，就需要把任务提交到超算集群上运行。本节以 Slurm 调度系统为例。"
                 badge="HPC"
+                readingTime="12 分钟"
               />
             </ScrollReveal>
 
@@ -936,6 +940,7 @@ cat lammps_123456.err`} />
                 title="第一份 LAMMPS 输入文件"
                 subtitle="这是一个最小可运行的 LAMMPS 示例——Lennard-Jones（LJ）液体模拟。LJ 势是描述原子间相互作用的最简单模型：近距离排斥、远距离吸引，就像两个有弹性的小球。前置知识：只需要会打开终端、输入命令即可，不需要编程基础。"
                 badge="核心教程"
+                readingTime="8 分钟"
               />
             </ScrollReveal>
 
@@ -988,6 +993,7 @@ cat lammps_123456.err`} />
                 title="本地运行与并行运行"
                 subtitle="LAMMPS 支持串行和 MPI 并行两种运行方式。并行运行可以显著加速大体系的模拟。"
                 badge="运行指南"
+                readingTime="5 分钟"
               />
             </ScrollReveal>
 
@@ -1098,6 +1104,7 @@ srun lmp -in in.lammps
                 title="案例一：LJ 液体热导率计算"
                 subtitle="用最经典的 Lennard-Jones 体系入手，学习 Green-Kubo 和 NEMD 两种热导率计算方法。LJ 液体是分子动力学的「Hello World」——势函数简单、参数明确，让你把注意力集中在方法本身。"
                 badge="案例实战 · 入门"
+                readingTime="10 分钟"
               />
             </ScrollReveal>
 
@@ -1289,6 +1296,7 @@ plt.show()                       # 在屏幕上显示`} />
                 title="案例二：SPC/E 液态水模拟"
                 subtitle="从 LJ「小球」进阶到真实分子——搭建纯水体系，用经典的 SPC/E 水模型完成从建模到平衡的完整流程，学习力场设置、SHAKE 约束和基本物性分析。"
                 badge="案例实战 · 入门"
+                readingTime="10 分钟"
               />
             </ScrollReveal>
 
@@ -1604,6 +1612,7 @@ plt.show()`} />
                 title="案例三：纳米通道中的水流动（Poiseuille 流）"
                 subtitle="搭建石墨烯纳米通道，模拟受限水的 Poiseuille 流动，观察纳米尺度下速度滑移现象。需要掌握案例二的 SPC/E 水模型设置。"
                 badge="案例实战 · 进阶"
+                readingTime="12 分钟"
               />
             </ScrollReveal>
 
@@ -1791,6 +1800,7 @@ plt.show()`} />
                 title="案例四：固-液界面热阻（Kapitza 电阻）"
                 subtitle="计算金属-水界面的 Kapitza 热阻，理解固液界面热输运的微观机制。涉及多种势函数混合（EAM + LJ + Coulomb）。"
                 badge="案例实战 · 进阶"
+                readingTime="12 分钟"
               />
             </ScrollReveal>
 
@@ -1973,6 +1983,7 @@ plt.show()
                 title="案例五：SAM-Au-水界面 NVT 平衡"
                 subtitle="搭建硫醇自组装单分子层（SC6）修饰的金表面与水的界面体系，完成从能量最小化到 NVT 平衡的完整流程。这是课题组实际使用的建模案例，涉及 class2 + Morse + LJ 多力场混合。"
                 badge="案例实战 · 科研级"
+                readingTime="15 分钟"
               />
             </ScrollReveal>
 
@@ -2255,6 +2266,7 @@ plt.show()`} />
                 title="常见问题与报错排查"
                 subtitle="整理了新手最常遇到的报错信息和解决方法，遇到问题时可以先在这里查找。"
                 badge="排错指南"
+                readingTime="5 分钟"
               />
             </ScrollReveal>
 
@@ -2476,6 +2488,7 @@ sacctmgr show assoc user=$USER`} />
                 title="常见问题 FAQ"
                 subtitle="汇总了新手最常问的问题，支持关键词搜索。"
                 badge="FAQ"
+                readingTime="3 分钟"
               />
             </ScrollReveal>
 
@@ -2626,7 +2639,7 @@ sacctmgr show assoc user=$USER`} />
                     © {new Date().getFullYear()} 武汉大学 先进热管理及储能技术实验室 (ATMES Lab) · 黄德钊
                   </p>
                   <p className="text-xs mt-1" style={{ color: "oklch(0.35 0.02 200)" }}>
-                    LAMMPS 是 Sandia National Laboratories 的开源项目 · 本站内容仅供学习参考
+                    LAMMPS 是 Sandia National Laboratories 的开源项目 · 本站内容仅供学习参考 · <a href="https://github.com/dezhaohuang/lammps-tutorial" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline" style={{ color: "oklch(0.50 0.08 195)" }}>在 GitHub 上改进本页</a>
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
