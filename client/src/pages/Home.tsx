@@ -343,7 +343,7 @@ export default function Home() {
               </p>
               <div className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs"
                 style={{ background: "oklch(1 0 0 / 0.06)", border: "1px solid oklch(1 0 0 / 0.10)", color: "oklch(0.58 0.02 200)" }}>
-                最近更新：2026-04-03 · 新增 LAMMPS 与 MD 入门介绍
+                最近更新：2026-04-08 · 新增 SPC/E 水模拟案例，优化术语解释与难度标识
               </div>
             </ScrollReveal>
 
