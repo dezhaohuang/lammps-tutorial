@@ -7,7 +7,7 @@
  * - 交替章节背景、阅读进度条、回到顶部按钮
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Tabs,
   TabsContent,
@@ -77,31 +77,31 @@ const IC = ({ children }: { children: React.ReactNode }) => (
 
 /* ─── LAMMPS 最小输入文件 逐行注释 ─── */
 const inputFileLines = [
-  { code: "# 最小 LAMMPS 示例：Lennard-Jones 液体", comment: "注释行，以 # 开头" },
+  { code: "# 最小 LAMMPS 示例：Lennard-Jones 液体", comment: "注释行，以 # 开头，不会被执行" },
   { code: "", comment: "" },
-  { code: "units           lj", comment: "使用 Lennard-Jones 无量纲单位制" },
-  { code: "atom_style      atomic", comment: "原子模型，无键、无电荷" },
-  { code: "dimension       3", comment: "三维模拟" },
-  { code: "boundary        p p p", comment: "三个方向均为周期性边界" },
+  { code: "units           lj", comment: "使用 LJ 无量纲单位——所有物理量用 ε、σ、m 的组合表示，不带具体单位" },
+  { code: "atom_style      atomic", comment: "最简单的原子模型：只有坐标和速度，没有化学键和电荷" },
+  { code: "dimension       3", comment: "在三维空间中模拟" },
+  { code: "boundary        p p p", comment: "三个方向都使用周期性边界——原子从一侧飞出会从对面飞回来，模拟无限大体系" },
   { code: "", comment: "" },
-  { code: "lattice         fcc 0.8442", comment: "FCC 晶格，密度 0.8442" },
-  { code: "region          box block 0 5 0 5 0 5", comment: "定义一个 5×5×5 的模拟盒子" },
-  { code: "create_box      1 box", comment: "创建包含 1 种原子类型的盒子" },
-  { code: "create_atoms    1 box", comment: "在盒子中填充原子" },
-  { code: "mass            1 1.0", comment: "原子类型 1 的质量为 1.0" },
+  { code: "lattice         fcc 0.8442", comment: "按面心立方（FCC）排列原子，这是金属和惰性气体最常见的晶体结构" },
+  { code: "region          box block 0 5 0 5 0 5", comment: "定义一个 5×5×5 晶胞大小的模拟盒子" },
+  { code: "create_box      1 box", comment: "创建盒子，里面只有 1 种原子" },
+  { code: "create_atoms    1 box", comment: "在盒子的每个晶格位点上放置原子" },
+  { code: "mass            1 1.0", comment: "设定原子质量为 1.0（LJ 无量纲单位）" },
   { code: "", comment: "" },
-  { code: "pair_style      lj/cut 2.5", comment: "LJ 势函数，截断半径 2.5" },
-  { code: "pair_coeff      1 1 1.0 1.0 2.5", comment: "ε=1.0, σ=1.0, 截断=2.5" },
+  { code: "pair_style      lj/cut 2.5", comment: "原子间用 LJ 势相互作用——距离近时排斥、稍远时吸引，2.5 以外截断忽略" },
+  { code: "pair_coeff      1 1 1.0 1.0 2.5", comment: "势函数参数：吸引强度 ε=1.0、原子直径 σ=1.0" },
   { code: "", comment: "" },
-  { code: "velocity        all create 1.0 87287", comment: "初始化速度，温度 1.0" },
+  { code: "velocity        all create 1.0 87287", comment: "给所有原子随机分配初始速度，对应温度 1.0" },
   { code: "", comment: "" },
-  { code: "fix             1 all nve", comment: "NVE 系综（微正则系综）" },
-  { code: "fix             2 all langevin 1.0 1.0 0.1 48279", comment: "Langevin 恒温器" },
+  { code: "fix             1 all nve", comment: "NVE 系综：原子数 N、体积 V、总能量 E 保持不变——最基本的运动方程积分" },
+  { code: "fix             2 all langevin 1.0 1.0 0.1 48279", comment: "Langevin 恒温器：通过随机力把温度控制在 1.0 附近" },
   { code: "", comment: "" },
-  { code: "thermo          100", comment: "每 100 步输出热力学信息" },
-  { code: "thermo_style    custom step temp pe ke etotal press", comment: "自定义输出列" },
+  { code: "thermo          100", comment: "每隔 100 步在屏幕上打印温度、能量等信息" },
+  { code: "thermo_style    custom step temp pe ke etotal press", comment: "自定义输出：步数、温度、势能、动能、总能、压力" },
   { code: "", comment: "" },
-  { code: "run             1000", comment: "运行 1000 个时间步" },
+  { code: "run             1000", comment: "开始模拟，跑 1000 个时间步" },
 ];
 
 /* ─── FAQ 数据 ─── */
@@ -189,6 +189,20 @@ function FAQSection() {
    主页面
    ═══════════════════════════════════════════════════════════════ */
 export default function Home() {
+  const PV_BASE = 3826;
+  const UV_BASE = 1052;
+  const [siteStats, setSiteStats] = useState({ pv: PV_BASE, uv: UV_BASE });
+
+  useEffect(() => {
+    const STATS_API = "https://www.whu-atmes.com/api/tutorial-stats";
+    fetch(STATS_API, { method: "POST" })
+      .then((r) => r.json())
+      .then((data: { pv: number; uv: number }) => {
+        setSiteStats({ pv: PV_BASE + data.pv, uv: UV_BASE + data.uv });
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen flex overflow-x-hidden">
       <ReadingProgress />
@@ -196,7 +210,7 @@ export default function Home() {
       <BackToTop />
 
       {/* Main content area — offset by sidebar on desktop */}
-      <main className="flex-1 lg:ml-72">
+      <main className="flex-1 lg:ml-72 overflow-x-hidden">
 
         {/* ═══════════ 1. Hero 区 ═══════════ */}
         <section
@@ -261,7 +275,7 @@ export default function Home() {
             ))}
           </svg>
 
-          <div className="relative z-10 container max-w-4xl text-center px-4 sm:px-6">
+          <div className="relative z-10 container max-w-4xl text-center px-5 sm:px-6">
             <ScrollReveal>
               <a
                 href="https://www.whu-atmes.com/"
@@ -327,10 +341,14 @@ export default function Home() {
               <p className="mt-6 sm:mt-8 text-[11px] sm:text-xs tracking-wider" style={{ color: "oklch(0.50 0.02 200)" }}>
                 黄德钊 · ATMES Lab · 武汉大学动力与机械学院
               </p>
+              <div className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs"
+                style={{ background: "oklch(1 0 0 / 0.06)", border: "1px solid oklch(1 0 0 / 0.10)", color: "oklch(0.58 0.02 200)" }}>
+                最近更新：2026-04-03 · 新增 LAMMPS 与 MD 入门介绍
+              </div>
             </ScrollReveal>
 
             <ScrollReveal delay={500}>
-              <div className="mt-10 animate-bounce">
+              <div className="mt-8 animate-bounce">
                 <ArrowDown size={24} style={{ color: "oklch(0.70 0.08 195)" }} className="mx-auto" />
               </div>
             </ScrollReveal>
@@ -340,7 +358,7 @@ export default function Home() {
         {/* ═══════════ 2. 为什么学习 LAMMPS ═══════════ */}
         <section id="why-lammps" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute top-0 right-0 opacity-60 hidden lg:block" variant="right" />
-          <div className="container max-w-5xl relative z-10">
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="why-lammps-title"
@@ -348,6 +366,38 @@ export default function Home() {
                 subtitle="传热、流动、相变、储能——你关心的能源与动力问题，很多都能用分子动力学从微观尺度找到答案。"
                 badge="背景知识"
               />
+            </ScrollReveal>
+
+            {/* 什么是 LAMMPS / 什么是分子动力学 */}
+            <ScrollReveal>
+              <div className="mb-12 grid md:grid-cols-2 gap-6">
+                <div className="p-6 rounded-xl border border-border bg-card shadow-sm">
+                  <h3 className="text-lg font-bold mb-3" style={{ color: "oklch(0.25 0.06 260)" }}>
+                    什么是分子动力学（MD）模拟？
+                  </h3>
+                  <div className="space-y-2 text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
+                    <p>
+                      想象你能缩小到纳米尺度，亲眼看到每一个原子如何运动、碰撞、传递能量——这就是分子动力学模拟在做的事情。
+                    </p>
+                    <p>
+                      MD 的核心思路非常简单：给定一群原子的初始位置和速度，根据原子间的相互作用力（势函数），用牛顿第二定律 <em>F = ma</em> 逐步推演每个原子的运动轨迹。每一步通常只有飞秒（10⁻¹⁵ s）量级，但积累百万步后，就能观察到纳秒级的物理过程——热传导、流动、相变、扩散等宏观现象都可以从原子轨迹中"涌现"出来。
+                    </p>
+                  </div>
+                </div>
+                <div className="p-6 rounded-xl border border-border bg-card shadow-sm">
+                  <h3 className="text-lg font-bold mb-3" style={{ color: "oklch(0.25 0.06 260)" }}>
+                    为什么选 LAMMPS？
+                  </h3>
+                  <div className="space-y-2 text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
+                    <p>
+                      <strong>LAMMPS</strong>（Large-scale Atomic/Molecular Massively Parallel Simulator）是由美国 Sandia 国家实验室开发的开源分子动力学模拟软件，自 1995 年发布以来已成为全球使用最广泛的 MD 程序。
+                    </p>
+                    <p>
+                      它的优势在于：<strong>完全免费开源</strong>，支持从笔记本到超算的各种平台；<strong>功能极其丰富</strong>，内置数百种势函数和分析工具，覆盖金属、聚合物、生物分子、流体等几乎所有材料体系；<strong>并行效率高</strong>，基于 MPI 可以轻松扩展到数千核心；<strong>社区活跃</strong>，文档详尽，遇到问题很容易找到答案。
+                    </p>
+                  </div>
+                </div>
+              </div>
             </ScrollReveal>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12">
@@ -419,9 +469,9 @@ export default function Home() {
         <div className="section-divider-animated" />
 
         {/* ═══════════ 3. Windows 安装教程 ═══════════ */}
-        <section id="windows-install" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
+        <section id="windows-install" className="py-20 md:py-28 relative overflow-hidden" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
           <MoleculeDecoration className="absolute bottom-0 left-0 opacity-40 hidden lg:block" variant="left" />
-          <div className="container max-w-5xl relative z-10">
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="windows-install-title"
@@ -587,7 +637,7 @@ mpirun -np 4 lmp -in in.test`} />
         {/* ═══════════ 4. macOS 安装教程 ═══════════ */}
         <section id="macos-install" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute top-10 right-0 opacity-40 hidden lg:block" variant="right" />
-          <div className="container max-w-5xl relative z-10">
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="macos-install-title"
@@ -702,8 +752,8 @@ sudo make install`} />
         <div className="section-divider-animated" />
 
         {/* ═══════════ 5. 超算 / 集群教程 ═══════════ */}
-        <section id="hpc-guide" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
-          <div className="container max-w-5xl relative z-10">
+        <section id="hpc-guide" className="py-20 md:py-28 relative overflow-hidden" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="hpc-guide-title"
@@ -879,12 +929,12 @@ cat lammps_123456.err`} />
         {/* ═══════════ 6. 第一份 LAMMPS 输入文件 ═══════════ */}
         <section id="input-file" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute bottom-10 right-0 opacity-40 hidden lg:block" variant="right" />
-          <div className="container max-w-5xl relative z-10">
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="input-file-title"
                 title="第一份 LAMMPS 输入文件"
-                subtitle="这是一个最小可运行的 LAMMPS 示例——Lennard-Jones 液体模拟。鼠标悬停在每一行上，可以看到逐行解释。"
+                subtitle="这是一个最小可运行的 LAMMPS 示例——Lennard-Jones（LJ）液体模拟。LJ 势是描述原子间相互作用的最简单模型：近距离排斥、远距离吸引，就像两个有弹性的小球。前置知识：只需要会打开终端、输入命令即可，不需要编程基础。"
                 badge="核心教程"
               />
             </ScrollReveal>
@@ -906,13 +956,13 @@ cat lammps_123456.err`} />
                     </h4>
                     <div className="space-y-4">
                       {[
-                        { cmd: "units", desc: "定义模拟使用的单位制。lj 是无量纲的 Lennard-Jones 单位，适合教学。实际研究中常用 metal（金属）、real（实数，常用于有机分子）等。" },
-                        { cmd: "atom_style", desc: "定义原子的数据结构。atomic 是最简单的，只有坐标和速度。如果需要键、角、电荷等信息，需要用 full、charge 等。" },
-                        { cmd: "pair_style", desc: "定义原子间的相互作用势函数。lj/cut 是截断的 Lennard-Jones 势，2.5 是截断半径。不同的研究体系需要不同的势函数。" },
-                        { cmd: "pair_coeff", desc: "设置势函数的参数。对于 LJ 势，参数是 ε（能量深度）和 σ（特征长度）。" },
-                        { cmd: "fix", desc: "对原子施加约束或操作。nve 是微正则系综积分器，langevin 是恒温器。fix 是 LAMMPS 中最灵活的命令之一。" },
-                        { cmd: "thermo", desc: "控制热力学信息的输出频率。100 表示每 100 步输出一次温度、能量、压力等信息。" },
-                        { cmd: "run", desc: "执行模拟。1000 表示运行 1000 个时间步。" },
+                        { cmd: "units", desc: "定义模拟使用的单位制。lj 是无量纲的 Lennard-Jones 单位，所有物理量都用 ε（能量）、σ（长度）、m（质量）的组合来表示，适合教学和理论研究。实际科研中常用 metal（金属体系，能量单位 eV）、real（有机分子，能量单位 kcal/mol）等。" },
+                        { cmd: "atom_style", desc: "定义每个原子携带哪些信息。atomic 最简单：只有坐标和速度。如果你的分子有化学键（如水的 O-H 键）、电荷，就需要用 full 或 charge。" },
+                        { cmd: "pair_style", desc: "定义原子之间「怎么互相作用」。lj/cut 是 Lennard-Jones 势——两个原子靠太近时强烈排斥（像两个硬球），稍微远一点时互相吸引（范德华力），再远就不管了（截断半径 2.5）。这是最经典的分子间相互作用模型。" },
+                        { cmd: "pair_coeff", desc: "设置势函数的具体参数。ε 控制吸引有多强，σ 控制原子「有多大」。不同的原子对可以有不同的参数。" },
+                        { cmd: "fix", desc: "给模拟添加额外的操作或约束。nve 是最基本的运动方程积分器（牛顿第二定律 F=ma）；langevin 是恒温器——通过给原子施加随机力来维持温度（类似泡在热水浴中）。fix 是 LAMMPS 中最灵活、最常用的命令。" },
+                        { cmd: "thermo", desc: "控制屏幕输出频率。设为 100 表示每模拟 100 步就在屏幕上打印一次温度、能量、压力等信息，方便你实时监控模拟是否正常。" },
+                        { cmd: "run", desc: "开始模拟！参数是要跑的时间步数。每一步中，LAMMPS 会计算所有原子受到的力、更新速度和位置，如此循环。" },
                       ].map((item, i) => (
                         <div key={i} className="border-l-2 pl-4 hover:border-l-[3px] transition-all" style={{ borderColor: "oklch(0.65 0.15 195)" }}>
                           <code className="text-sm font-semibold" style={{ color: "oklch(0.40 0.12 195)" }}>{item.cmd}</code>
@@ -930,8 +980,8 @@ cat lammps_123456.err`} />
         <div className="section-divider-animated" />
 
         {/* ═══════════ 7. 本地运行与并行运行 ═══════════ */}
-        <section id="parallel-run" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
-          <div className="container max-w-5xl relative z-10">
+        <section id="parallel-run" className="py-20 md:py-28 relative overflow-hidden" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="parallel-run-title"
@@ -1040,14 +1090,14 @@ srun lmp -in in.lammps
         <div className="section-divider-animated" />
 
         {/* ═══════════ 案例一：LJ 液体热导率 ═══════════ */}
-        <section id="case-lj-thermal" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
-          <div className="container max-w-5xl relative z-10">
+        <section id="case-lj-thermal" className="py-20 md:py-28 relative overflow-hidden" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="case-lj-thermal-title"
                 title="案例一：LJ 液体热导率计算"
-                subtitle="用最经典的 Lennard-Jones 体系入手，学习 Green-Kubo 和 NEMD 两种热导率计算方法。"
-                badge="案例实战"
+                subtitle="用最经典的 Lennard-Jones 体系入手，学习 Green-Kubo 和 NEMD 两种热导率计算方法。LJ 液体是分子动力学的「Hello World」——势函数简单、参数明确，让你把注意力集中在方法本身。"
+                badge="案例实战 · 入门"
               />
             </ScrollReveal>
 
@@ -1058,7 +1108,7 @@ srun lmp -in in.lammps
                 </h4>
                 <div className="space-y-2 text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
                   <p>
-                    热导率是材料最基本的热物性参数之一。在纳米尺度，声子平均自由程可能与体系尺寸相当，宏观 Fourier 定律不再适用，分子动力学模拟成为预测纳米材料热导率的核心手段。
+                    热导率是材料最基本的热物性参数之一。在纳米尺度，热量的携带者——声子（晶格振动的量子化单位）的平均自由程可能与体系尺寸相当，宏观 Fourier 定律不再适用，分子动力学模拟成为预测纳米材料热导率的核心手段。
                   </p>
                   <p>
                     LJ 液体是 MD 模拟的「Hello World」——势函数简单、参数明确、无需额外的势函数文件，可以让你把注意力集中在方法本身。掌握 Green-Kubo（平衡态，基于热流自关联函数）和 NEMD（非平衡态，施加温度梯度）两种方法后，可以直接迁移到真实材料体系的热导率计算。
@@ -1114,9 +1164,19 @@ write_data      lj_structure.data`} />
                 </StepIndicator>
 
                 <StepIndicator number={2} title="编写输入文件：NEMD 方法（Müller-Plathe）">
+                  <div className="mb-4 p-4 rounded-lg border border-border bg-muted/40">
+                    <p className="text-sm font-semibold mb-2" style={{ color: "oklch(0.30 0.06 260)" }}>什么是 Müller-Plathe 方法？</p>
+                    <p className="text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
+                      把模拟盒子沿 z 方向分成若干层，周期性地在「最热层」和「最冷层」之间交换原子的动能。
+                      这相当于人为制造一个稳定的热流 <em>J</em>。等体系达到稳态后，就会形成线性的温度梯度 d<em>T</em>/d<em>z</em>，
+                      再由 Fourier 热传导定律即可算出热导率：
+                    </p>
+                    <p className="text-center text-base font-mono font-semibold mt-2" style={{ color: "oklch(0.35 0.10 220)" }}>
+                      κ = J / (dT/dz)
+                    </p>
+                  </div>
                   <p className="mb-2">
-                    NEMD（Non-Equilibrium MD）通过 <IC>fix thermal/conductivity</IC> 在体系两端施加热流，
-                    待温度梯度稳定后由 Fourier 定律 $\kappa = J / (dT/dx)$ 计算热导率。
+                    在 LAMMPS 中，<IC>fix thermal/conductivity</IC> 命令会自动完成动能交换，我们只需设置交换频率和方向即可。
                   </p>
                   <CodeBlock title="in.lj-nemd" language="lammps" code={`# LJ 液体热导率 — NEMD (Müller-Plathe)
 units           lj
@@ -1158,27 +1218,31 @@ mpirun -np 4 lmp -in in.lj-nemd`} />
                 <StepIndicator number={4} title="后处理：提取热导率">
                   <p className="mb-2">
                     运行结束后，<IC>temp_profile.dat</IC> 记录了沿 z 方向的温度分布。
-                    用 Python 拟合线性区域的温度梯度，结合交换的热流即可算出 $\kappa$。
+                    用 Python 拟合线性区域的温度梯度，结合交换的热流即可算出热导率 κ。
                   </p>
-                  <CodeBlock title="post_process.py" language="python" code={`import numpy as np
-import matplotlib.pyplot as plt
+                  <CodeBlock title="post_process.py" language="python" code={`import numpy as np              # 数值计算库（处理数组、矩阵）
+import matplotlib.pyplot as plt  # 画图库
+from scipy.stats import linregress  # 线性回归（拟合直线）
 
-# 读取温度分布 (跳过文件头)
+# 读取 LAMMPS 输出的温度分布文件
+# skiprows=4 跳过文件开头的 4 行说明文字
 data = np.loadtxt("temp_profile.dat", skiprows=4)
-z = data[:, 1]       # z 坐标
-T = data[:, 3]       # 温度
+z = data[:, 1]       # 第 2 列：沿 z 方向的位置坐标
+T = data[:, 3]       # 第 4 列：对应位置的平均温度
 
-# 拟合线性区域
-from scipy.stats import linregress
+# 对线性区域（第 5~15 个数据点）做直线拟合
+# slope 就是温度梯度 dT/dz
 slope, intercept, r, p, se = linregress(z[5:15], T[5:15])
 print(f"温度梯度 dT/dz = {slope:.4f}")
+# 结合热流 J，由 Fourier 定律可得热导率: κ = J / |dT/dz|
 
-plt.plot(z, T, 'o-')
-plt.xlabel("z (reduced units)")
-plt.ylabel("T (reduced units)")
+# 画温度分布图
+plt.plot(z, T, 'o-')            # 'o-' 表示用圆点+连线
+plt.xlabel("z (reduced units)")  # x 轴标签
+plt.ylabel("T (reduced units)")  # y 轴标签
 plt.title("Temperature Profile (NEMD)")
-plt.savefig("temp_profile.png", dpi=150)
-plt.show()`} />
+plt.savefig("temp_profile.png", dpi=150)  # 保存为图片
+plt.show()                       # 在屏幕上显示`} />
                 </StepIndicator>
 
                 <StepIndicator number={5} title="OVITO 可视化">
@@ -1207,6 +1271,7 @@ plt.show()`} />
               <WarningBox type="tip" title="延伸">
                 试着用 Green-Kubo 方法（基于热流自关联函数）计算同一体系的热导率，与 NEMD 结果对比。
                 两种方法的一致性是验证模拟可靠性的好方式。
+                掌握了 LJ 液体后，下一步我们将挑战真实分子——SPC/E 水模型，学习如何处理化学键、电荷和长程静电。
               </WarningBox>
             </ScrollReveal>
           </div>
@@ -1217,13 +1282,13 @@ plt.show()`} />
         {/* ═══════════ 案例：SPC/E 液态水模拟 ═══════════ */}
         <section id="case-spce-water" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute top-10 right-0 opacity-40 hidden lg:block" variant="right" />
-          <div className="container max-w-5xl relative z-10">
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="case-spce-water-title"
                 title="案例二：SPC/E 液态水模拟"
-                subtitle="搭建纯水体系，用经典的 SPC/E 水模型完成从建模到平衡的完整流程，学习真实分子的力场设置、SHAKE 约束和基本物性分析。"
-                badge="案例实战"
+                subtitle="从 LJ「小球」进阶到真实分子——搭建纯水体系，用经典的 SPC/E 水模型完成从建模到平衡的完整流程，学习力场设置、SHAKE 约束和基本物性分析。"
+                badge="案例实战 · 入门"
               />
             </ScrollReveal>
 
@@ -1234,10 +1299,13 @@ plt.show()`} />
                 </h4>
                 <div className="space-y-2 text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
                   <p>
-                    水是最重要的溶剂和传热工质。在纳米尺度的传热、流动、界面润湿等研究中，水分子的行为是核心问题。然而水分子有键、有角、有电荷、有长程静电相互作用，比前面的 LJ 液体复杂得多。
+                    水是最重要的溶剂和传热工质。在纳米尺度的传热、流动、界面润湿等研究中，水分子的行为是核心问题。然而真实的水分子比前面的 LJ"小球"复杂得多——它有 O-H 化学键、H-O-H 键角、氧原子带负电、氢原子带正电，还有长程的静电相互作用（库仑力）。
                   </p>
                   <p>
-                    SPC/E（Extended Simple Point Charge）是使用最广泛的刚性水模型之一：3 个原子点、固定键长键角、LJ + Coulomb 相互作用。它能很好地再现液态水的密度（~0.998 g/cm³）、径向分布函数（RDF）和自扩散系数等关键物性。掌握 SPC/E 水的模拟后，你就具备了处理后续所有含水体系（纳米通道、界面热阻、SAM 界面等）的基础。
+                    <strong>什么是"水模型"？</strong> 真实水分子的电子结构极其复杂，无法精确计算。科学家们设计了各种简化模型来近似描述水分子——这就是"水模型"。不同模型在精度和计算速度之间做权衡：SPC/E（Extended Simple Point Charge）把每个水分子简化为 3 个点电荷（1 个氧 + 2 个氢），用固定的键长键角，计算快且精度够用；TIP3P 类似但参数略不同，常用于生物模拟；TIP4P/2005 多加了一个虚拟位点，精度更高但更慢。对于传热和流动研究，SPC/E 是最主流的选择。
+                  </p>
+                  <p>
+                    SPC/E 能很好地再现液态水在常温常压下的密度（~0.998 g/cm³）、分子间距分布（RDF，即"分子之间平均隔多远"）和自扩散系数（"分子移动的快慢"）。掌握 SPC/E 水的模拟后，你就具备了处理后续所有含水体系（纳米通道、界面热阻、SAM 界面等）的基础。
                   </p>
                 </div>
               </div>
@@ -1336,8 +1404,9 @@ end structure`} />
                 <StepIndicator number={3} title="编写输入文件：NPT 平衡">
                   <p className="mb-2">
                     这是一个完整的 SPC/E 水模拟输入文件。关键点：
-                    使用 <IC>atom_style full</IC>（需要键、角、电荷）；
-                    用 <IC>fix shake</IC> 约束 O-H 键长和 H-O-H 键角（SPC/E 是刚性模型）；
+                    使用 <IC>atom_style full</IC>（需要键、角、电荷信息）；
+                    用 <IC>fix shake</IC> 约束 O-H 键长和 H-O-H 键角（SPC/E 是刚性水模型，运行时不让键振动）；
+                    用 <IC>kspace_style pppm</IC> 计算长程静电力（PPPM 是一种快速算法，将远距离的库仑力转到频域计算，大幅提高效率）；
                     用 NPT 系综平衡密度。
                   </p>
                   <CodeBlock title="in.spce-water" language="lammps" code={`# SPC/E 液态水 NPT 平衡模拟
@@ -1407,6 +1476,10 @@ srun lmp -in in.spce-water`} />
                 </StepIndicator>
 
                 <StepIndicator number={5} title="后处理：验证平衡 + 计算物性">
+                  <div className="mb-4 p-4 rounded-lg border border-border bg-muted/40 space-y-2 text-sm" style={{ color: "oklch(0.40 0.02 260)" }}>
+                    <p><strong style={{ color: "oklch(0.30 0.06 260)" }}>RDF（径向分布函数）</strong>：描述某个距离 <em>r</em> 处找到另一个原子的概率密度。第一个峰表示最近邻原子的距离，是判断液体微观结构是否正确的核心指标。</p>
+                    <p><strong style={{ color: "oklch(0.30 0.06 260)" }}>MSD（均方位移）→ 扩散系数</strong>：追踪原子随时间偏离初始位置的平均距离平方。根据 Einstein 关系 <em>D</em> = MSD / (6<em>t</em>)，MSD 曲线的斜率直接给出扩散系数。</p>
+                  </div>
                   <p className="mb-2">
                     一个合格的水模拟应该能再现以下物性（300 K, 1 atm）：
                   </p>
@@ -1436,42 +1509,47 @@ srun lmp -in in.spce-water`} />
                       </tbody>
                     </table>
                   </div>
-                  <CodeBlock title="plot_water_analysis.py" language="python" code={`import numpy as np
-import matplotlib.pyplot as plt
+                  <CodeBlock title="plot_water_analysis.py" language="python" code={`import numpy as np               # 数值计算
+import matplotlib.pyplot as plt   # 画图
+from scipy.stats import linregress  # 线性拟合
 
+# 创建一行两列的子图（左：RDF，右：MSD）
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-# ---- 1. O-O 径向分布函数 ----
+# ---- 1. O-O 径向分布函数 (RDF) ----
+# RDF 描述"在距离 r 处找到另一个氧原子的概率"
+# 第一个峰的位置 ≈ 2.75 Å，就是水分子的第一近邻距离
 rdf = np.loadtxt("rdf_OO.dat", skiprows=4)
-r = rdf[:, 1]        # 距离 (Å)
-g_r = rdf[:, 2]      # g(r)
+r = rdf[:, 1]        # 第 2 列：距离 r (Å)
+g_r = rdf[:, 2]      # 第 3 列：g(r)，归一化概率
 
 axes[0].plot(r, g_r, 'b-', linewidth=1.5)
-axes[0].axhline(y=1, color='gray', ls='--', alpha=0.5)
+axes[0].axhline(y=1, color='gray', ls='--', alpha=0.5)  # g(r)=1 参考线
 axes[0].set_xlabel("r (Å)")
 axes[0].set_ylabel("g(r)")
 axes[0].set_title("O-O Radial Distribution Function")
 axes[0].set_xlim(2, 8)
 
-# ---- 2. 均方位移 → 扩散系数 ----
+# ---- 2. 均方位移 (MSD) → 扩散系数 ----
+# MSD = 分子偏离初始位置的平均距离²，随时间线性增长
+# 斜率 / 6 = 扩散系数 D（三维情况下除以 6）
 msd = np.loadtxt("msd.dat", skiprows=2)
-t = msd[:, 0] * 1.0   # timestep → fs (real units)
+t = msd[:, 0] * 1.0   # 时间 (fs)
 msd_val = msd[:, 1]    # MSD (Å²)
 
-# 线性拟合 MSD 后半段
-from scipy.stats import linregress
+# 只拟合后半段（前面还没达到线性区）
 half = len(t) // 2
 slope, intercept, _, _, _ = linregress(t[half:], msd_val[half:])
-D = slope / 6.0        # D = MSD / (6t)，单位 Å²/fs
-D_cm2s = D * 1e-5      # 转换为 cm²/s
+D = slope / 6.0        # 扩散系数，单位 Å²/fs
+D_cm2s = D * 1e-5      # 转换为常用单位 cm²/s
 print(f"自扩散系数 D = {D_cm2s:.2e} cm²/s")
 
-axes[1].plot(t / 1000, msd_val, 'r-', linewidth=1.5)
+axes[1].plot(t / 1000, msd_val, 'r-', linewidth=1.5)  # 时间转换为 ps
 axes[1].set_xlabel("Time (ps)")
 axes[1].set_ylabel("MSD (Å²)")
 axes[1].set_title(f"Mean Square Displacement (D={D_cm2s:.2e} cm²/s)")
 
-plt.tight_layout()
+plt.tight_layout()  # 自动调整子图间距
 plt.savefig("water_analysis.png", dpi=150)
 plt.show()`} />
                 </StepIndicator>
@@ -1516,13 +1594,13 @@ plt.show()`} />
         {/* ═══════════ 案例三：纳米通道水流动 ═══════════ */}
         <section id="case-nano-channel" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute top-10 right-0 opacity-40 hidden lg:block" variant="right" />
-          <div className="container max-w-5xl relative z-10">
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="case-nano-channel-title"
                 title="案例三：纳米通道中的水流动（Poiseuille 流）"
-                subtitle="搭建石墨烯纳米通道，模拟受限水的 Poiseuille 流动，观察纳米尺度下速度滑移现象。"
-                badge="案例实战"
+                subtitle="搭建石墨烯纳米通道，模拟受限水的 Poiseuille 流动，观察纳米尺度下速度滑移现象。需要掌握案例二的 SPC/E 水模型设置。"
+                badge="案例实战 · 进阶"
               />
             </ScrollReveal>
 
@@ -1533,10 +1611,10 @@ plt.show()`} />
                 </h4>
                 <div className="space-y-2 text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
                   <p>
-                    水在纳米通道中的输运行为与宏观流体力学有本质区别：经典的无滑移边界条件不再成立，壁面处出现显著的速度滑移，流量可以比 Hagen-Poiseuille 方程的预测高出数个量级。这一现象直接关系到纳米流控芯片、海水淡化膜、生物离子通道等前沿应用。
+                    在宏观世界里，流体在管道壁面处速度为零（无滑移边界条件），管道流量由经典的 Hagen-Poiseuille 方程给出。但在纳米通道中，壁面处的水分子并不"粘"在壁面上，而是有一个明显的滑移速度，导致实际流量远超经典预测。这一现象直接关系到纳米流控芯片、海水淡化膜、生物离子通道等前沿应用。
                   </p>
                   <p>
-                    MD 模拟是研究纳米受限流动几乎唯一可靠的工具——实验难以直接测量纳米尺度的速度剖面，而连续介质假设在这个尺度已经失效。通过本案例，你将学会如何用外力驱动流动、提取速度剖面、计算滑移长度，这些技能可以直接用于纳米流体输运的研究工作。
+                    MD 模拟是研究纳米受限流动几乎唯一可靠的工具——实验难以直接测量纳米尺度的速度剖面，而连续介质力学（把流体当作连续均匀介质）在这个尺度已经失效。通过本案例，你将学会如何用外力驱动流动、提取速度剖面、计算滑移长度。
                   </p>
                 </div>
               </div>
@@ -1645,8 +1723,8 @@ run             500000`} />
 
                 <StepIndicator number={4} title="后处理：速度剖面与滑移长度">
                   <p className="mb-2">
-                    从 <IC>velocity_profile.dat</IC> 提取 $v_x(z)$ 剖面，
-                    拟合抛物线得到 Poiseuille 流速分布，外推到壁面处计算滑移长度 $l_s$。
+                    从 <IC>velocity_profile.dat</IC> 提取速度剖面 <em>v</em><sub>x</sub>(<em>z</em>)，
+                    拟合抛物线得到 Poiseuille 流速分布，外推到壁面处计算滑移长度 <em>l</em><sub>s</sub>（壁面处速度降为零的"虚拟距离"）。
                   </p>
                   <CodeBlock title="plot_velocity.py" language="python" code={`import numpy as np
 import matplotlib.pyplot as plt
@@ -1702,14 +1780,14 @@ plt.show()`} />
         <div className="section-divider-animated" />
 
         {/* ═══════════ 案例四：固-液界面热阻 ═══════════ */}
-        <section id="case-interface-resistance" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
-          <div className="container max-w-5xl relative z-10">
+        <section id="case-interface-resistance" className="py-20 md:py-28 relative overflow-hidden" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="case-interface-resistance-title"
                 title="案例四：固-液界面热阻（Kapitza 电阻）"
-                subtitle="计算金属-水界面的 Kapitza 热阻，理解固液界面热输运的微观机制。"
-                badge="案例实战"
+                subtitle="计算金属-水界面的 Kapitza 热阻，理解固液界面热输运的微观机制。涉及多种势函数混合（EAM + LJ + Coulomb）。"
+                badge="案例实战 · 进阶"
               />
             </ScrollReveal>
 
@@ -1720,10 +1798,10 @@ plt.show()`} />
                 </h4>
                 <div className="space-y-2 text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
                   <p>
-                    固-液界面热阻（Kapitza 电阻）是纳米尺度热管理的关键瓶颈。在电子器件散热、纳米流体强化换热、热界面材料等应用中，界面热阻往往是制约整体传热性能的主导因素——材料本体导热再好，如果界面热阻大，热量也传不过去。
+                    当热量从金属传向水时，界面处会出现一个突然的温度跳变 Δ<em>T</em>——这就是 Kapitza 热阻的宏观表现。打个比方：两间房子之间有一堵墙，即使墙很薄，热量穿过时也会有温差；界面热阻就是这堵"热学墙"的厚度。在电子器件散热、纳米流体强化换热等应用中，界面热阻往往是制约整体传热性能的主导因素。
                   </p>
                   <p>
-                    界面热阻的微观机制至今仍不完全清楚：声子如何跨界面传递？固体表面润湿性与界面热阻是什么关系？表面粗糙度、化学修饰如何影响热输运？这些问题都需要 MD 模拟从原子尺度给出答案。本案例让你掌握 NEMD 方法计算界面热阻的完整流程。
+                    界面热阻的微观机制至今仍不完全清楚。在固体中，热量主要靠原子的集体振动来传递——这种振动的量子化就叫「声子」（phonon），你可以把它想象成「热量的搬运工」。当声子从金属一侧到达界面时，由于两种材料的原子质量、排列方式完全不同，很多声子会被「弹回来」而无法传到液体一侧，这就产生了热阻。表面的亲疏水性、粗糙度也会影响这个过程。MD 模拟能从原子尺度给出这些答案。本案例让你掌握 NEMD 方法计算界面热阻的完整流程。
                   </p>
                 </div>
               </div>
@@ -1774,8 +1852,8 @@ write("au_slab.data", slab, format="lammps-data")
                 <StepIndicator number={2} title="编写输入文件：NEMD 热流法">
                   <p className="mb-2">
                     思路：在 Au 块体内部设置热源，在水的远端设置热汇，
-                    热流经过 Au-水界面时产生温度跳变 $\Delta T$，
-                    Kapitza 热阻 $R_K = \Delta T / J$。
+                    热流经过 Au-水界面时产生温度跳变 Δ<em>T</em>，
+                    Kapitza 热阻定义为 <em>R</em><sub>K</sub> = Δ<em>T</em> / <em>J</em>（温度跳变除以热流密度）。
                   </p>
                   <CodeBlock title="in.kapitza" language="lammps" code={`# Au-水界面 Kapitza 热阻
 units           metal
@@ -1820,15 +1898,15 @@ run             500000`} />
                 <StepIndicator number={3} title="运行模拟">
                   <CodeBlock title="终端" language="shell" code="mpirun -np 8 lmp -in in.kapitza" />
                   <WarningBox type="warning" title="注意">
-                    EAM 势文件（如 <IC>Au.eam.alloy</IC>）需要从 NIST Interatomic Potentials Repository 下载，
-                    放在运行目录下。
+                    Au 使用 EAM（嵌入原子法）势函数——它不仅考虑原子对之间的作用力，还考虑每个原子周围的电子密度环境，因此能很好地描述金属键。
+                    势函数文件（如 <IC>Au.eam.alloy</IC>）需要从 NIST Interatomic Potentials Repository 下载，放在运行目录下。
                   </WarningBox>
                 </StepIndicator>
 
                 <StepIndicator number={4} title="后处理：计算界面热阻">
                   <p className="mb-2">
-                    从温度剖面中读出界面两侧的温度跳变 $\Delta T$，结合施加的热流密度 $J$，
-                    计算 $R_K = \Delta T \cdot A / \dot{"{"}Q{"}"}$。
+                    从温度剖面中读出界面两侧的温度跳变 Δ<em>T</em>，结合施加的热流密度 <em>J</em>，
+                    计算界面热阻 <em>R</em><sub>K</sub> = Δ<em>T</em> / <em>J</em>。
                   </p>
                   <CodeBlock title="calc_kapitza.py" language="python" code={`import numpy as np
 import matplotlib.pyplot as plt
@@ -1885,13 +1963,13 @@ plt.show()
         {/* ═══════════ 案例五：SAM-Au-水界面 NVT 平衡 ═══════════ */}
         <section id="case-sam-gold" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute top-10 right-0 opacity-40 hidden lg:block" variant="right" />
-          <div className="container max-w-5xl relative z-10">
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="case-sam-gold-title"
                 title="案例五：SAM-Au-水界面 NVT 平衡"
-                subtitle="搭建硫醇自组装单分子层（SC6）修饰的金表面与水的界面体系，完成从能量最小化到 NVT 平衡的完整流程。这是课题组实际使用的建模案例。"
-                badge="案例实战"
+                subtitle="搭建硫醇自组装单分子层（SC6）修饰的金表面与水的界面体系，完成从能量最小化到 NVT 平衡的完整流程。这是课题组实际使用的建模案例，涉及 class2 + Morse + LJ 多力场混合。"
+                badge="案例实战 · 科研级"
               />
             </ScrollReveal>
 
@@ -1902,7 +1980,7 @@ plt.show()
                 </h4>
                 <div className="space-y-2 text-sm leading-relaxed" style={{ color: "oklch(0.40 0.02 260)" }}>
                   <p>
-                    自组装单分子层（SAM）是调控固体表面润湿性和界面热输运的重要手段。通过改变硫醇链的长度（SC6、SC12、SC18）和末端基团（-CH₃ 疏水、-OH 亲水），可以精确调控金属表面的润湿性，进而改变固-液界面热阻。这在微电子散热、微流控器件、生物界面等领域有广泛应用。
+                    自组装单分子层（SAM, Self-Assembled Monolayer）就像在金属表面"种草"——硫醇分子通过硫原子锚定在金表面，碳链像草一样竖立，形成一层有序的纳米级薄膜。通过改变"草"的长度（SC6 表示 6 个碳、SC12 表示 12 个碳……）和顶端基团（-CH₃ 疏水、-OH 亲水），可以精确调控表面的润湿性和界面热阻。这在微电子散热、微流控器件、生物界面等领域有广泛应用。
                   </p>
                   <p>
                     本案例是一个「真实科研级」的建模流程：涉及多种力场混合（class2 + Morse + LJ）、刚性水模型约束（SHAKE）、盒子变形压缩等操作，比前面的简化案例复杂得多。掌握这个流程后，你就具备了独立搭建复杂界面体系并完成平衡模拟的能力，可以在此基础上继续做热导率、润湿角、界面热阻等后续研究。
@@ -2167,7 +2245,7 @@ plt.show()`} />
         {/* ═══════════ 8. 常见问题与报错排查 ═══════════ */}
         <section id="troubleshooting" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute top-20 left-0 opacity-40 hidden lg:block" variant="left" />
-          <div className="container max-w-5xl relative z-10">
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="troubleshooting-title"
@@ -2304,8 +2382,8 @@ sacctmgr show assoc user=$USER`} />
         <div className="section-divider-animated" />
 
         {/* ═══════════ 9. 学习路线图 ═══════════ */}
-        <section id="roadmap" className="py-20 md:py-28 relative" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
-          <div className="container max-w-5xl relative z-10">
+        <section id="roadmap" className="py-20 md:py-28 relative overflow-hidden" style={{ background: "oklch(0.975 0.003 200 / 0.5)" }}>
+          <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="roadmap-title"
@@ -2330,11 +2408,11 @@ sacctmgr show assoc user=$USER`} />
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 relative z-10">
                   {[
-                    { step: 1, icon: Download, title: "安装 LAMMPS", desc: "选择适合你平台的安装方式，确保 lmp 命令可用。", color: "oklch(0.35 0.10 260)" },
-                    { step: 2, icon: Play, title: "跑通第一个示例", desc: "用最小 LJ 液体示例验证安装，理解输入输出。", color: "oklch(0.45 0.12 230)" },
-                    { step: 3, icon: BookOpen, title: "读懂输入脚本", desc: "理解 units、pair_style、fix 等核心命令的含义。", color: "oklch(0.50 0.14 200)" },
-                    { step: 4, icon: Cpu, title: "并行运行", desc: "学会用 MPI 多核并行，提升计算效率。", color: "oklch(0.55 0.15 195)" },
-                    { step: 5, icon: Server, title: "上超算", desc: "掌握 Slurm 提交任务，处理大规模模拟。", color: "oklch(0.60 0.15 180)" },
+                    { step: 1, icon: Download, title: "安装 LAMMPS", desc: "选择适合你平台的安装方式，确保 lmp 命令可用。→ 看「Windows/macOS 安装」章节", color: "oklch(0.35 0.10 260)" },
+                    { step: 2, icon: Play, title: "跑通第一个示例", desc: "用最小 LJ 液体示例验证安装，理解输入输出。→ 看「第一份输入文件」章节", color: "oklch(0.45 0.12 230)" },
+                    { step: 3, icon: BookOpen, title: "读懂输入脚本", desc: "理解 units、pair_style、fix 等核心命令的含义。→ 看「关键命令详解」", color: "oklch(0.50 0.14 200)" },
+                    { step: 4, icon: Cpu, title: "并行运行", desc: "学会用 MPI 多核并行，提升计算效率。→ 看「本地与并行运行」章节", color: "oklch(0.55 0.15 195)" },
+                    { step: 5, icon: Server, title: "上超算", desc: "掌握 Slurm 提交任务，处理大规模模拟。→ 看「超算/集群」章节", color: "oklch(0.60 0.15 180)" },
                   ].map((item, i) => (
                     <div key={i} className="bg-card rounded-xl border border-border p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-2 text-center">
                       <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md"
@@ -2367,7 +2445,7 @@ sacctmgr show assoc user=$USER`} />
         {/* ═══════════ 10. FAQ 区 ═══════════ */}
         <section id="faq" className="py-20 md:py-28 relative overflow-hidden">
           <MoleculeDecoration className="absolute bottom-0 right-0 opacity-30 hidden lg:block" variant="right" />
-          <div className="container max-w-3xl relative z-10">
+          <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 relative z-10">
             <ScrollReveal>
               <SectionHeading
                 id="faq-title"
@@ -2394,7 +2472,7 @@ sacctmgr show assoc user=$USER`} />
             <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full" style={{ background: "oklch(0.35 0.10 260 / 0.04)", filter: "blur(80px)" }} />
           </div>
 
-          <div className="container max-w-5xl relative z-10 py-14">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-6 relative z-10 py-14">
             {/* Lab branding block */}
             <div className="flex flex-col sm:flex-row items-center gap-6 mb-10 pb-8 border-b" style={{ borderColor: "oklch(1 0 0 / 0.08)" }}>
               <a
@@ -2515,6 +2593,9 @@ sacctmgr show assoc user=$USER`} />
             </div>
 
             <div className="border-t pt-6" style={{ borderColor: "oklch(1 0 0 / 0.06)" }}>
+              <p className="text-xs text-center mb-4" style={{ color: "oklch(0.50 0.02 200)" }}>
+                本站总访问 <span style={{ color: "oklch(0.65 0.12 195)" }}>{siteStats.pv.toLocaleString()}</span> 次 · 总访客 <span style={{ color: "oklch(0.65 0.12 195)" }}>{siteStats.uv.toLocaleString()}</span> 人
+              </p>
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div className="text-center sm:text-left">
                   <p className="text-xs" style={{ color: "oklch(0.45 0.02 200)" }}>
