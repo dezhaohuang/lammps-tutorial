@@ -979,6 +979,53 @@ cat lammps_123456.err`} />
                 </div>
               </div>
             </ScrollReveal>
+
+            {/* ─── 工作目录文件清单 ─── */}
+            <ScrollReveal>
+              <div className="mt-10 p-6 rounded-2xl border border-border bg-card shadow-sm">
+                <h3 className="text-xl font-bold mb-3" style={{ color: "oklch(0.25 0.06 260)" }}>
+                  一个完整的 LAMMPS 工作目录里有什么？
+                </h3>
+                <p className="text-sm leading-relaxed mb-4" style={{ color: "oklch(0.42 0.02 260)" }}>
+                  实际科研中，跑一次 LAMMPS 模拟通常需要 <strong>3 类文件</strong>。新手最容易把它们弄混，下面这张表帮你一次理清：
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr style={{ background: "oklch(0.96 0.01 200)" }}>
+                        <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>类别</th>
+                        <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>常见文件名</th>
+                        <th className="text-left p-3 border border-border font-semibold" style={{ color: "oklch(0.30 0.06 260)" }}>作用</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["结构数据文件", "lammps.data, H2O.data, system.data", "体系的「初始照片」——所有原子的坐标、化学键、键角、电荷、原子类型等。LAMMPS 用 read_data 命令读取它"],
+                        ["LAMMPS 输入脚本", "in.run, in.nvt, in.lammps", "告诉 LAMMPS 怎么跑——用什么势函数、什么温度、什么系综、跑多少步、输出什么。这是模拟的「指挥手册」"],
+                        ["超算提交脚本", "JOB, sub, submit.slurm", "告诉超算调度器（如 Slurm）——申请几个节点、几核、最长跑多久、加载哪些 module、最后用 mpirun 或 srun 启动 LAMMPS"],
+                        ["（可选）势函数文件", "Cu_zhou.eam.alloy, Au.eam", "EAM、Tersoff 等需要外部参数的势函数会用到。这类文件可以从 NIST Interatomic Potentials Repository 下载"],
+                        ["（输出）日志文件", "log.lammps, *.out", "运行过程中 LAMMPS 自动生成的——记录每一步的温度、能量、压力等热力学数据"],
+                        ["（输出）轨迹文件", "dump.lammpstrj, dump.xyz", "运行过程中 LAMMPS 按 dump 命令的频率写出的——保存每个原子在每个时间步的位置，可以用 OVITO 看动画"],
+                      ].map((row, i) => (
+                        <tr key={i} className="hover:bg-muted/50 transition-colors" style={i % 2 === 1 ? { background: "oklch(0.98 0.003 200)" } : undefined}>
+                          <td className="p-3 border border-border font-medium" style={{ color: "oklch(0.32 0.06 260)" }}>{row[0]}</td>
+                          <td className="p-3 border border-border font-mono text-xs" style={{ color: "oklch(0.45 0.10 195)" }}>{row[1]}</td>
+                          <td className="p-3 border border-border" style={{ color: "oklch(0.40 0.02 260)" }}>{row[2]}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <WarningBox type="tip" title="小贴士：当师兄给你一个文件夹时怎么辨认？">
+                  <ul className="space-y-1.5 list-disc pl-5">
+                    <li>看文件 <strong>第一行</strong>：以 <IC>{"#!/bin/bash"}</IC> 或 <IC>{"#SBATCH"}</IC> 开头 → 超算提交脚本</li>
+                    <li>看文件里有没有 <IC>units</IC>、<IC>pair_style</IC>、<IC>fix</IC>、<IC>run</IC> 这些命令 → LAMMPS 输入脚本</li>
+                    <li>看文件里有没有 <IC>Atoms</IC>、<IC>Bonds</IC>、<IC>Masses</IC> 这些段落 → LAMMPS 数据文件（结构）</li>
+                  </ul>
+                </WarningBox>
+              </div>
+            </ScrollReveal>
           </div>
         </section>
 
@@ -1088,6 +1135,68 @@ srun lmp -in in.lammps
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </ScrollReveal>
+
+            {/* ─── 把案例代码跑起来：6 步走 ─── */}
+            <ScrollReveal>
+              <div className="mt-10 p-6 rounded-2xl border border-border bg-card shadow-sm">
+                <h3 className="text-xl font-bold mb-2" style={{ color: "oklch(0.25 0.06 260)" }}>
+                  把教程里的案例代码跑起来：6 步走
+                </h3>
+                <p className="text-sm leading-relaxed mb-5" style={{ color: "oklch(0.42 0.02 260)" }}>
+                  下面 5 个案例都是「现成代码 + 详细注释」。如果你不知道怎么从「看到代码」到「真正在超算上跑出来」，按下面这 6 步走就对了：
+                </p>
+                <StepIndicator number={1} title="本地新建一个工作文件夹">
+                  <p className="mb-2">在本地电脑上建一个干净的文件夹，比如 <IC>~/sim/case01_lj/</IC>。把教程上的代码块逐一保存进去——每个 <IC>CodeBlock</IC> 标题就是该保存的文件名（如 <IC>in.lj-nemd</IC>、<IC>packmol.inp</IC>、<IC>JOB</IC>）。</p>
+                </StepIndicator>
+                <StepIndicator number={2} title="（如有需要）本地建模生成 data 文件">
+                  <p className="mb-2">如果案例需要复杂结构（如 SPC/E 水盒子、SAM-Au 界面），先用 Packmol 或 Python (ASE) 在本地生成 PDB / data 文件。简单晶格结构则直接在 LAMMPS 输入文件里用 <IC>lattice + create_atoms</IC> 即可，不需要外部建模。</p>
+                </StepIndicator>
+                <StepIndicator number={3} title="把整个文件夹上传到超算">
+                  <CodeBlock title="本地终端" language="bash" code={`# 用 scp 上传整个目录
+scp -r case01_lj/ username@cluster-address:~/sim/
+
+# 或者用 rsync（推荐，支持断点续传）
+rsync -avz case01_lj/ username@cluster-address:~/sim/case01_lj/`} />
+                </StepIndicator>
+                <StepIndicator number={4} title="在超算上准备并提交任务">
+                  <p className="mb-2">SSH 登录到超算，进入工作目录，根据自己超算的实际情况修改 <IC>JOB</IC> 脚本中的 <IC>--partition</IC>（队列名）、<IC>--account</IC>（账户名）、<IC>module load</IC> 的版本，然后提交：</p>
+                  <CodeBlock title="超算终端" language="bash" code={`ssh username@cluster-address
+cd ~/sim/case01_lj/
+
+# 用 nano 或 vim 修改 JOB 脚本
+nano JOB
+
+# 提交任务
+sbatch JOB
+# → 返回类似：Submitted batch job 123456`} />
+                </StepIndicator>
+                <StepIndicator number={5} title="监控任务运行状态">
+                  <CodeBlock title="超算终端" language="bash" code={`# 查看自己的任务状态
+squeue -u $USER
+
+# 状态码：PD = 排队中, R = 运行中, CG = 即将完成
+
+# 实时跟踪输出（任务运行中）
+tail -f log.lammps
+
+# 任务出错就取消
+scancel 123456`} />
+                </StepIndicator>
+                <StepIndicator number={6} title="下载结果，本地分析">
+                  <CodeBlock title="本地终端" language="bash" code={`# 把整个目录拖回本地
+rsync -avz username@cluster-address:~/sim/case01_lj/ ./case01_lj/
+
+# 然后：
+# - 用 OVITO 打开 dump 文件看动画
+# - 用 Python + matplotlib 读 log.lammps 画曲线
+# - 用教程里的后处理脚本算热导率/扩散系数等`} />
+                </StepIndicator>
+                <WarningBox type="tip" title="小贴士">
+                  <p className="mb-1">不要在登录节点（login node）直接跑 LAMMPS！登录节点是给所有用户共享的，跑大任务会被管理员中止甚至封号。所有计算都必须通过 <IC>sbatch</IC> 提交到计算节点。</p>
+                  <p>第一次跑案例时，建议先把 <IC>run</IC> 步数改小（比如 <IC>run 1000</IC>）测试流程是否通顺，确认无报错后再跑完整步数。</p>
+                </WarningBox>
               </div>
             </ScrollReveal>
           </div>
@@ -1369,10 +1478,19 @@ structure water.pdb
   inside box 0. 0. 0. 33.1 33.1 33.1
 end structure`} />
                   <CodeBlock title="终端" language="bash" code="packmol < packmol.inp" />
-                  <WarningBox type="info" title="Packmol 安装">
-                    Packmol 可以从 <IC>https://m3g.imi.unicamp.br/packmol/</IC> 下载。
-                    Linux 下也可以 <IC>sudo apt install packmol</IC>，macOS 下 <IC>brew install packmol</IC>。
-                    生成的 PDB 文件需要转换为 LAMMPS data 文件，可以用 <IC>moltemplate</IC>、<IC>TopoTools</IC>（VMD 插件）或 Python 脚本完成。
+                  <WarningBox type="info" title="Packmol 装在哪？">
+                    <p className="mb-2">
+                      <strong>推荐装在你的本地电脑上</strong>，不要装在超算上。理由：建模阶段需要反复调试盒子大小和分子数量，本地响应快，结构有问题立刻能发现。建好的 <IC>data</IC> 文件再 <IC>scp</IC> 上传到超算跑模拟即可。
+                    </p>
+                    <p className="mb-2">安装方法：</p>
+                    <ul className="space-y-1 list-disc pl-5">
+                      <li>macOS：<IC>brew install packmol</IC></li>
+                      <li>Ubuntu/WSL2：<IC>sudo apt install packmol</IC></li>
+                      <li>Windows：建议在 WSL2 里安装；或从 <IC>https://m3g.imi.unicamp.br/packmol/</IC> 下载源码自己编译</li>
+                    </ul>
+                    <p className="mt-2">
+                      生成的 PDB 文件需要转换为 LAMMPS data 文件，可以用 <IC>moltemplate</IC>、<IC>TopoTools</IC>（VMD 插件）或 Python 脚本完成。
+                    </p>
                   </WarningBox>
                 </StepIndicator>
 
