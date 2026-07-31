@@ -17,7 +17,10 @@ if (-not (Test-Path $ossutil)) {
 }
 
 Write-Host "==> 构建（base=/tutorial/）"
-if (Test-Path dist\public) { Remove-Item -Recurse -Force dist\public }
+# Dropbox 同步可能短暂锁住 dist：重试几次；仍失败也无妨，vite 的 emptyOutDir 会自行清空
+for ($i = 0; $i -lt 5 -and (Test-Path dist\public); $i++) {
+  try { Remove-Item -Recurse -Force dist\public -ErrorAction Stop } catch { Start-Sleep -Seconds 2 }
+}
 $env:VITE_BASE_PATH = "/tutorial/"
 pnpm exec vite build
 if ($LASTEXITCODE -ne 0) { throw "构建失败" }

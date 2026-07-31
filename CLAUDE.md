@@ -17,7 +17,7 @@
 ```powershell
 $env:OSS_AK = "<AK 见主站 DEPLOYMENT.md>"
 $env:OSS_SK = "<SK 见主站 DEPLOYMENT.md>"
-pnpm deploy      # = pwsh scripts/deploy.ps1
+pnpm deploy:oss   # = pwsh scripts/deploy.ps1（不能叫 pnpm deploy，与 pnpm 内置命令冲突）
 ```
 
 脚本完成：构建（base=/tutorial/）→ 404.html 复制 → ossutil 上传（自动跳过 downloads/ 的 221MB 大文件）→ 两个无扩展名对象的 Content-Type 修复 → Cloudflare 清缓存（需另设 `$env:CF_API_TOKEN` + `$env:CF_ZONE_ID`，否则打印手动清单）→ 线上 HEAD 验证。
@@ -167,7 +167,7 @@ curl -sI "https://www.whu-atmes.com/tutorial/pages/p06-100tmcr.jpg" | head -1
 
 ```
 lammps-tutorial/
-├── scripts/deploy.ps1            ← 一键部署脚本（pnpm deploy）
+├── scripts/deploy.ps1            ← 一键部署脚本（pnpm deploy:oss）
 ├── client/
 │   ├── index.html                ← HTML 入口（含 SEO/OG 元信息、非阻塞字体加载）
 │   ├── public/
