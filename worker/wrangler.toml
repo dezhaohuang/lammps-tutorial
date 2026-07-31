@@ -1,0 +1,11 @@
+name = "lammps-tutorial-stats"
+main = "counter.js"
+compatibility_date = "2024-12-01"
+
+# 绑定 KV 命名空间（部署前需要先创建，见下方说明）
+[[kv_namespaces]]
+binding = "STATS"
+id = "9720fe6467ec4706a65b16570b083cf5"
+
+# 路由配置（在 Cloudflare Dashboard 中设置）
+# routes = [{ pattern = "www.whu-atmes.com/api/tutorial-stats", zone_name = "whu-atmes.com" }]

@@ -1,51 +1,65 @@
 import { AlertTriangle, Info, Lightbulb } from "lucide-react";
 
+type WarningType = "info" | "warning" | "tip";
+
 interface WarningBoxProps {
-  type?: "warning" | "info" | "tip";
-  title?: string;
+  type?: WarningType;
+  title: string;
   children: React.ReactNode;
 }
 
-const config = {
-  warning: {
-    icon: AlertTriangle,
-    bg: "oklch(0.97 0.03 75)",
-    border: "oklch(0.80 0.12 75)",
-    iconBg: "oklch(0.92 0.06 75)",
-    iconColor: "oklch(0.60 0.16 75)",
-    titleColor: "oklch(0.45 0.10 75)",
-  },
+const typeConfig = {
   info: {
     icon: Info,
-    bg: "oklch(0.96 0.02 240)",
-    border: "oklch(0.78 0.10 240)",
-    iconBg: "oklch(0.92 0.04 240)",
-    iconColor: "oklch(0.50 0.14 240)",
-    titleColor: "oklch(0.35 0.10 240)",
+    background: "oklch(0.98 0.01 220)",
+    border: "oklch(0.9 0.02 220)",
+    accent: "oklch(0.48 0.12 220)",
+  },
+  warning: {
+    icon: AlertTriangle,
+    background: "oklch(0.985 0.012 45)",
+    border: "oklch(0.91 0.018 45)",
+    accent: "oklch(0.61 0.14 45)",
   },
   tip: {
     icon: Lightbulb,
-    bg: "oklch(0.96 0.02 150)",
-    border: "oklch(0.78 0.10 150)",
-    iconBg: "oklch(0.92 0.04 150)",
-    iconColor: "oklch(0.45 0.14 150)",
-    titleColor: "oklch(0.35 0.10 150)",
+    background: "oklch(0.985 0.012 175)",
+    border: "oklch(0.9 0.02 175)",
+    accent: "oklch(0.5 0.12 175)",
   },
-};
+} as const;
 
-export default function WarningBox({ type = "warning", title, children }: WarningBoxProps) {
-  const c = config[type];
-  const Icon = c.icon;
+export default function WarningBox({
+  type = "info",
+  title,
+  children,
+}: WarningBoxProps) {
+  const config = typeConfig[type];
+  const Icon = config.icon;
+
   return (
-    <div className="rounded-xl p-4 my-4 border-l-4" style={{ background: c.bg, borderLeftColor: c.border }}>
-      <div className="flex items-start gap-3">
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-          style={{ background: c.iconBg }}>
-          <Icon size={15} style={{ color: c.iconColor }} />
+    <div
+      className="mt-5 rounded-2xl border px-4 py-4"
+      style={{ background: config.background, borderColor: config.border }}
+    >
+      <div className="flex gap-3">
+        <div
+          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+          style={{ background: `${config.accent}20`, color: config.accent }}
+        >
+          <Icon size={16} />
         </div>
-        <div className="flex-1">
-          {title && <p className="font-semibold text-sm mb-1.5" style={{ color: c.titleColor }}>{title}</p>}
-          <div className="text-sm leading-relaxed" style={{ color: "oklch(0.35 0.02 260)" }}>
+        <div className="min-w-0">
+          <h5
+            className="text-sm font-semibold"
+            style={{ color: "oklch(0.27 0.04 250)" }}
+          >
+            {title}
+          </h5>
+          <div
+            className="mt-2 space-y-2 text-sm leading-7"
+            style={{ color: "oklch(0.39 0.02 240)" }}
+          >
             {children}
           </div>
         </div>

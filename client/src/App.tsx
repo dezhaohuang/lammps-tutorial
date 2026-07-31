@@ -1,44 +1,26 @@
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import Home from "@/pages/Home";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch, Router as WouterRouter } from "wouter";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { Route, Switch, Router } from "wouter";
 
+const base = import.meta.env.VITE_BASE_PATH
+  ? import.meta.env.VITE_BASE_PATH.replace(/\/$/, "")
+  : "";
 
-function Router() {
+export default function App() {
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <ThemeProvider defaultTheme="light" switchable={false}>
+      <ErrorBoundary>
+        <Router base={base}>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route>
+              <NotFound />
+            </Route>
+          </Switch>
+        </Router>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
-
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
-function App() {
-  return (
-    <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
-        <TooltipProvider>
-          <Toaster />
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-        </TooltipProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
-  );
-}
-
-export default App;

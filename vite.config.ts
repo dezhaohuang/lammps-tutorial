@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { siteStatsMiddleware } from "./server/siteStats";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -98,6 +99,10 @@ function vitePluginManusDebugCollector(): Plugin {
     },
 
     configureServer(server: ViteDevServer) {
+      server.middlewares.use("/api/stats/visits", (req, res, next) => {
+        siteStatsMiddleware(req, res, next);
+      });
+
       // POST /__manus__/logs: Browser sends logs (written directly to files)
       server.middlewares.use("/__manus__/logs", (req, res, next) => {
         if (req.method !== "POST") {
