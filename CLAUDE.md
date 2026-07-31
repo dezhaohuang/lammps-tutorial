@@ -1,8 +1,12 @@
-# LAMMPS 教学网站 — 运行文档
+# 课题组教程中心网站 — 运行文档
 
-> 线上地址：https://www.whu-atmes.com/tutorial
-> 架构：Vite + React SPA → 阿里云 OSS（香港） → Cloudflare CDN
+> 线上地址：https://www.whu-atmes.com/tutorial （教程中心落地页）
+> ├─ https://www.whu-atmes.com/tutorial/lammps — LAMMPS 教程（SPA 路由）
+> └─ https://www.whu-atmes.com/tutorial/heat-balance.html — 汽轮机热平衡图互动教程（独立静态页）
+> 架构：Vite + React SPA（hub + LAMMPS）+ 独立单文件 HTML（热平衡图） → 阿里云 OSS（香港） → Cloudflare CDN
 > GitHub：https://github.com/dezhaohuang/lammps-tutorial
+> 热平衡图教程源文件在 `D:/Dropbox/01-Research/应用-透平传热传质/学习/热平衡图互动教程.html`，
+> 更新后复制为 `client/public/heat-balance.html`（配图 `client/public/pages/p06-100tmcr.jpg`）再走部署流程。
 
 ---
 
@@ -32,21 +36,44 @@ OSS_ACCESS_KEY_SECRET=$OSS_SK \
   --recursive --force --region cn-hongkong
 ```
 
-### 第 3 步：修复 /tutorial 入口的 Content-Type
+### 第 3 步：修复无扩展名入口对象的 Content-Type（两个）
 
 ```bash
 MSYS_NO_PATHCONV=1 \
 OSS_ACCESS_KEY_ID=$OSS_AK \
 OSS_ACCESS_KEY_SECRET=$OSS_SK \
-/tmp/ossutil2/ossutil-2.2.1-windows-amd64/ossutil.exe api put-object \
+"$HOME/tools/ossutil2/ossutil.exe" api put-object \
   --bucket whu-atmes-hk --key tutorial --region cn-hongkong \
+  --content-type "text/html; charset=utf-8" \
+  --body "file://dist/public/index.html"
+
+MSYS_NO_PATHCONV=1 \
+OSS_ACCESS_KEY_ID=$OSS_AK \
+OSS_ACCESS_KEY_SECRET=$OSS_SK \
+"$HOME/tools/ossutil2/ossutil.exe" api put-object \
+  --bucket whu-atmes-hk --key tutorial/lammps --region cn-hongkong \
   --content-type "text/html; charset=utf-8" \
   --body "file://dist/public/index.html"
 ```
 
-> **为什么需要这一步？** OSS 的 `cp` 命令上传没有扩展名的对象（`tutorial`）时，会把 Content-Type 设为 `application/octet-stream`，导致浏览器下载文件而不是显示网页。这一步用 API 单独上传并显式指定 `text/html`。
+> **为什么需要这一步？** OSS 的 `cp` 命令上传没有扩展名的对象（`tutorial`、`tutorial/lammps`）时，会把 Content-Type 设为 `application/octet-stream`，导致浏览器下载文件而不是显示网页。这一步用 API 单独上传并显式指定 `text/html`。`tutorial/lammps` 对象让用户直接访问 /tutorial/lammps 时不依赖 404 回退。
+> `heat-balance.html` 带 `.html` 扩展名，`cp` 会自动设对 Content-Type，无需处理。
 
-### 第 4 步：Git 提交（可选但推荐）
+### 第 4 步：Cloudflare 缓存清除（Purge by URL）
+
+Cloudflare 控制台 → whu-atmes.com → Caching → Custom Purge，逐条输入：
+
+```
+https://www.whu-atmes.com/tutorial
+https://www.whu-atmes.com/tutorial/lammps
+https://www.whu-atmes.com/tutorial/index.html
+https://www.whu-atmes.com/tutorial/404.html
+https://www.whu-atmes.com/tutorial/heat-balance.html
+```
+
+> `assets/` 下的 JS/CSS 文件名含内容哈希，天然免缓存问题，无需 purge。
+
+### 第 5 步：Git 提交（可选但推荐）
 
 ```bash
 git add -A
@@ -64,16 +91,25 @@ cp dist/public/index.html dist/public/404.html && \
 MSYS_NO_PATHCONV=1 \
 OSS_ACCESS_KEY_ID=$OSS_AK \
 OSS_ACCESS_KEY_SECRET=$OSS_SK \
-/tmp/ossutil2/ossutil-2.2.1-windows-amd64/ossutil.exe cp dist/public/ oss://whu-atmes-hk/tutorial/ \
+"$HOME/tools/ossutil2/ossutil.exe" cp dist/public/ oss://whu-atmes-hk/tutorial/ \
   --recursive --force --region cn-hongkong && \
 MSYS_NO_PATHCONV=1 \
 OSS_ACCESS_KEY_ID=$OSS_AK \
 OSS_ACCESS_KEY_SECRET=$OSS_SK \
-/tmp/ossutil2/ossutil-2.2.1-windows-amd64/ossutil.exe api put-object \
+"$HOME/tools/ossutil2/ossutil.exe" api put-object \
   --bucket whu-atmes-hk --key tutorial --region cn-hongkong \
+  --content-type "text/html; charset=utf-8" \
+  --body "file://dist/public/index.html" && \
+MSYS_NO_PATHCONV=1 \
+OSS_ACCESS_KEY_ID=$OSS_AK \
+OSS_ACCESS_KEY_SECRET=$OSS_SK \
+"$HOME/tools/ossutil2/ossutil.exe" api put-object \
+  --bucket whu-atmes-hk --key tutorial/lammps --region cn-hongkong \
   --content-type "text/html; charset=utf-8" \
   --body "file://dist/public/index.html"
 ```
+
+最后按第 4 步在 Cloudflare 控制台 purge 五个 URL。
 
 ---
 
@@ -82,12 +118,17 @@ OSS_ACCESS_KEY_SECRET=$OSS_SK \
 部署完成后，通过以下方式确认：
 
 ```bash
-# 确认 Content-Type 正确（应为 text/html）
-curl -sI "https://www.whu-atmes.com/tutorial" | grep Content-Type
+# 确认 Content-Type 正确（三个入口都应为 text/html）
+curl -sI "https://www.whu-atmes.com/tutorial" | grep -i Content-Type
+curl -sI "https://www.whu-atmes.com/tutorial/lammps" | grep -i Content-Type
+curl -sI "https://www.whu-atmes.com/tutorial/heat-balance.html" | grep -i Content-Type
 
 # 确认引用的 JS 文件名与本地一致
 curl -s "https://www.whu-atmes.com/tutorial" | grep -o 'index-[^"]*\.js' | head -1
 ls dist/public/assets/*.js
+
+# 确认热平衡图教程的配图可达（应为 200）
+curl -sI "https://www.whu-atmes.com/tutorial/pages/p06-100tmcr.jpg" | head -1
 ```
 
 如果浏览器仍显示旧版：
@@ -99,13 +140,28 @@ ls dist/public/assets/*.js
 
 ## 三、项目结构
 
+### 路由结构（App.tsx，wouter，base 取自 import.meta.env.BASE_URL）
+
+| 路由 | 页面 | 说明 |
+|------|------|------|
+| `/` | TutorialHub.tsx | 教程中心落地页（两张教程卡片） |
+| `/index.html` | TutorialHub.tsx | 兼容"始终可用"的 /tutorial/index.html |
+| `/lammps` | Home.tsx | LAMMPS 教程全文 |
+| 其他 | NotFound.tsx | 兜底 |
+
+旧版深链接 `/tutorial#章节id` 到达 hub 时会自动重定向到 `/lammps#章节id`（TutorialHub 里的 useLayoutEffect，白名单来自 Sidebar 导出的 `sections`）。
+
 ```
 lammps-tutorial/
 ├── client/
 │   ├── index.html                ← HTML 入口
+│   ├── public/
+│   │   ├── heat-balance.html     ← 汽轮机热平衡图互动教程（独立单文件，源在 Dropbox 学习文件夹）
+│   │   └── pages/p06-100tmcr.jpg ← 热平衡图教程的唯一配图（386 KB）
 │   └── src/
 │       ├── pages/
-│       │   └── Home.tsx          ← 主页面（所有章节内容，约 2500 行）
+│       │   ├── TutorialHub.tsx   ← 教程中心落地页
+│       │   └── Home.tsx          ← LAMMPS 主页面（所有章节内容，约 2800 行）
 │       ├── components/
 │       │   ├── Sidebar.tsx       ← 左侧导航栏（章节目录 + 案例序号）
 │       │   ├── CodeBlock.tsx     ← 终端代码块（含 LAMMPS/Bash/Python 语法高亮）
@@ -156,6 +212,14 @@ lammps-tutorial/
 - `/tutorial/index.html`：始终可用
 - 结论：**对外链接统一使用 `https://www.whu-atmes.com/tutorial`**（无斜杠）
 
+### 为什么需要 tutorial/lammps 无扩展名对象
+
+`/tutorial/lammps` 是 SPA 路由，OSS 上本没有这个对象。直接访问（刷新、分享链接）时若依赖 404.html 回退，经 Cloudflare 可能不稳定。因此部署第 3 步同时 put 一个 `tutorial/lammps` 对象（index.html 的拷贝，Content-Type text/html），让直接访问必定命中。若未来新增 SPA 路由，需照此为每个路由 put 一个对象。
+
+### 热平衡图教程为什么不进 SPA
+
+`heat-balance.html` 是完全自包含的手写单文件应用（零依赖、内联全部 CSS/JS），作为 `client/public/` 静态文件原样拷贝进 `dist/public/`，构建零成本、互不影响。它引用相对路径 `pages/p06-100tmcr.jpg`，部署后解析为 `/tutorial/pages/p06-100tmcr.jpg`。hub 卡片用普通 `<a>` 指向 `${import.meta.env.BASE_URL}heat-balance.html` 以绕过 SPA 路由。
+
 ### MSYS_NO_PATHCONV=1
 
 Git Bash（MSYS2）在 Windows 上会自动把 `/tutorial/` 转换成 `C:/Program Files/Git/tutorial/`。加这个环境变量禁用路径转换。在 CMD 或 PowerShell 中不需要。
@@ -179,7 +243,7 @@ Git Bash（MSYS2）在 Windows 上会自动把 `/tutorial/` 转换成 `C:/Progra
 
 | 项目 | 值 |
 |------|------|
-| 线上地址 | https://www.whu-atmes.com/tutorial |
+| 线上地址 | https://www.whu-atmes.com/tutorial （hub）/ /tutorial/lammps / /tutorial/heat-balance.html |
 | GitHub 仓库 | https://github.com/dezhaohuang/lammps-tutorial |
 | OSS Bucket | whu-atmes-hk |
 | OSS 地域 | cn-hongkong |
@@ -190,8 +254,8 @@ Git Bash（MSYS2）在 Windows 上会自动把 `/tutorial/` 转换成 `C:/Progra
 | Node.js | v20+（GitHub Actions） / v24（本地） |
 | 构建输出 | dist/public/ |
 | Base Path | VITE_BASE_PATH=/tutorial/ |
-| ossutil (Windows) | /tmp/ossutil2/ossutil-2.2.1-windows-amd64/ossutil.exe |
-| ossutil (macOS) | /tmp/ossutil2/ossutil-2.2.1-mac-arm64/ossutil |
+| ossutil (Windows) | `~/tools/ossutil2/ossutil.exe`（持久位置；/tmp 会被系统清理，勿放那里） |
+| ossutil (macOS) | `~/tools/ossutil2/ossutil` |
 | Git 用户 | Dezhao Huang <dhuang2@whu.edu.cn> |
 
 ---
@@ -216,7 +280,7 @@ git config user.name "Dezhao Huang"
 # 5. 确保 ossutil 可用
 # Windows: 下载 https://gosspublic.alicdn.com/ossutil/v2/2.2.1/ossutil-2.2.1-windows-amd64.zip
 # macOS:   下载 https://gosspublic.alicdn.com/ossutil/v2/2.2.1/ossutil-2.2.1-mac-arm64.zip
-# 解压到 /tmp/ossutil2/ 目录
+# 解压到 ~/tools/ossutil2/（持久位置；不要放 /tmp，系统清理后会丢失）
 ```
 
 ---
@@ -231,3 +295,5 @@ git config user.name "Dezhao Huang"
 | Git Bash 路径被转换 | MSYS2 自动转换 | 命令前加 `MSYS_NO_PATHCONV=1` |
 | push 被 GitHub 拒绝（secret） | 提交中含 OSS 密钥 | 不要在 Git 跟踪的文件中写明文密钥 |
 | `/tutorial/` 返回 404 | OSS 子目录限制 | 对外链接用 `/tutorial`（无斜杠） |
+| 访问 /tutorial/lammps 下载文件或 404 | 无扩展名对象缺失/Content-Type 错误 | 执行部署第 3 步的 `tutorial/lammps` put-object |
+| 热平衡图教程原图加载失败 | `pages/p06-100tmcr.jpg` 未上传 | 确认 `client/public/pages/` 里有该图后重新构建上传 |

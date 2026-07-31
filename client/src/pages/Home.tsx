@@ -203,6 +203,22 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    document.title = "LAMMPS 教程 | 武汉大学 ATMES Lab";
+  }, []);
+
+  // 从 hub 重定向或直接刷新 /lammps#section 时，SPA 导航不会自动滚到锚点；
+  // 用 instant 而非 smooth——深链接落地直接定位，且不受后台标签页动画节流影响
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+    const timer = setTimeout(
+      () => document.getElementById(id)?.scrollIntoView({ behavior: "instant" }),
+      150,
+    );
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen flex overflow-x-hidden">
       <ReadingProgress />

@@ -1,12 +1,12 @@
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Home from "@/pages/Home";
 import NotFound from "@/pages/NotFound";
+import TutorialHub from "@/pages/TutorialHub";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Route, Switch, Router } from "wouter";
 
-const base = import.meta.env.VITE_BASE_PATH
-  ? import.meta.env.VITE_BASE_PATH.replace(/\/$/, "")
-  : "";
+// BASE_URL 在三种环境下都正确：本地 "/"、OSS "/tutorial/"、GH Pages "/lammps-tutorial/"
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function App() {
   return (
@@ -14,7 +14,9 @@ export default function App() {
       <ErrorBoundary>
         <Router base={base}>
           <Switch>
-            <Route path="/" component={Home} />
+            <Route path="/" component={TutorialHub} />
+            <Route path="/index.html" component={TutorialHub} />
+            <Route path="/lammps" component={Home} />
             <Route>
               <NotFound />
             </Route>

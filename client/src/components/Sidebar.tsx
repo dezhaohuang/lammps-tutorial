@@ -1,7 +1,8 @@
-import { ChevronRight, FlaskConical, Menu, X } from "lucide-react";
+import { ArrowLeft, ChevronRight, FlaskConical, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "wouter";
 
-const sections = [
+export const sections = [
   { id: "hero", label: "首页导览" },
   { id: "why-lammps", label: "为什么学习" },
   { id: "windows-install", label: "Windows 安装" },
@@ -94,7 +95,7 @@ export default function Sidebar() {
   const [activeId, setActiveId] = useState("hero");
   const [clickedId, setClickedId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const clickTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const clickTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleClick = (id: string) => {
     setClickedId(id);
@@ -213,6 +214,18 @@ export default function Sidebar() {
             <X size={16} />
           </button>
         </div>
+        <div className="px-5 pt-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs transition-colors duration-200"
+            style={{ color: "oklch(1 0 0 / 0.48)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "oklch(0.80 0.10 195)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "oklch(1 0 0 / 0.48)"; }}
+          >
+            <ArrowLeft size={13} />
+            返回教程中心
+          </Link>
+        </div>
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <NavItems activeId={activeId} clickedId={clickedId} onItemClick={handleClick} />
         </nav>
@@ -224,6 +237,16 @@ export default function Sidebar() {
         style={{ background: sidebarBg }}
       >
         <div className="border-b border-white/8 px-6 py-7">
+          <Link
+            href="/"
+            className="mb-4 inline-flex items-center gap-1.5 text-xs transition-colors duration-200"
+            style={{ color: "oklch(1 0 0 / 0.48)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "oklch(0.80 0.10 195)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "oklch(1 0 0 / 0.48)"; }}
+          >
+            <ArrowLeft size={13} />
+            返回教程中心
+          </Link>
           <div className="flex items-center gap-3">
             <div
               className="flex h-11 w-11 items-center justify-center rounded-2xl"

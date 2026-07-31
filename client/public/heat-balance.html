@@ -1,0 +1,3104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="黄德钊（武汉大学）">
+<meta name="copyright" content="© 2026 武汉大学 黄德钊。版权所有，保留所有权利。">
+<meta name="description" content="宁德核电站 100% TMCR 热平衡图互动教程：跟着蒸汽走一圈，逐设备解读东方汽轮机热平衡图上的每一个数字。含导览、给水回热、数字对照、自由探索与速查五种学习模式。">
+<meta property="og:title" content="宁德核电 100% TMCR · 跟着蒸汽走一圈">
+<meta property="og:description" content="汽轮机热平衡图互动教程：五种学习模式逐设备解读热平衡图上的每一个数字。">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_CN">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d0d0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Crect%20width='100'%20height='100'%20rx='22'%20fill='%23b84a1f'/%3E%3Ctext%20x='50'%20y='74'%20font-size='62'%20text-anchor='middle'%20fill='%23fff'%20font-family='sans-serif'%3E%E6%B1%BD%3C/text%3E%3C/svg%3E">
+<title>宁德核电 100% TMCR · 跟着蒸汽走一圈</title>
+<script>
+(function(){
+  var theme = null;
+  try { theme = localStorage.getItem("ningde-hbd-theme"); } catch (e) {}
+  if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  document.documentElement.dataset.theme = theme;
+})();
+</script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #666862;
+    --grid: #e1e0d9;
+    --border: rgba(11,11,11,0.10);
+    --steam: #b84a1f;          /* 蒸汽（抽汽用虚线） */
+    --water-cold: #2d70b5;     /* 凝结水 */
+    --water-hot: #1c5cab;      /* 给水 */
+    --drain: #087a55;          /* 疏水 */
+    --sea: #898781;            /* 海水（图注级，非系列色） */
+    --source-map: #b52d56;      /* 原图定位层 */
+    --source-map-fill: rgba(181,45,86,0.10);
+    --lit-halo: rgba(235,104,52,0.14);
+    --card-shadow: 0 1px 3px rgba(11,11,11,0.08);
+    --scan-mat: #eeeeeb;        /* 原图浏览区衬底 */
+    --paper: #ffffff;           /* 扫描纸面占位 */
+    --danger: #b52240;
+    --danger-ink: #4a111d;
+  }
+  /* 主题唯一来源：<head> 内联脚本总会在首帧前落好 data-theme（存储值优先，其次跟随系统） */
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --border: rgba(255,255,255,0.10);
+    --steam: #df612d;
+    --water-cold: #6da7ec;
+    --water-hot: #3987e5;
+    --drain: #199e70;
+    --sea: #7f96a3;
+    --source-map: #ff7599;
+    --source-map-fill: rgba(255,117,153,0.14);
+    --lit-halo: rgba(217,89,38,0.20);
+    --card-shadow: none;
+    --scan-mat: #1c1c1b;
+    --paper: #efeeea;
+    --danger: #ff7599;
+    --danger-ink: #ffd4de;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; padding: 0; max-width: 100%; overflow-x: hidden; }
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+  }
+  button, select { font-family: inherit; }
+  button:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--water-cold); outline-offset: 2px; }
+  .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  header { padding: 14px 20px 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; min-width: 0; }
+  header h1 { font-size: 19px; margin: 0; font-weight: 700; }
+  header .sub { color: var(--ink-2); font-size: 12.5px; min-width: 0; overflow-wrap: anywhere; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 0 20px 8px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .seg button { appearance: none; border: 0; background: transparent; color: var(--ink-2); padding: 6px 14px; font-size: 13px; cursor: pointer; }
+  .seg button.on { background: var(--ink); color: var(--page); font-weight: 600; }
+  .tbtn { appearance: none; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink-2); padding: 6px 12px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .tbtn:hover { color: var(--ink); }
+  .tbtn.on { background: var(--ink); color: var(--page); font-weight: 600; }
+  .tbtn:disabled { opacity: .4; cursor: default; }
+  .ico { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .iconbtn { width: 34px; height: 34px; padding: 0; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink-2); display: inline-grid; place-items: center; cursor: pointer; }
+  .iconbtn:hover { color: var(--ink); }
+  .iconbtn:disabled { opacity: .35; cursor: default; }
+  main { display: grid; grid-template-columns: minmax(0,1fr) minmax(370px,410px); gap: 14px; padding: 0 20px 8px; align-items: start; min-width: 0; }
+  main > *, .diagram-column, .diagram-wrap, .panel { min-width: 0; }
+  .diagram-column { display: grid; gap: 7px; }
+  .diagram-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 7px 10px; min-height: 34px; }
+  .diagram-ident { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 10px; min-width: 0; }
+  .diagram-title { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+  .view-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; background: var(--surface); }
+  .view-seg button { appearance: none; border: 0; background: transparent; color: var(--ink-2); min-height: 30px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+  .view-seg button.on { background: var(--ink); color: var(--page); font-weight: 650; }
+  .source-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .source-tools[hidden] { display: none !important; }
+  .source-select { min-height: 32px; max-width: 170px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--ink); padding: 4px 28px 4px 8px; font: inherit; font-size: 12px; }
+  .source-toggle { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; color: var(--ink-2); font-size: 12px; cursor: pointer; white-space: nowrap; }
+  .source-toggle input { accent-color: var(--source-map); width: 15px; height: 15px; margin: 0; }
+  .view-controls { display: flex; align-items: center; gap: 5px; flex: 0 0 auto; }
+  .zoom-readout { color: var(--muted); font-size: 11.5px; min-width: 38px; text-align: center; font-variant-numeric: tabular-nums; }
+  .mobile-focusbar { display: none; }
+  .mobile-focusbar[hidden] { display: none !important; }
+  .diagram-wrap {
+    width: 100%; max-width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; overflow-x: auto; overflow-y: hidden; box-shadow: var(--card-shadow);
+    overscroll-behavior-inline: contain; scrollbar-gutter: stable;
+  }
+  .diagram-inner { width: 100%; min-width: 840px; }
+  #dia { display: block; width: 100%; height: auto; }
+  .diagram-wrap.source-mode {
+    height: min(72vh,760px); min-height: 520px; overflow: auto; scrollbar-gutter: stable;
+    background: var(--scan-mat);
+  }
+  .source-stage { position: relative; min-width: 100%; min-height: 100%; background: var(--scan-mat); }
+  .source-inner {
+    position: absolute; background: var(--paper); box-shadow: 0 1px 8px rgba(0,0,0,.18);
+  }
+  .source-image, .source-overlay { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+  .source-image { user-select: none; -webkit-user-drag: none; }
+  .source-overlay { overflow: visible; }
+  .source-hot { cursor: pointer; }
+  .source-hit {
+    fill: transparent; stroke: var(--source-map); stroke-width: 1.5; stroke-opacity: 0;
+    vector-effect: non-scaling-stroke; transition: fill .18s, stroke-opacity .18s;
+  }
+  .source-label-bg {
+    fill: rgba(255,255,255,.92); stroke: var(--source-map); stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .source-label { fill: #65172f; font-size: 28px; font-weight: 750; pointer-events: none; }
+  .source-label-bg, .source-label { display: none; }
+  .source-stage.show-markers .source-hot.major:not(.dimmed) .source-hit { fill: var(--source-map-fill); stroke-opacity: .5; }
+  .source-stage.show-markers .source-hot.major:not(.dimmed) .source-label-bg,
+  .source-stage.show-markers .source-hot.major:not(.dimmed) .source-label { display: block; }
+  .source-hot:hover .source-hit, .source-hot:focus .source-hit,
+  .source-hot.lit .source-hit, .source-hot.sel .source-hit {
+    fill: var(--source-map-fill); stroke-opacity: 1; stroke-width: 2.5;
+  }
+  .source-hot:hover .source-label-bg, .source-hot:hover .source-label,
+  .source-hot:focus .source-label-bg, .source-hot:focus .source-label,
+  .source-hot.lit .source-label-bg, .source-hot.lit .source-label,
+  .source-hot.sel .source-label-bg, .source-hot.sel .source-label { display: block; }
+  .source-stage.zoomed .source-hot:not(:hover):not(:focus):not(.lit):not(.sel) .source-label-bg,
+  .source-stage.zoomed .source-hot:not(:hover):not(:focus):not(.lit):not(.sel) .source-label { display: none; }
+  .source-hot:focus { outline: none; }
+  .source-error {
+    position: sticky; left: 16px; top: 16px; width: min(420px,calc(100vw - 64px)); z-index: 3;
+    border: 1px solid var(--danger); border-radius: 8px; background: var(--surface); color: var(--danger-ink);
+    padding: 12px 14px; font-size: 13px; box-shadow: var(--card-shadow);
+  }
+  .source-error[hidden] { display: none; }
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 18px; box-shadow: var(--card-shadow);
+    position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; overflow-wrap: anywhere;
+  }
+  .panel h2 { font-size: 16.5px; margin: 2px 0 6px; }
+  .panel h3 { font-size: 13.5px; margin: 12px 0 5px; }
+  .panel .stepno { color: var(--muted); font-size: 12px; letter-spacing: 0; }
+  .evidence { display: inline-block; margin-left: 5px; padding: 1px 5px; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); font-size: 11px; line-height: 1.45; vertical-align: 1px; white-space: nowrap; }
+  .evidence.derived { color: var(--water-hot); border-color: color-mix(in srgb,var(--water-hot) 35%,transparent); }
+  .evidence.explain { color: var(--drain); border-color: color-mix(in srgb,var(--drain) 35%,transparent); }
+  .panel p { font-size: 13.5px; color: var(--ink-2); margin: 8px 0; }
+  .panel p strong, .panel li strong { color: var(--ink); }
+  .panel table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+  .panel th, .panel td { text-align: left; font-size: 12.5px; padding: 4px 6px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  .panel th { color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .panel td.v { font-variant-numeric: tabular-nums; color: var(--ink); }
+  .panel details { margin: 10px 0 4px; border: 0; border-top: 1px solid var(--grid); border-radius: 0; padding: 8px 1px 2px; font-size: 13px; }
+  .panel details summary { cursor: pointer; color: var(--ink); font-weight: 600; font-size: 13px; }
+  .panel details p { margin: 6px 0 2px; }
+  .quick-grid { display: grid; margin-top: 8px; border-top: 1px solid var(--grid); }
+  .panel .quick-item { border: 0; border-bottom: 1px solid var(--grid); border-radius: 0; padding: 0; margin: 0; background: transparent; }
+  .panel .quick-item summary { padding: 9px 1px; cursor: pointer; color: var(--ink); font-size: 13.5px; font-weight: 650; }
+  .quick-body { padding: 0 1px 8px; }
+  .quick-body p { margin: 4px 0; font-size: 12.8px; }
+  .quick-body table { margin: 4px 0 0; }
+  .navrow { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .field-label { display: block; margin: 10px 0 4px; color: var(--muted); font-size: 11.5px; font-weight: 650; }
+  .element-select { width: 100%; min-height: 38px; border: 1px solid var(--border); border-radius: 7px; background: var(--page); color: var(--ink); padding: 6px 30px 6px 9px; font-size: 13px; }
+  .mobile-return { display: none; }
+  .dots { display: flex; gap: 4px; flex-wrap: wrap; }
+  .dots button { appearance: none; width: 9px; height: 9px; min-width: 9px; padding: 0; border: 0; border-radius: 50%; background: var(--grid); cursor: pointer; }
+  .dots button.on { background: var(--steam); }
+  .extract-ladder { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 4px; margin: 10px 0; }
+  .extract-ladder button { appearance: none; min-width: 0; height: 32px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: var(--page); color: var(--ink-2); cursor: pointer; font-weight: 700; }
+  .extract-ladder button.on { color: var(--page); background: var(--steam); border-color: var(--steam); }
+  .extract-ladder button:disabled { cursor: default; opacity: .45; }
+  .formula { margin: 10px 0; padding: 9px 10px; border-left: 3px solid var(--steam); background: var(--page); color: var(--ink); font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .takeaway { border-top: 1px solid var(--grid); padding-top: 8px; }
+  .compare-table th:not(:first-child), .compare-table td:not(:first-child) { text-align: center; }
+  .compare-table td:first-child { color: var(--muted); white-space: nowrap; }
+  .water-journey { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); margin: 10px 0; border-top: 1px solid var(--grid); border-bottom: 1px solid var(--grid); }
+  .water-stage { min-width: 0; padding: 7px 6px; border-right: 1px solid var(--grid); }
+  .water-stage:nth-child(3n) { border-right: 0; }
+  .water-stage:nth-child(-n+3) { border-bottom: 1px solid var(--grid); }
+  .water-stage b, .water-stage span { display: block; }
+  .water-stage b { color: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .water-stage span { color: var(--muted); font-size: 12px; line-height: 1.35; }
+  .number-overview { margin-top: 8px; border-top: 1px solid var(--grid); }
+  .number-overview > p { margin-top: 9px; }
+  .parameter-key {
+    display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); margin: 10px 0;
+    border: 1px solid var(--border); background: var(--page);
+  }
+  .parameter-cell { min-width: 0; min-height: 76px; padding: 8px 9px; }
+  .parameter-cell:nth-child(odd) { border-right: 1px solid var(--grid); }
+  .parameter-cell:nth-child(-n+2) { border-bottom: 1px solid var(--grid); }
+  .parameter-cell b, .parameter-cell span, .parameter-cell small { display: block; }
+  .parameter-cell b { color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .parameter-cell span { color: var(--ink-2); font-size: 12px; }
+  .parameter-cell small { color: var(--muted); font-size: 12px; line-height: 1.35; }
+  .number-group-tabs {
+    display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; margin: 8px 0;
+  }
+  .number-group-tabs button {
+    appearance: none; min-width: 0; min-height: 34px; padding: 4px 3px;
+    border: 1px solid var(--border); border-radius: 6px; background: var(--page);
+    color: var(--ink-2); font-size: 12px; line-height: 1.25; cursor: pointer;
+  }
+  .number-group-tabs button.on { background: var(--ink); border-color: var(--ink); color: var(--page); font-weight: 650; }
+  .number-map { margin-top: 10px; border-top: 1px solid var(--grid); }
+  .number-lead { color: var(--ink-2); }
+  .number-source-figure { margin: 10px 0 8px; }
+  .number-source-frame {
+    height: 210px; width: 100%; overflow: hidden; border: 1px solid var(--border);
+    background: var(--paper); display: grid; place-items: center;
+  }
+  .number-source-frame svg { display: block; width: 100%; height: 100%; }
+  .number-source-figure figcaption { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+  .number-anchor-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 9px; }
+  .number-anchor-tabs button {
+    appearance: none; min-height: 30px; padding: 4px 7px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--page); color: var(--ink-2); font-size: 12px; cursor: pointer;
+  }
+  .number-anchor-tabs button.on { color: var(--page); background: var(--source-map); border-color: var(--source-map); font-weight: 650; }
+  .number-legend { display: flex; flex-wrap: wrap; gap: 5px 8px; margin: 8px 0; }
+  .relation-tag {
+    display: inline-flex; align-items: center; min-height: 20px; padding: 1px 5px;
+    border: 1px solid var(--border); border-radius: 4px; color: var(--muted);
+    font-size: 11px; line-height: 1.3; white-space: nowrap;
+  }
+  .relation-tag.direct { color: var(--ink-2); }
+  .relation-tag.format { color: var(--water-cold); border-color: color-mix(in srgb,var(--water-cold) 40%,transparent); }
+  .relation-tag.derived { color: var(--water-hot); border-color: color-mix(in srgb,var(--water-hot) 40%,transparent); }
+  .relation-tag.merged { color: var(--drain); border-color: color-mix(in srgb,var(--drain) 40%,transparent); }
+  .relation-tag.omitted { color: var(--source-map); border-color: color-mix(in srgb,var(--source-map) 40%,transparent); }
+  .number-rows { border-bottom: 1px solid var(--grid); }
+  .number-row { padding: 8px 1px; border-top: 1px solid var(--grid); }
+  .number-row-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .number-row-head strong { color: var(--ink); font-size: 12.5px; }
+  .number-pair { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; margin-top: 5px; }
+  .number-pair > div { min-width: 0; }
+  .number-pair > div + div { border-left: 1px solid var(--grid); padding-left: 9px; }
+  .number-pair span, .number-pair b { display: block; }
+  .number-pair span { color: var(--muted); font-size: 11px; }
+  .number-pair b { color: var(--ink-2); font-size: 12px; line-height: 1.45; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .number-row-note { margin: 5px 0 0 !important; color: var(--muted) !important; font-size: 12px !important; line-height: 1.45; }
+  .number-calculations { margin-top: 12px; border-top: 1px solid var(--grid); }
+  .number-calculations h3 { margin-top: 9px; }
+  .number-calc { padding: 8px 1px 9px; border-bottom: 1px solid var(--grid); }
+  .number-calc h4 { margin: 0 0 5px; color: var(--ink); font-size: 12.8px; }
+  .number-calc p { margin: 4px 0; font-size: 12px; line-height: 1.5; }
+  .calc-layer { color: var(--muted); font-size: 11px; font-weight: 700; }
+  .number-calc .formula { margin: 6px 0; padding: 7px 8px; font-size: 12px; overflow-wrap: anywhere; }
+  .number-limit { margin: 9px 0 4px; padding-left: 9px; border-left: 3px solid var(--source-map); color: var(--ink-2); font-size: 12px; line-height: 1.5; }
+  .number-details { margin-top: 12px !important; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; padding: 6px 20px 6px; font-size: 12.5px; color: var(--ink-2); }
+  .legend .it { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 22px; height: 0; border-top: 3px solid; border-radius: 2px; }
+  .legend .sw.dash { border-top-style: dashed; border-top-width: 2.5px; }
+  footer { padding: 8px 20px 24px; display: grid; gap: 10px; }
+  .ebar-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  .ebar-title { font-size: 13px; color: var(--ink-2); margin-bottom: 8px; }
+  .ebar-title strong { color: var(--ink); }
+  .ebar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--page); }
+  .ebar div { height: 100%; }
+  .ebar .e1 { background: var(--water-hot); }
+  .ebar .e2 { background: var(--sea); opacity: .55; }
+  .ebar .e3 { background: var(--grid); }
+  .ebar-lab { display: flex; gap: 18px; margin-top: 6px; font-size: 12.5px; color: var(--ink-2); flex-wrap: wrap; }
+  .ebar-lab b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .src { font-size: 12px; color: var(--muted); }
+  .copyright { border-top: 1px solid var(--grid); padding-top: 9px; font-size: 12px; line-height: 1.6; color: var(--muted); }
+  .copyright strong { display: block; color: var(--ink-2); }
+
+  /* ---------- SVG ---------- */
+  text { font-family: inherit; fill: var(--ink-2); }
+  .comp-shape { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.5; }
+  .comp-label { fill: var(--ink); font-size: 14px; font-weight: 650; }
+  .heater-label { font-size: 11.5px; }
+  .comp-sub { fill: var(--muted); font-size: 11.5px; }
+  .msr-sub { fill: var(--muted); font-size: 10px; }
+  .pipe { fill: none; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+  .pipe.steam { stroke: var(--steam); }
+  .pipe.wcold { stroke: var(--water-cold); }
+  .pipe.whot  { stroke: var(--water-hot); }
+  .thin { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .extr  { stroke: var(--steam); stroke-dasharray: 7 5; }
+  .drain { stroke: var(--drain); stroke-dasharray: 4 4; }
+  .seaw  { stroke: var(--sea); stroke-width: 2; stroke-dasharray: 2 3; fill: none; }
+  .pipe.steam { marker-end: url(#arrow-steam); }
+  .pipe.wcold { marker-end: url(#arrow-wcold); }
+  .pipe.whot { marker-end: url(#arrow-whot); }
+  .pipe.steam.multi-arrow { marker-mid: url(#arrow-steam-small); }
+  .pipe.wcold.multi-arrow { marker-mid: url(#arrow-wcold); }
+  .pipe.whot.multi-arrow { marker-mid: url(#arrow-whot); }
+  .thin.extr { marker-end: url(#arrow-steam-small); }
+  .thin.drain { marker-end: url(#arrow-drain); }
+  .seaw { marker-end: url(#arrow-sea); }
+  .hit { fill: none; stroke: transparent; stroke-width: 22; }
+  .flowanim { }
+  .motion-flow {
+    fill: none; pointer-events: none; marker-end: none !important; marker-mid: none !important;
+    stroke-dasharray: 2 16 !important; stroke-linecap: round; opacity: .9;
+    animation: dashmove 1.1s linear infinite;
+  }
+  .motion-flow.pipe { stroke-width: 3.2; }
+  .motion-flow.thin { stroke-width: 2.2; }
+  .motion-layer { pointer-events: none; }
+  @keyframes dashmove { to { stroke-dashoffset: -14; } }
+  .noanim .motion-layer { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .motion-layer { display: none !important; }
+  }
+  .tag { fill: var(--ink-2); font-size: 11.5px; }
+  .tag.strong { fill: var(--ink); font-weight: 600; }
+  .flag { fill: var(--surface); stroke: var(--drain); stroke-width: 1.2; }
+  .flag.steamf { stroke: var(--steam); }
+  .flag-t { fill: var(--ink); font-size: 11px; font-weight: 700; }
+  .valve-shape { fill: var(--surface); stroke: var(--steam); stroke-width: 1.7; stroke-linejoin: round; }
+  .valve-stem { stroke: var(--steam); stroke-width: 1.5; stroke-linecap: round; }
+  .valve-label { fill: var(--ink); font-size: 10.5px; font-weight: 700; }
+  .valve-hit { fill: transparent; pointer-events: all; }
+  .shaft { stroke: var(--muted); stroke-width: 2; stroke-dasharray: 10 4 2 4; opacity: .6; }
+
+  .hot { cursor: pointer; }
+  g.hot:focus { outline: none; }
+  g.hot:focus .comp-shape,
+  g.hot:focus .flag,
+  g.hot:focus .valve-shape { stroke: var(--ink); stroke-width: 2.4; filter: drop-shadow(0 0 5px var(--lit-halo)); }
+  g.hot:focus path.pipe { stroke-width: 4.6; }
+  g.hot:focus path.thin,
+  g.hot:focus path.seaw { stroke-width: 3.4; }
+  .dimmed { opacity: 0.15; transition: opacity .25s; }
+  g.lit .comp-shape, g.sel .comp-shape { stroke: var(--steam); stroke-width: 2.2; filter: drop-shadow(0 0 6px var(--lit-halo)); }
+  g.lit path.pipe, g.sel path.pipe { stroke-width: 4.6; }
+  g.lit path.thin, g.sel path.thin { stroke-width: 3.4; }
+  g.lit .flag, g.sel .flag { stroke: var(--steam); stroke-width: 2.1; }
+  g.lit .valve-shape, g.sel .valve-shape { stroke: var(--steam); stroke-width: 2.5; filter: drop-shadow(0 0 6px var(--lit-halo)); }
+
+  @media (max-width: 1180px) {
+    main { grid-template-columns: minmax(0,1fr); }
+    .panel { position: static; max-height: none; }
+  }
+  @media (max-width: 720px) {
+    header { padding: 12px 12px 6px; display: block; }
+    header h1 { font-size: 18px; line-height: 1.35; }
+    header .sub { display: block; width: 100%; margin-top: 4px; font-size: 11.5px; white-space: normal; overflow-wrap: anywhere; }
+    .toolbar { padding: 0 12px 6px; gap: 7px; }
+    .toolbar .seg { width: 100%; display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); }
+    .toolbar .seg button { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 7px 6px; }
+    .toolbar .seg button:nth-child(-n+3) { grid-column: span 2; }
+    .toolbar .seg button:nth-child(n+4) { grid-column: span 3; }
+    .toolbar .tbtn, .toolbar .iconbtn { min-height: 44px; }
+    .legend { padding: 5px 12px 7px; gap: 5px 12px; font-size: 11.5px; }
+    .legend .it:last-child { width: 100%; }
+    main { padding: 0 12px 8px; gap: 10px; }
+    .diagram-column { gap: 6px; }
+    .diagram-head { min-height: 38px; align-items: flex-start; }
+    .diagram-ident { width: 100%; justify-content: space-between; }
+    .diagram-title { font-size: 11.5px; }
+    .view-seg button { min-height: 38px; padding: 5px 9px; }
+    .source-tools { order: 3; width: 100%; justify-content: space-between; }
+    .source-select { flex: 1 1 180px; max-width: none; min-height: 40px; }
+    .source-toggle { min-height: 40px; }
+    .iconbtn { width: 40px; height: 40px; }
+    .zoom-readout { min-width: 34px; font-size: 11px; }
+    .mobile-focusbar {
+      display: grid; grid-template-columns: 40px minmax(0,1fr) 40px 40px; gap: 6px; align-items: center;
+      border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 5px;
+    }
+    .mobile-focusbar button { appearance: none; width: 40px; height: 40px; border: 0; border-radius: 6px; background: var(--page); color: var(--ink); cursor: pointer; font-size: 18px; }
+    .mobile-focusbar button:disabled { opacity: .3; cursor: default; }
+    .mobile-focusbar strong { min-width: 0; text-align: center; font-size: 12.5px; line-height: 1.35; overflow-wrap: anywhere; }
+    .diagram-wrap { scrollbar-gutter: auto; }
+    .diagram-wrap.source-mode { height: 62vh; min-height: 420px; }
+    .panel { padding: 13px 14px; }
+    .panel h2 { font-size: 16px; }
+    .panel p { font-size: 13.5px; }
+    .panel .tbtn { min-height: 42px; }
+    .mobile-return { display: inline-flex; }
+    .extract-ladder button { min-height: 40px; }
+    .number-source-frame { height: 230px; }
+    .number-group-tabs button { min-height: 42px; }
+    .number-anchor-tabs button { min-height: 38px; }
+    footer { padding: 7px 12px 20px; }
+    .ebar-wrap { padding: 10px 12px; }
+    .src { overflow-wrap: anywhere; }
+  }
+</style>
+</head>
+<body>
+
+<noscript><p style="margin:16px 20px;padding:10px 14px;border:1px solid rgba(11,11,11,.2);border-radius:8px;font-size:14px;">本教程的讲解面板与互动图需要启用 JavaScript 才能显示。</p></noscript>
+
+<header>
+  <h1>宁德核电 100% TMCR · 跟着蒸汽走一圈</h1>
+  <span class="sub">互动教程 · 主图数据取自东汽第 6 页（RL0107001001），VWO 对照取第 12 页升版，关键推导与工程解释另标</span>
+</header>
+
+<div class="toolbar">
+  <span class="seg" role="tablist" aria-label="学习模式">
+    <button id="btnTour" class="on" role="tab" aria-selected="true" aria-controls="panel" tabindex="0">导览</button>
+    <button id="btnExtract" role="tab" aria-selected="false" aria-controls="panel" tabindex="-1">给水回热</button>
+    <button id="btnNumbers" role="tab" aria-selected="false" aria-controls="panel" tabindex="-1">数字对照</button>
+    <button id="btnFree" role="tab" aria-selected="false" aria-controls="panel" tabindex="-1">自由探索</button>
+    <button id="btnQuick" role="tab" aria-selected="false" aria-controls="panel" tabindex="-1">速查</button>
+  </span>
+  <button class="tbtn" id="btnAnim" aria-pressed="true">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect width="4" height="16" x="6" y="4" rx="1"/><rect width="4" height="16" x="14" y="4" rx="1"/></svg>
+    <span>暂停流动</span>
+  </button>
+  <button class="iconbtn" id="btnTheme" title="切换深浅色" aria-label="切换深浅色">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.42"/></svg>
+  </button>
+</div>
+
+<div class="legend">
+  <span class="it"><span class="sw" style="border-color:var(--steam)"></span>蒸汽</span>
+  <span class="it"><span class="sw dash" style="border-color:var(--steam)"></span>抽汽/漏汽</span>
+  <span class="it"><span class="sw" style="border-color:var(--water-cold)"></span>凝结水</span>
+  <span class="it"><span class="sw" style="border-color:var(--water-hot)"></span>给水</span>
+  <span class="it"><span class="sw dash" style="border-color:var(--drain)"></span>疏水</span>
+  <span class="it" style="color:var(--muted)">箭头=流向 · 灰点线=海水</span>
+  <span class="it" id="sourceLegend" hidden><span class="sw" style="border-color:var(--source-map)"></span>粉色框=网页定位层</span>
+</div>
+
+<main>
+  <div class="diagram-column">
+  <div class="mobile-focusbar" id="mobileFocus" hidden>
+    <button id="mobilePrev" type="button" aria-label="上一步">←</button>
+    <strong id="mobileFocusTitle"></strong>
+    <button id="mobileNext" type="button" aria-label="下一步">→</button>
+    <button id="mobileExplain" type="button" title="查看讲解" aria-label="查看讲解">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+    </button>
+  </div>
+  <div class="diagram-head">
+    <div class="diagram-ident">
+      <span class="diagram-title" id="diagramTitle">100% TMCR · 教学简图</span>
+      <span class="view-seg" role="tablist" aria-label="图纸视图">
+        <button id="btnTeachingView" class="on" role="tab" aria-selected="true" aria-controls="diagramInner" tabindex="0">教学简图</button>
+        <button id="btnSourceView" role="tab" aria-selected="false" aria-controls="sourceStage" tabindex="-1">第 6 页原图</button>
+      </span>
+    </div>
+    <div class="source-tools" id="sourceTools" hidden>
+      <select class="source-select" id="sourceRegion" aria-label="原图区域">
+        <option value="full">全页</option>
+        <option value="turbine">汽轮机与再热</option>
+        <option value="feedwater">给水回热</option>
+        <option value="condenser">凝汽器与低压缸</option>
+      </select>
+      <label class="source-toggle"><input type="checkbox" id="sourceMarkers" checked>显示定位框</label>
+    </div>
+    <div class="view-controls" aria-label="图表缩放">
+      <button class="iconbtn" id="btnZoomOut" title="缩小" aria-label="缩小">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+      </button>
+      <span class="zoom-readout" id="zoomReadout">适应</span>
+      <button class="iconbtn" id="btnZoomIn" title="放大" aria-label="放大">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
+      </button>
+      <button class="iconbtn" id="btnZoomFit" title="适应宽度" aria-label="适应宽度">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+      </button>
+      <button class="iconbtn" id="btnZoomReset" title="复位视图" aria-label="复位视图">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="diagram-wrap" id="diagramWrap" tabindex="0" aria-label="可横向浏览的教学简图"><div class="diagram-inner" id="diagramInner">
+  <svg id="dia" viewBox="0 0 1240 592" aria-label="100% TMCR 二回路系统图">
+    <defs>
+      <marker id="arrow-steam" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8 Z" fill="var(--steam)"/>
+      </marker>
+      <marker id="arrow-steam-small" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8 Z" fill="var(--steam)"/>
+      </marker>
+      <marker id="arrow-wcold" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8 Z" fill="var(--water-cold)"/>
+      </marker>
+      <marker id="arrow-whot" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8 Z" fill="var(--water-hot)"/>
+      </marker>
+      <marker id="arrow-drain" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8 Z" fill="var(--drain)"/>
+      </marker>
+      <marker id="arrow-sea" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8 Z" fill="var(--sea)"/>
+      </marker>
+    </defs>
+    <!-- 轴系 -->
+    <line class="shaft bg" x1="315" y1="205" x2="1152" y2="205"/>
+
+    <!-- ========== 管线 ========== -->
+    <!-- 主蒸汽 -->
+    <g class="hot" data-k="mainsteam">
+      <path class="pipe steam flowanim multi-arrow" d="M 150 130 L 150 96 L 340 96 L 340 150"/>
+      <path class="hit" d="M 150 130 L 150 96 L 340 96 L 340 150"/>
+      <text class="tag strong" x="210" y="88">主蒸汽 64.3 bar · 280 ℃</text>
+      <text class="tag" x="212" y="110">1613.4 kg/s · X≈0.995</text>
+    </g>
+    <!-- 汽轮机进汽调节阀 -->
+    <g class="hot" data-k="controlvalve">
+      <title>汽轮机进汽调节阀（调门）</title>
+      <rect class="valve-hit" x="328" y="106" width="48" height="40"/>
+      <polygon class="valve-shape" points="332,114 348,114 340,124"/>
+      <polygon class="valve-shape" points="332,134 348,134 340,124"/>
+      <path class="valve-stem" d="M 348 124 L 358 124"/>
+      <path class="valve-stem" d="M 358 117 L 358 131"/>
+      <text class="valve-label" x="364" y="127">调门</text>
+    </g>
+    <!-- 高压缸排汽 → 分离器 -->
+    <g class="hot" data-k="hpexhaust">
+      <path class="pipe steam flowanim multi-arrow" d="M 395 262 L 395 310 L 470 310"/>
+      <path class="hit" d="M 395 262 L 395 310 L 470 310"/>
+      <text class="tag" x="403" y="290">9.6 bar · X=0.857</text>
+    </g>
+    <!-- MSR 内部：分离器→一级再热→二级再热 -->
+    <g class="hot" data-k="msr">
+      <path class="pipe steam flowanim" d="M 580 310 L 616 310 L 616 251 L 580 251"/>
+      <path class="pipe steam flowanim" d="M 500 251 L 480 251 L 480 207 L 500 207"/>
+    </g>
+    <!-- 再热蒸汽 → 中压缸 -->
+    <g class="hot" data-k="hotreheat">
+      <path class="pipe steam flowanim multi-arrow" d="M 580 207 L 664 207 L 664 150 L 715 150"/>
+      <path class="hit" d="M 580 207 L 664 207 L 664 150 L 715 150"/>
+      <text class="tag strong" x="676" y="124">268.8 ℃ 过热</text>
+      <text class="tag" x="676" y="142">2986.5 kJ/kg</text>
+    </g>
+    <!-- 连通管 -->
+    <g class="hot" data-k="crossover">
+      <path class="pipe steam flowanim multi-arrow" d="M 800 160 L 830 160 L 830 118 L 1063 118 L 1063 150"/>
+      <path class="pipe steam flowanim" d="M 916 118 L 916 150"/>
+      <path class="hit" d="M 800 160 L 830 160 L 830 118 L 1063 118"/>
+      <text class="tag" x="884" y="110">3.1 bar · 962.0 kg/s</text>
+    </g>
+    <!-- 低压缸排汽 → 凝汽器 -->
+    <g class="hot" data-k="lpexhaust">
+      <path class="pipe steam flowanim" d="M 916 262 L 916 330"/>
+      <path class="pipe steam flowanim" d="M 1063 262 L 1063 330"/>
+      <path class="hit" d="M 916 262 L 916 330"/>
+      <path class="hit" d="M 1063 262 L 1063 330"/>
+      <text class="tag" x="940" y="296">0.051 bar</text>
+      <text class="tag" x="940" y="312">X=0.904</text>
+    </g>
+    <!-- 凝结水 -->
+    <g class="hot" data-k="condensate">
+      <path class="pipe wcold flowanim multi-arrow" d="M 985 432 L 985 470 L 940 470"/>
+      <path class="pipe wcold flowanim" d="M 912 470 L 852 470"/>
+      <path class="pipe wcold flowanim" d="M 796 470 L 744 470"/>
+      <path class="pipe wcold flowanim" d="M 688 470 L 636 470"/>
+      <path class="hit" d="M 985 432 L 985 470 L 852 470"/>
+      <text class="tag" x="906" y="492">33.4 ℃ · 963.3 kg/s</text>
+    </g>
+    <g class="hot" data-k="condensate2">
+      <path class="pipe wcold flowanim" d="M 580 470 L 528 470"/>
+      <path class="pipe wcold flowanim" d="M 472 470 L 434 470"/>
+      <path class="hit" d="M 580 470 L 528 470"/>
+    </g>
+    <!-- 给水 -->
+    <g class="hot" data-k="feedwater">
+      <path class="pipe whot flowanim" d="M 344 500 L 316 500 L 316 470 L 300 470"/>
+      <path class="pipe whot flowanim" d="M 272 470 L 236 470"/>
+      <path class="pipe whot flowanim" d="M 180 470 L 144 470"/>
+      <path class="pipe whot flowanim multi-arrow" d="M 88 470 L 60 470 L 60 300 L 92 300"/>
+      <path class="hit" d="M 344 500 L 316 500 L 316 470 L 60 470 L 60 300 L 92 300"/>
+      <text class="tag strong" x="24" y="388">最终给水 226.0 ℃</text>
+      <text class="tag" x="24" y="404">SG 入口 · 77.23 bar</text>
+    </g>
+    <!-- 抽汽 -->
+    <g class="hot" data-k="exA">
+      <path class="thin extr flowanim" d="M 355 262 L 355 340 L 250 340 L 250 560 L 116 560 L 116 502"/>
+      <path class="hit" d="M 355 262 L 355 340 L 250 340 L 250 560 L 116 560 L 116 502"/>
+    </g>
+    <g class="hot" data-k="exB">
+      <path class="thin extr flowanim" d="M 375 262 L 375 322 L 264 322 L 264 545 L 208 545 L 208 502"/>
+      <path class="hit" d="M 375 262 L 375 322 L 264 322 L 264 545 L 208 545 L 208 502"/>
+    </g>
+    <g class="hot" data-k="exC">
+      <path class="thin extr flowanim" d="M 415 262 L 415 428 L 400 428 L 400 496"/>
+      <path class="hit" d="M 415 262 L 415 428 L 400 428 L 400 496"/>
+    </g>
+    <g class="hot" data-k="exD">
+      <path class="thin extr flowanim" d="M 762 262 L 762 372 L 500 372 L 500 442"/>
+      <path class="hit" d="M 762 262 L 762 372 L 500 372 L 500 442"/>
+    </g>
+    <g class="hot" data-k="exE">
+      <path class="thin extr flowanim" d="M 850 118 L 850 96 L 640 96 L 640 380 L 608 380 L 608 442"/>
+      <path class="hit" d="M 850 118 L 850 96 L 640 96 L 640 380 L 608 380 L 608 442"/>
+    </g>
+    <g class="hot" data-k="exF">
+      <path class="thin extr flowanim" d="M 866 262 L 866 320 L 716 320 L 716 442"/>
+      <path class="hit" d="M 866 262 L 866 320 L 716 320 L 716 442"/>
+    </g>
+    <g class="hot" data-k="exG">
+      <path class="thin extr flowanim" d="M 1013 262 L 1013 308 L 824 308 L 824 442"/>
+      <path class="hit" d="M 1013 262 L 1013 308 L 824 308 L 824 442"/>
+    </g>
+    <!-- 再热器加热汽源：与被加热的工作蒸汽隔壁换热 -->
+    <g class="hot" data-k="rh1heat">
+      <path class="thin extr flowanim" d="M 450 188 L 470 188 L 470 228 L 540 228 L 540 234"/>
+      <path class="hit" d="M 450 188 L 470 188 L 470 228 L 540 228 L 540 234"/>
+    </g>
+    <g class="hot" data-k="rh2heat">
+      <path class="pipe steam flowanim multi-arrow" d="M 300 96 L 300 72 L 650 72 L 650 178 L 540 178 L 540 190"/>
+      <path class="hit" d="M 300 96 L 300 72 L 650 72 L 650 178 L 540 178 L 540 190"/>
+    </g>
+    <!-- 疏水 -->
+    <g class="hot" data-k="drM">
+      <path class="thin drain flowanim" d="M 525 330 L 525 404 L 420 404 L 420 496"/>
+      <path class="hit" d="M 525 330 L 525 404 L 420 404 L 420 496"/>
+    </g>
+    <g class="hot" data-k="drK">
+      <path class="thin drain flowanim" d="M 540 268 L 540 279 L 634 279 L 634 396 L 222 396 L 222 442"/>
+      <path class="hit" d="M 540 268 L 540 279 L 634 279 L 634 396 L 222 396 L 222 442"/>
+    </g>
+    <g class="hot" data-k="drL">
+      <path class="thin drain flowanim" d="M 516 224 L 516 229 L 646 229 L 646 410 L 130 410 L 130 442"/>
+      <path class="hit" d="M 516 224 L 516 229 L 646 229 L 646 410 L 130 410 L 130 442"/>
+    </g>
+    <g class="hot" data-k="drHH">
+      <path class="thin drain flowanim" d="M 128 502 L 128 524 L 370 524 L 370 508"/>
+      <path class="thin drain flowanim" d="M 196 502 L 196 524"/>
+      <path class="hit" d="M 128 502 L 128 524 L 370 524 L 370 508"/>
+      <text class="tag" x="140" y="544" fill="var(--drain)">高加疏水 311.9 kg/s → 除氧器</text>
+    </g>
+    <g class="hot" data-k="drLH">
+      <path class="thin drain flowanim" d="M 500 498 L 500 516 L 606 516 L 606 498"/>
+      <path class="thin drain flowanim" d="M 716 498 L 716 516 L 880 516 L 880 432"/>
+      <path class="thin drain flowanim" d="M 824 498 L 824 516"/>
+      <path class="hit" d="M 500 498 L 500 516 L 606 516 L 606 498"/>
+      <path class="hit" d="M 716 498 L 716 516 L 880 516 L 880 432"/>
+      <text class="tag" x="560" y="536" fill="var(--drain)">4→3 号经疏水泵汇入主流 · 2→1 号流回凝汽器</text>
+    </g>
+    <!-- 门杆漏汽 J -->
+    <g class="hot" data-k="drJ">
+      <path class="thin extr flowanim" style="stroke-width:1.4" d="M 340 175 L 300 175 L 300 420 L 385 420 L 385 496"/>
+      <path class="hit" d="M 340 175 L 300 175 L 300 420 L 385 420 L 385 496"/>
+    </g>
+    <!-- 海水 -->
+    <g class="hot" data-k="seawater">
+      <path class="seaw" d="M 806 400 L 862 400"/>
+      <path class="seaw" d="M 1108 400 L 1164 400"/>
+      <text class="tag" x="756" y="392" fill="var(--sea)">海水 21 ℃ →</text>
+      <text class="tag" x="1114" y="392" fill="var(--sea)">→ 回大海</text>
+      <path class="hit" d="M 780 400 L 1170 400"/>
+    </g>
+
+    <!-- 动态方向提示由脚本从流动管线复制生成，不改变原管线的实线/虚线含义 -->
+    <g id="motionLayer" class="motion-layer" aria-hidden="true"></g>
+
+    <!-- ========== 设备 ========== -->
+    <g class="hot" data-k="sg">
+      <rect class="comp-shape" x="92" y="130" width="116" height="190" rx="14"/>
+      <path d="M 116 160 v 96 m 22 -96 v 96 m 22 -96 v 96 m 22 -96 v 96" stroke="var(--grid)" stroke-width="2" fill="none"/>
+      <path d="M 122 292 q 14 -10 28 0 q 14 10 28 0" fill="none" stroke="var(--water-hot)" stroke-width="2"/>
+      <text class="comp-label" x="150" y="118" text-anchor="middle">蒸汽发生器 ×3</text>
+      <text class="comp-sub" x="150" y="340" text-anchor="middle">REACTOR / CPR1000 · 2904 MW</text>
+    </g>
+    <g class="hot" data-k="hp">
+      <polygon class="comp-shape" points="340,168 450,150 450,262 340,244"/>
+      <text class="comp-label" x="395" y="200" text-anchor="middle">高压缸</text>
+      <text class="comp-sub" x="395" y="220" text-anchor="middle">HP · 1 流</text>
+    </g>
+    <g class="hot" data-k="msr">
+      <rect x="460" y="176" width="188" height="172" rx="10" fill="none" stroke="var(--grid)" stroke-width="1.5"/>
+      <text class="comp-sub" x="554" y="170" text-anchor="middle">MSR 汽水分离再热器</text>
+      <rect class="comp-shape" x="470" y="290" width="110" height="40" rx="8"/>
+      <text class="flag-t" x="525" y="314" text-anchor="middle">分离器</text>
+      <rect class="comp-shape" x="500" y="234" width="80" height="34" rx="6"/>
+      <text class="flag-t" x="540" y="249" text-anchor="middle">一级再热 · 抽汽</text>
+      <text class="msr-sub" x="540" y="262" text-anchor="middle">177.9→218.1 ℃</text>
+      <rect class="comp-shape" x="500" y="190" width="80" height="34" rx="6"/>
+      <text class="flag-t" x="540" y="205" text-anchor="middle">二级再热 · 新汽</text>
+      <text class="msr-sub" x="540" y="218" text-anchor="middle">218.1→268.8 ℃</text>
+    </g>
+    <g class="hot" data-k="ip">
+      <polygon class="comp-shape" points="715,168 800,150 800,262 715,244"/>
+      <text class="comp-label" x="758" y="200" text-anchor="middle">中压缸</text>
+      <text class="comp-sub" x="758" y="220" text-anchor="middle">IP · 1 流</text>
+    </g>
+    <g class="hot" data-k="lp">
+      <polygon class="comp-shape" points="872,150 960,150 976,262 856,262"/>
+      <polygon class="comp-shape" points="1019,150 1107,150 1123,262 1003,262"/>
+      <text class="comp-label" x="916" y="200" text-anchor="middle">低压缸 1</text>
+      <text class="comp-label" x="1063" y="200" text-anchor="middle">低压缸 2</text>
+      <text class="comp-sub" x="990" y="146" text-anchor="middle">2×双流 = 四流排汽</text>
+    </g>
+    <g class="hot" data-k="gen">
+      <circle class="comp-shape" cx="1188" cy="205" r="34"/>
+      <text class="comp-label" x="1188" y="201" text-anchor="middle">GEN</text>
+      <text class="comp-sub" x="1188" y="219" text-anchor="middle">发电机</text>
+      <text class="tag strong" x="1188" y="258" text-anchor="middle">1089.1 MW</text>
+    </g>
+    <g class="hot" data-k="cond">
+      <rect class="comp-shape" x="862" y="330" width="246" height="102" rx="10"/>
+      <path d="M 880 386 q 16 -12 32 0 q 16 12 32 0 q 16 -12 32 0 q 16 12 32 0 q 16 -12 32 0 q 16 12 32 0" fill="none" stroke="var(--water-cold)" stroke-width="2"/>
+      <text class="comp-label" x="985" y="358" text-anchor="middle">凝汽器</text>
+      <text class="comp-sub" x="985" y="374" text-anchor="middle">0.051 bar · 33 ℃</text>
+    </g>
+    <g class="hot" data-k="cp">
+      <circle class="comp-shape" cx="926" cy="470" r="14"/>
+      <path d="M 934 458 A 14 14 0 0 0 934 482" fill="none" stroke="var(--ink-2)" stroke-width="1.5"/>
+      <text class="comp-sub" x="926" y="448" text-anchor="middle">凝结水泵</text>
+    </g>
+    <g class="hot" data-k="lh1">
+      <rect class="comp-shape" x="796" y="442" width="56" height="56" rx="8"/>
+      <text class="comp-label heater-label" x="824" y="466" text-anchor="middle">1 低加</text>
+      <text class="comp-sub" x="824" y="482" text-anchor="middle">60.2 ℃</text>
+    </g>
+    <g class="hot" data-k="lh2">
+      <rect class="comp-shape" x="688" y="442" width="56" height="56" rx="8"/>
+      <text class="comp-label heater-label" x="716" y="466" text-anchor="middle">2 低加</text>
+      <text class="comp-sub" x="716" y="482" text-anchor="middle">95.5 ℃</text>
+    </g>
+    <g class="hot" data-k="lh3">
+      <rect class="comp-shape" x="580" y="442" width="56" height="56" rx="8"/>
+      <text class="comp-label heater-label" x="608" y="466" text-anchor="middle">3 低加</text>
+      <text class="comp-sub" x="608" y="482" text-anchor="middle">132.3 ℃</text>
+    </g>
+    <g class="hot" data-k="lh4">
+      <rect class="comp-shape" x="472" y="442" width="56" height="56" rx="8"/>
+      <text class="comp-label heater-label" x="500" y="466" text-anchor="middle">4 低加</text>
+      <text class="comp-sub" x="500" y="482" text-anchor="middle">154.4 ℃</text>
+    </g>
+    <g class="hot" data-k="dea">
+      <rect class="comp-shape" x="344" y="470" width="112" height="38" rx="19"/>
+      <text class="comp-label" x="400" y="494" text-anchor="middle">除氧器 ⑤</text>
+      <text class="comp-sub" x="412" y="530" text-anchor="middle">177.0 ℃ · ≈9.3 bar</text>
+    </g>
+    <g class="hot" data-k="fp">
+      <circle class="comp-shape" cx="286" cy="470" r="14"/>
+      <path d="M 294 458 A 14 14 0 0 1 294 482" fill="none" stroke="var(--ink-2)" stroke-width="1.5"/>
+      <text class="comp-sub" x="286" y="448" text-anchor="middle">给水泵</text>
+    </g>
+    <g class="hot" data-k="hh6">
+      <rect class="comp-shape" x="180" y="442" width="56" height="56" rx="8"/>
+      <text class="comp-label heater-label" x="208" y="466" text-anchor="middle">6 高加</text>
+      <text class="comp-sub" x="208" y="482" text-anchor="middle">202.3 ℃</text>
+    </g>
+    <g class="hot" data-k="hh7">
+      <rect class="comp-shape" x="88" y="442" width="56" height="56" rx="8"/>
+      <text class="comp-label heater-label" x="116" y="466" text-anchor="middle">7 高加</text>
+      <text class="comp-sub" x="116" y="482" text-anchor="middle">226.0 ℃</text>
+    </g>
+
+    <!-- 字母小旗 -->
+    <g class="hot" data-k="exA"><title>A 管用户端：7 号高加入口</title><polygon class="flag steamf" points="110,424 122,424 122,436 116,442 110,436"/><text class="flag-t" x="116" y="435" text-anchor="middle">A</text></g>
+    <g class="hot" data-k="exB"><title>B 管用户端：6 号高加入口</title><polygon class="flag steamf" points="202,424 214,424 214,436 208,442 202,436"/><text class="flag-t" x="208" y="435" text-anchor="middle">B</text></g>
+    <g class="hot" data-k="exC"><title>C 管用户端：除氧器入口</title><polygon class="flag steamf" points="394,452 406,452 406,464 400,470 394,464"/><text class="flag-t" x="400" y="463" text-anchor="middle">C</text></g>
+    <g class="hot" data-k="exA"><polygon class="flag steamf" points="349,288 361,288 361,302 355,308 349,302"/><text class="flag-t" x="355" y="299" text-anchor="middle">A</text></g>
+    <g class="hot" data-k="exB"><polygon class="flag steamf" points="369,288 381,288 381,302 375,308 369,302"/><text class="flag-t" x="375" y="299" text-anchor="middle">B</text></g>
+    <g class="hot" data-k="exC"><polygon class="flag steamf" points="409,304 421,304 421,318 415,324 409,318"/><text class="flag-t" x="415" y="315" text-anchor="middle">C</text></g>
+    <g class="hot" data-k="exD"><polygon class="flag steamf" points="756,300 768,300 768,314 762,320 756,314"/><text class="flag-t" x="762" y="311" text-anchor="middle">D</text></g>
+    <g class="hot" data-k="exE"><polygon class="flag steamf" points="634,120 646,120 646,134 640,140 634,134"/><text class="flag-t" x="640" y="131" text-anchor="middle">E</text></g>
+    <g class="hot" data-k="exF"><polygon class="flag steamf" points="860,272 872,272 872,286 866,292 860,286"/><text class="flag-t" x="866" y="283" text-anchor="middle">F</text></g>
+    <g class="hot" data-k="exG"><polygon class="flag steamf" points="1007,272 1019,272 1019,286 1013,292 1007,286"/><text class="flag-t" x="1013" y="283" text-anchor="middle">G</text></g>
+    <g class="hot" data-k="drM"><polygon class="flag" points="519,352 531,352 531,366 525,372 519,366"/><text class="flag-t" x="525" y="363" text-anchor="middle">M</text></g>
+    <g class="hot" data-k="drK"><polygon class="flag" points="628,300 640,300 640,314 634,320 628,314"/><text class="flag-t" x="634" y="311" text-anchor="middle">K</text></g>
+    <g class="hot" data-k="drL"><polygon class="flag" points="640,250 652,250 652,264 646,270 640,264"/><text class="flag-t" x="646" y="261" text-anchor="middle">L</text></g>
+    <g class="hot" data-k="drJ"><polygon class="flag steamf" points="294,240 306,240 306,254 300,260 294,254"/><text class="flag-t" x="300" y="251" text-anchor="middle">J</text></g>
+  </svg>
+  </div>
+  <div class="source-stage show-markers" id="sourceStage" hidden>
+    <div class="source-inner" id="sourceInner">
+      <img class="source-image" id="sourceImage" src="pages/p06-100tmcr.jpg" width="1819" height="2570" loading="lazy" decoding="async" draggable="false" alt="东方汽轮机宁德机组第6页100% TMCR热平衡原图">
+      <svg class="source-overlay" id="sourceOverlay" viewBox="0 0 1819 2570" aria-label="第6页原图可交互定位层"></svg>
+    </div>
+    <div class="source-error" id="sourceError" role="alert" hidden>
+      无法载入 <strong>pages/p06-100tmcr.jpg</strong>。请确认原图与 HTML 的相对位置没有改变。
+      <div class="navrow"><button class="tbtn" id="sourceErrorBack">返回教学简图</button></div>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <div class="sr-only" id="announce" aria-live="polite" aria-atomic="true"></div>
+  <aside class="panel" id="panel" role="tabpanel" aria-labelledby="btnTour" tabindex="-1"></aside>
+</main>
+
+<footer>
+  <div class="ebar-wrap">
+    <div class="ebar-title"><strong>能量去哪儿了</strong>（反应堆 2903.8 MW 热 →）</div>
+    <div class="ebar">
+      <div class="e1" style="width:37.5%" title="发电 1089.1 MW"></div>
+      <div class="e2" style="width:61.8%" title="低压缸主排汽流股向冷端放热 ≈1794 MW"></div>
+      <div class="e3" style="width:0.7%" title="其余未逐项拆分差额 ≈21 MW"></div>
+    </div>
+    <div class="ebar-lab">
+      <span><b style="color:var(--water-hot)">■</b> 发电 <b>1089.1 MW（37.5%）</b></span>
+      <span><b style="color:var(--sea)">■</b> 主排汽流股向冷端放热 <b>≈1794 MW（61.8%）</b></span>
+      <span><b style="color:var(--muted)">■</b> 其余差额 <b>≈21 MW</b></span>
+    </div>
+    <div class="src">条形图用于量级理解：其余差额包含设备散热、机械电气损失以及未逐项列入的小流股影响，不是精确损失分项。</div>
+  </div>
+  <div class="src">数据来源：宁德 1~4 号机组热平衡图册（东方汽轮机，(W2)H3-834K60300）。主图及设备卡的 TMCR 图示值采用第 6 页（RL0107001001）；VWO 对照采用第 12 页升版（RL0707001102）。原图图示值经交叉核对；关键推导和需强调边界的工程解释另有标签。配套文字详解见同文件夹《宁德核电站热平衡图_逐页详解.md》。</div>
+  <div class="copyright">
+    <strong>© 2026 武汉大学 黄德钊。版权所有，保留所有权利。</strong>
+    <span>本教程的原创讲解、内容编排、独立验算、互动页面设计与代码受版权保护，未经版权所有者书面许可，不得复制、修改、转载或传播；原始热平衡图、图纸数据、企业标识及相关工程资料的权利归东方汽轮机有限公司及其他相关权利人所有。</span>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ============ 数据：第 6 页图示值为主，推导与工程解释另标 ============ */
+const DATA = {
+  sg: { name: "蒸汽发生器（3 台）", params: [["承担热功率","2903785 kW"],["产汽量","1613.400 kg/s（5808 t/h）"],["给水入口","226.0 ℃ · 77.23 bar（液态水）"],["出口蒸汽","64.30 bar · 280.1 ℃ · X≈0.995"],["出口焓","2772.42 kJ/kg"]],
+    note: "反应堆的“锅炉”：给水在高压下以 226 ℃液态水进入，吸收一回路传来的热量后沸腾，顶部分离干燥后变成主蒸汽。这里也是核岛与常规岛的分界。" },
+  mainsteam: { name: "主蒸汽管", params: [["压力","64.30 bar(a)"],["温度","280.1 ℃（近饱和）"],["焓","2772.42 kJ/kg"],["蒸汽发生器出口总量","1613.400 kg/s"],["高压缸入口","约 1532.028 kg/s","derived"],["干度 X","≈0.995"]],
+    note: "1613.400 kg/s 是蒸汽发生器出口总量，不是高压缸入口流量。进入高压缸前先分出 80.806 kg/s 给二级再热器，并有 0.196、0.370 kg/s 两股小流量；图上“新蒸汽”就是尚未做过功的主蒸汽支流。" },
+  controlvalve: { name: "汽轮机进汽调节阀（调门）", params: [["位置","主蒸汽管 → 高压缸之前"],["作用","改变有效通流面积，调节进汽流量和出力"],["100% TMCR 总主汽 / 毛出力","1613.400 kg/s · 1089.075 MW"],["VWO 升版总主汽 / 毛出力","1664.5 kg/s · 1121.641 MW"],["VWO 含义","调门达到设计最大开度，不是所有阀门打开"]],
+    note: "调门像蒸汽水龙头：开大后节流压降减小、可通过的蒸汽增多。VWO 是规定主汽参数、背压和设备限制下的能力校核点，不代表阀门失控或无条件的绝对最大功率。" },
+  hp: { name: "高压缸（HP · 单流）", params: [["蒸汽发生器出口总量","1613.400 kg/s"],["高压缸入口","约 1532.028 kg/s","derived"],["主排汽","9.636 bar(a) · X=0.857 · 1242.363 kg/s"],["出口流量合计","约 1532.030 kg/s","derived"],["能量计算","必须逐股计入 A/B/C、再热汽源、主排汽和漏汽","explain"]],
+    note: "不能用 1613.4 kg/s 乘高压缸全焓降来冒充实际缸功率：主蒸汽在缸前已分流，缸内又有多个不同焓的出口。进口蒸汽接近饱和，膨胀后主排汽中约 14.3% 已是液态水。" },
+  hpexhaust: { name: "高压缸排汽（去 MSR）", params: [["压力","9.636 bar"],["干度","X=0.857（含水 14.3%）"],["焓","2486.59 kJ/kg"],["流量","1242.363 kg/s"]],
+    note: "先送 MSR 机械分出液态水。若直接再热，热源要先把每秒约 172 kg 水重新汽化，既耗热又难保证没有水滴。" },
+  msr: { name: "MSR 汽水分离再热器", params: [["高压缸湿排汽","1242.363 kg/s · X=0.857"],["分离器甩水","172.454 kg/s（疏水 M）"],["工作蒸汽温度阶梯","177.9 → 218.1 → 268.8 ℃"],["一级热源","第 1 段抽汽 · 227.5 ℃ · 70.206 kg/s"],["二级热源","新蒸汽 · 278.1 ℃ · 78.462 kg/s"],["是否混合","两股加热汽与工作蒸汽隔着管壁，不混合"]],
+    note: "较低品质的抽汽先完成低温段，较高品质的新蒸汽只完成最后升温。这样既跨过抽汽约 227.5 ℃ 的温度上限，又避免整段都消耗高品质主蒸汽。" },
+  rh1heat: { name: "一级再热器热源：第 1 段抽汽", params: [["热源温度","约 227.5 ℃"],["压力","26.73 bar"],["流量","70.206 kg/s"],["工作蒸汽升温","177.9 → 218.1 ℃"],["放热以后","凝结成 K 疏水，送 6 号高加"],["为什么去 6 号","K 的温度和压力适合给水 178.3 → 202.3 ℃的较低温段"]],
+    note: "高加是高压给水加热器。K 进入 6 号高加壳侧继续放余热，与管内高压给水隔着金属壁，不直接混合。" },
+  rh2heat: { name: "二级再热器热源：新蒸汽", params: [["来源","高压缸前主蒸汽分支"],["热源温度","约 278.1 ℃"],["压力","62.38 bar"],["流量","78.462 kg/s"],["工作蒸汽升温","218.1 → 268.8 ℃"],["放热以后","凝结成 L 疏水，送 7 号高加"],["为什么去 7 号","L 更热、压力更高，能够承担给水 202.3 → 226.0 ℃的最高温段"]],
+    note: "L 进入 7 号高加壳侧继续放余热，不会混入被再热的工作蒸汽，也不会直接混入管内给水。" },
+  hotreheat: { name: "再热蒸汽管", params: [["压力","9.356 bar"],["温度","268.8 ℃（过热）"],["焓","2986.52 kJ/kg"],["流量","1069.907 kg/s"]],
+    note: "1242.363 − 172.454 = 1069.909 kg/s，与图示 1069.907 kg/s 相差 0.002 kg/s；这是显示位数造成的取整残差，不应写成毫无残差的精确等式。" },
+  ip: { name: "中压缸（IP · 单流）", params: [["进口","9.356 bar(a) · 2986.52 kJ/kg · 1069.907 kg/s"],["排汽主流","3.098 bar(a) · 152.7 ℃ · 2766.19 kJ/kg · 962.034 kg/s"],["主要抽汽","D、E"],["功率口径","有中途抽汽，不能只用进口流量乘全缸焓降","explain"]],
+    note: "再热后的过热蒸汽在此膨胀；D 从再热后的中压缸抽出，E 位于中压缸排汽/连通管附近，两者均为过热蒸汽。" },
+  crossover: { name: "连通管（IP → LP）", params: [["压力","3.098 bar"],["流量","962.034 kg/s"],["分流","对半送入两个双流低压缸"],["E 段抽汽","在此引出 68.098 kg/s"]],
+    note: "中压缸排汽兵分两路进低压缸，每缸再分双流，共四流。" },
+  lp: { name: "低压缸 ×2（四流排汽）", params: [["进口主流","3.098 bar(a) · 2766.19 kJ/kg · 962.034 kg/s"],["排汽","0.051 bar(a) · X=0.904 · 2327.92 kJ/kg"],["缸内抽汽","F、G 及辅助小流股"],["功率口径","有多个出口，不能用进口流量乘全缸焓降","explain"]],
+    note: "排汽体积流量约两万 m³/s，解释了为什么需要 1500 r/min 半速、长末级叶片和四流排汽；本图未直接给出各缸实际功率分配。" },
+  lpexhaust: { name: "低压缸排汽", params: [["压力","0.051 bar(a)（深真空）"],["干度","X=0.904"],["焓","2327.92 kJ/kg"],["流量（四流合计）","820.445 kg/s"],["到 33.4 ℃凝结水的焓差","2186.58 kJ/kg","derived"]],
+    note: "2186.58 kJ/kg 是该湿蒸汽流股降到所取凝结水状态需要排出的总焓差，包含汽相凝结和液相降温等作用，不能全部简称为凝结潜热。" },
+  gen: { name: "发电机", params: [["毛出力 W(GENER)","1089075 kW"],["毛热耗率","9598.6 kJ/kWh"],["毛效率","3600 ÷ 9598.6 ≈ 37.5%","derived"],["净上网出力","原图未给出；还需扣厂用电和变压器等损耗","explain"],["转速","1500 r/min · 四极"]],
+    note: "热耗验算：2903785 ÷ 1089075 × 3600 = 9598.6。这里是发电机端毛边界，不是扣除给水泵等厂用电后的净上网效率。" },
+  cond: { name: "凝汽器", params: [["压力","0.051 bar(a)（饱和 33.2 ℃）"],["冷却水","海水 21.0 ℃"],["低压缸主排汽流股放热","约 1794 MW","derived"],["全机非毛电差额","约 1815 MW，包含冷端与其他损失","derived"],["凝结水出口","33.4 ℃ · 141.34 kJ/kg"]],
+    note: "蒸汽凝结成水后体积骤缩，压力自然降到 33.2 ℃ 对应的 0.051 bar(a)；抽气设备主要排走空气等不凝气体。1794 MW 是主排汽流股的量级核算，不是包含所有疏水和漏汽入口的精确凝汽器总负荷。" },
+  seawater: { name: "循环冷却水（海水）", params: [["进口温度","21.0 ℃"],["任务","带走凝汽器 ≈1.79 GW 废热"],["回路形式","开式，一次流过"]],
+    note: "第三套水：取自大海、还给大海，是图上唯一“有去无回”的流。" },
+  cp: { name: "凝结水泵", params: [["入口水","33.4 ℃ · 141.34 kJ/kg"],["流量","963.283 kg/s"]],
+    note: "把凝结水从真空热井里提出来，推过四台低压加热器。" },
+  condensate: { name: "凝结水（低加段）", params: [["它是什么","乏汽在凝汽器冷凝回来的低压水"],["起点","33.4 ℃ · 963.283 kg/s"],["经 1 号低加","60.2 ℃"],["经 2 号低加","95.5 ℃"],["何时改叫给水","经过除氧器后进入给水系统"]],
+    note: "凝结水和给水是同一批二回路水在不同位置的称呼。浅蓝表示凝汽器到除氧器的凝结水段；它被抽汽逐级预热，是给水回热的前半程。" },
+  condensate2: { name: "凝结水（3 号低加之后）", params: [["温度","132.3 ℃ → 154.4 ℃"],["流量","1075.470 kg/s"],["流量为何变大","疏水泵把 4、3 号低加疏水（D+E 段共 112.2 kg/s）打入主流"]],
+    note: "按图示三位小数：44.089 + 68.098 = 112.187，963.283 + 112.187 = 1075.470 kg/s。这一局部账在显示精度下闭合。" },
+  lh1: { name: "1 号低压加热器", params: [["出水温度","60.2 ℃"],["供汽","第 7 段抽汽 G：0.235 bar · 38.558 kg/s"],["壳侧饱和温度","63.6 ℃（端差 3.4 K）"]],
+    note: "回热链第一级，用最“乏”的抽汽先垫个底。出口必须比壳侧凝结温度低一些，才能保持传热推动温差；端差越小，所需换热面积越大。" },
+  lh2: { name: "2 号低压加热器", params: [["出水温度","95.5 ℃"],["供汽","第 6 段抽汽 F：0.960 bar · 65.526 kg/s"],["壳侧饱和温度","97.9 ℃（端差 2.4 K）"]],
+    note: "疏水与 1 号的疏水一起流回凝汽器。" },
+  lh3: { name: "3 号低压加热器", params: [["出水温度","132.3 ℃"],["供汽","第 5 段抽汽 E：2.995 bar · 68.098 kg/s"],["壳侧饱和温度","133.5 ℃（端差 1.2 K）"]],
+    note: "此处疏水泵把 4、3 号疏水打入主流，凝结水增至 1075.5 kg/s。" },
+  lh4: { name: "4 号低压加热器", params: [["出水温度","154.4 ℃"],["供汽","第 4 段抽汽 D：5.550 bar · 214.5 ℃ · 44.089 kg/s"]],
+    note: "供汽来自再热后的中压缸，是过热蒸汽，温度反而比前三段高。" },
+  dea: { name: "除氧器（5 号 · 混合式）", params: [["出水","177.0 ℃ · 749.77 kJ/kg"],["出口流量","1613.400 kg/s（全给水量）"],["五股汇流","凝结水 1075.470 + 高加疏水 311.901 + 抽汽 C 51.578 + 疏水 M 172.454 + 漏汽 J 2.002"],["质量验算","可见流股相加 1613.405 kg/s；比出口多 0.005 kg/s","derived"]],
+    note: "水越接近饱和温度，氧气和二氧化碳越难溶解；蒸汽直接接触水滴，一边加热一边把气体带到排气口。0.005 kg/s 仅占总流量约 0.0003%，属于图面取整或未展开小流股造成的残差，不能称为“精确闭合”。" },
+  fp: { name: "给水泵", params: [["入口","除氧器后的给水 · 177.0 ℃"],["出口压力","81.23 bar"],["焓升","749.77 → 759.14 kJ/kg"],["耗功","9.37 × 1613.4 ≈ 15.1 MW"],["温升","约 1.3 ℃"]],
+    note: "给水泵把已除氧的水升到高于蒸汽发生器的压力，才能把水送进去；泵功还使水温小幅升高约 1.3 ℃。" },
+  hh6: { name: "6 号高压给水加热器（高加）", params: [["高加是什么","给水泵之后、专门预热高压给水的换热器"],["管内给水","约 81 bar · 178.3 → 202.3 ℃"],["管外热源","B 抽汽 + 一级再热疏水 K + 7 号高加疏水"],["B 管入口","18.05 bar(a) · 78.990 kg/s（含汇入小流股）"],["上端差 TTD","207.3 - 202.3 = 5.0 K"],["下端差 DCA","185.3 - 178.3 = 7.0 K"],["疏水去向","311.901 kg/s · 185.3 ℃ → 除氧器"]],
+    note: "“高压”主要指管内给水已经过给水泵升压。管外热源隔着金属壁放热，不与给水直接混合；K 约 227.6 ℃，适合这一较低温度段。" },
+  hh7: { name: "7 号高压给水加热器（高加）", params: [["高加是什么","给水回热链中温度最高的一台高压给水加热器"],["管内给水","约 80 bar · 202.3 → 226.0 ℃"],["管外热源","A 抽汽 + 二级再热疏水 L"],["A 管入口","27.00 bar(a) · 84.234 kg/s（含汇入小流股）"],["L 疏水入口","62.38 bar(a) · 278.1 ℃ · 78.462 kg/s"],["上端差 TTD","228.1 - 226.0 = 2.1 K"],["下端差 DCA","208.2 - 202.3 = 5.9 K"],["疏水去向","162.696 kg/s · 208.2 ℃ → 6 号高加"],["质量验算","84.234 + 78.462 = 162.696","derived"]],
+    note: "L 比 K 更热、压力更高，适合最高温度段。最终给水达到 226.0 ℃后进入蒸汽发生器；在约 77 bar 下仍是液态。" },
+  exA: { name: "第 1 段抽汽 A → 7 号高加", params: [["用途","把给水从 202.3 ℃ 加热到 226.0 ℃"],["四格读数","左上 X=.910；右上 2640.29 kJ/kg；左下 27.55 bar；右下 80.241 kg/s"],["用户入口","27.00 bar · 84.234 kg/s"],["辅助小流股","3.995 kg/s · 2738.80 kJ/kg（原图未注明具体来源）"],["质量关系","80.241 + 3.995 = 84.236 ≈ 84.234 kg/s"],["严格混合焓","约 2644.96 kJ/kg；原图设备入口仍沿用 2640.29 kJ/kg"]],
+    note: "A 是同一根管线两端使用的连接符，不是蒸汽种类。压力从 27.55 降到 27.00 bar 来自管道压损；做汽轮机通流计算取缸口 80.241 kg/s，按原图复核 7 号高加则取设备入口 84.234 kg/s 和图示焓。辅助流股的来源仅凭局部图无法确定，稳妥地按漏汽或回收性质的小流股理解。" },
+  exB: { name: "第 2 段抽汽 B → 6 号高加", params: [["用途","把给水加热到 202.3 ℃"],["汽轮机取汽点","18.46 bar · 78.114 kg/s · X=0.885"],["用户入口","18.05 bar · 78.990 kg/s"],["焓","2578.36 kJ/kg"],["辅助小流股","约 0.878 kg/s；原图未注明具体来源"]],
+    note: "B 同样是管线连接符。高压抽汽用于高温给水段，避免用低压蒸汽却达不到目标温度；辅助流股可按漏汽或回收性质理解，不应仅凭原图指定具体轴封来源。" },
+  exC: { name: "第 3 段抽汽 C → 除氧器", params: [["用途","加热到 177.0 ℃并除去溶解氧"],["汽轮机取汽点","9.733 bar · 51.578 kg/s · X=0.856"],["除氧器入口","9.344 bar · 51.578 kg/s"],["焓","2486.59 kJ/kg"],["两端差别","流量不变，压力因管道压损下降"]],
+    note: "C 取自高压缸排汽端。10% 低负荷时这段停供，除氧器改由新蒸汽减压补汽；字母代表管线，汽源会随工况改变。" },
+  exD: { name: "第 4 段抽汽 D → 4 号低加", params: [["压力","5.550 bar"],["状态","214.5 ℃ 过热"],["焓","2884.19 kJ/kg"],["流量","44.089 kg/s"]],
+    note: "再热之后抽出，是过热蒸汽，温度反而比前三段高。" },
+  exE: { name: "第 5 段抽汽 E → 3 号低加", params: [["压力","2.995 bar"],["状态","152.3 ℃"],["焓","2766.19 kJ/kg"],["流量","68.098 kg/s"]] },
+  exF: { name: "第 6 段抽汽 F → 2 号低加", params: [["压力","0.960 bar"],["状态","X=0.964"],["焓","2599.01 kJ/kg"],["流量","65.526 kg/s"]] },
+  exG: { name: "第 7 段抽汽 G → 1 号低加", params: [["压力","0.235 bar"],["状态","X=0.939"],["焓","2481.58 kJ/kg"],["流量","38.558 kg/s"]] },
+  drM: { name: "分离器疏水 M → 除氧器", params: [["温度","177.9 ℃"],["焓","754.01 kJ/kg"],["流量","172.454 kg/s"]],
+    note: "从湿蒸汽里甩出来的水，约占高压缸排汽的 14%。" },
+  drK: { name: "一级再热器疏水 K → 6 号高加", params: [["它是什么","一级再热用抽汽放热后凝结成的高温水"],["压力","26.73 bar"],["温度","227.6 ℃"],["流量","70.206 kg/s"],["在高加哪一侧","进入壳侧，隔着管壁加热管内给水"],["为什么去 6 号","温度和压力适合把给水从 178.3 ℃加热到 202.3 ℃"]],
+    note: "K 不是废水。它已不能推动叶片，却仍有可利用的余热；送 6 号高加比直接进凝汽器更节能。它不会在高加内与给水直接混合。" },
+  drL: { name: "二级再热器疏水 L → 7 号高加", params: [["它是什么","二级再热用新蒸汽放热后凝结成的高温水"],["压力","62.38 bar"],["温度","278.1 ℃"],["流量","78.462 kg/s"],["在高加哪一侧","进入壳侧，隔着管壁加热管内给水"],["为什么去 7 号","比 K 更热、压力更高，能承担 202.3 → 226.0 ℃最高温段"]],
+    note: "L 先在 7 号高加利用最高等级余热，随后随 7 号高加疏水去 6 号继续放热；它从未混入被再热的工作蒸汽或管内给水。" },
+  drJ: { name: "门杆漏汽 J → 除氧器", params: [["焓","2802.70 kJ/kg"],["流量","2.002 kg/s"]],
+    note: "主汽阀门杆缝隙漏出的少量蒸汽被收集后送除氧器，继续回收其质量和热量。" },
+  drHH: { name: "高加疏水回流", params: [["7 号疏水","162.696 kg/s · 208.2 ℃"],["6 号疏水（含 7 号 + K + B）","311.901 kg/s · 185.3 ℃"],["去向","除氧器"]],
+  note: "高压疏水仍很热，利用压差按 7 号 → 6 号 → 除氧器逐级自流；在 6、7 号高加中只隔着管壁放热，最终到混合式除氧器才进入给水主流。若直接去凝汽器，这部分热量会白白交给海水。" },
+  drLH: { name: "低加疏水", params: [["4 → 3 号","经疏水泵打入凝结水主流（+112.2 kg/s）"],["2 → 1 号","逐级自流回凝汽器"]],
+    note: "疏水优先向更低压力设备级联，继续释放显热和闪蒸汽热量；具备经济压头时再用疏水泵打回主流，最后才回冷端。" },
+  feedwater: { name: "给水与最终给水温度", params: [["给水是什么","除氧、加压后送回蒸汽发生器的水"],["流量","1613.400 kg/s"],["给水泵后","178.3 ℃ · 81.23 bar"],["经 6 号高加","202.3 ℃"],["最终给水温度","226.0 ℃ · 7 号高加出口 / 蒸汽发生器入口"],["此时状态","77.23 bar 下的液态水"]],
+    note: "最终给水温度不是主蒸汽温度，也不是海水温度；它量在蒸汽发生器入口。回热先把水预热到 226 ℃，蒸汽发生器再完成最后升温和汽化，从而降低单位发电量所需的反应堆供热。" },
+};
+
+const EVIDENCE_LABELS = {
+  derived: "推导",
+  explain: "工程解释"
+};
+
+const ELEMENT_GROUPS = [
+  { label:"蒸汽主流程", keys:["sg","mainsteam","controlvalve","hp","hpexhaust","msr","rh1heat","rh2heat","hotreheat","ip","crossover","lp","lpexhaust","gen","cond","seawater"] },
+  { label:"凝结水、给水与加热器", keys:["cp","condensate","condensate2","lh1","lh2","lh3","lh4","dea","fp","hh6","hh7","feedwater"] },
+  { label:"A～G 段抽汽", keys:["exA","exB","exC","exD","exE","exF","exG"] },
+  { label:"疏水与漏汽", keys:["drM","drK","drL","drJ","drHH","drLH"] }
+];
+
+/* ============ 第 6 页原图定位：坐标采用原图 1819×2570 像素 ============ */
+const SOURCE_SIZE = { width:1819, height:2570 };
+const SOURCE_ZONES = {
+  full:      { x:80,  y:100,  w:1620, h:2260 },
+  turbine:   { x:980, y:240,  w:720,  h:1810 },
+  feedwater: { x:180, y:430,  w:760,  h:1640 },
+  condenser: { x:820, y:1580, w:850,  h:650 }
+};
+const SOURCE_REGIONS = {
+  sg:           { zone:"右上·主汽起点", major:true, anchors:[{x:1330,y:120,w:230,h:200,label:"主蒸汽出口四格"},{x:210,y:450,w:330,h:190,label:"SG 入口给水四格"}] },
+  mainsteam:    { zone:"右上·主蒸汽", anchors:[{x:1350,y:260,w:350,h:330,label:"主蒸汽参数与管线"}] },
+  controlvalve: { zone:"右上·主汽阀区", anchors:[{x:1510,y:350,w:190,h:230,label:"调门及阀杆小流股"}] },
+  hp:           { zone:"右上·汽轮机", major:true, anchors:[{x:1320,y:500,w:330,h:470,label:"HP 高压缸"}] },
+  hpexhaust:    { zone:"右上·HP 排汽", anchors:[{x:1360,y:880,w:310,h:220,label:"HP 排汽至分离器"}] },
+  msr:          { zone:"右中·分离再热", major:true, anchors:[{x:1270,y:920,w:430,h:410,label:"MSR"}] },
+  rh1heat:      { zone:"右中·一级再热", anchors:[{x:1030,y:1020,w:660,h:170,label:"一级再热热源"}] },
+  rh2heat:      { zone:"右中·二级再热", anchors:[{x:1030,y:1150,w:680,h:190,label:"二级再热热源"}] },
+  hotreheat:    { zone:"右中·热再热汽", anchors:[{x:1300,y:1160,w:410,h:220,label:"再热汽至 IP"}] },
+  ip:           { zone:"右中·汽轮机", major:true, anchors:[{x:1310,y:1320,w:330,h:340,label:"IP 中压缸"}] },
+  crossover:    { zone:"右中·IP/LP 之间", anchors:[{x:1240,y:1510,w:440,h:170,label:"中低压连通管"}] },
+  lp:           { zone:"右下·汽轮机", major:true, anchors:[{x:1300,y:1620,w:340,h:420,label:"LP 低压缸"}] },
+  lpexhaust:    { zone:"右下·低压排汽", anchors:[{x:1250,y:1940,w:400,h:140,label:"LP 排汽"}] },
+  gen:          { zone:"右下·轴系末端", major:true, anchors:[{x:850,y:190,w:520,h:190,label:"毛出力与毛热耗率"},{x:1340,y:2020,w:190,h:200,label:"发电机"}] },
+  cond:         { zone:"下部·冷端", major:true, anchors:[{x:950,y:1970,w:290,h:230,label:"凝汽器"},{x:250,y:1950,w:760,h:300,label:"热井凝结水状态"}] },
+  seawater:     { zone:"下部·冷端", anchors:[{x:920,y:2020,w:390,h:160,label:"21 ℃ 海水"}] },
+  cp:           { zone:"下部·凝结水起点", anchors:[{x:250,y:1930,w:620,h:300,label:"凝结水泵前后状态"},{x:840,y:1990,w:140,h:150,label:"凝结水泵"}] },
+  condensate:   { zone:"左下·低加水侧", anchors:[{x:250,y:1760,w:700,h:390,label:"凝结水主线"}] },
+  condensate2:  { zone:"左中·低加水侧", anchors:[{x:250,y:1230,w:680,h:560,label:"升温后的凝结水"}] },
+  lh1:          { zone:"左下·回热器列", major:true, anchors:[{x:250,y:1710,w:620,h:240,label:"1 号低加"}] },
+  lh2:          { zone:"左下·回热器列", major:true, anchors:[{x:250,y:1540,w:620,h:220,label:"2 号低加"}] },
+  lh3:          { zone:"左中·回热器列", major:true, anchors:[{x:250,y:1370,w:620,h:220,label:"3 号低加"}] },
+  lh4:          { zone:"左中·回热器列", major:true, anchors:[{x:250,y:1170,w:620,h:230,label:"4 号低加"}] },
+  dea:          { zone:"左中·回热器列", major:true, anchors:[{x:250,y:950,w:620,h:240,label:"5 除氧器"}] },
+  fp:           { zone:"左中·高压给水起点", anchors:[{x:500,y:880,w:120,h:160,label:"给水泵"}] },
+  hh6:          { zone:"左上·回热器列", major:true, anchors:[{x:250,y:690,w:620,h:240,label:"6 号高加"}] },
+  hh7:          { zone:"左上·回热器列", major:true, anchors:[{x:250,y:500,w:620,h:220,label:"7 号高加"}] },
+  exA:          { zone:"HP 与 7 号高加", major:true, anchors:[{x:1040,y:650,w:370,h:120,label:"A 取汽端"},{x:560,y:560,w:320,h:90,label:"A → 7号"}] },
+  exB:          { zone:"HP 与 6 号高加", major:true, anchors:[{x:1040,y:745,w:370,h:120,label:"B 取汽端"},{x:560,y:715,w:320,h:90,label:"B → 6号"}] },
+  exC:          { zone:"HP 与除氧器", major:true, anchors:[{x:1040,y:850,w:370,h:110,label:"C 取汽端"},{x:560,y:1000,w:320,h:85,label:"C → 除氧器"}] },
+  exD:          { zone:"IP 与 4 号低加", major:true, anchors:[{x:1040,y:1430,w:370,h:100,label:"D 取汽端"},{x:560,y:1190,w:320,h:85,label:"D → 4号"}] },
+  exE:          { zone:"连通管与 3 号低加", major:true, anchors:[{x:1040,y:1535,w:370,h:100,label:"E 取汽端"},{x:560,y:1375,w:320,h:85,label:"E → 3号"}] },
+  exF:          { zone:"LP 与 2 号低加", major:true, anchors:[{x:1040,y:1755,w:370,h:100,label:"F 取汽端"},{x:560,y:1540,w:320,h:85,label:"F → 2号"}] },
+  exG:          { zone:"LP 与 1 号低加", major:true, anchors:[{x:1040,y:1855,w:370,h:100,label:"G 取汽端"},{x:560,y:1715,w:320,h:85,label:"G → 1号"}] },
+  drM:          { zone:"MSR 与除氧器", major:true, anchors:[{x:1040,y:950,w:360,h:100,label:"M 分离器端"},{x:560,y:1050,w:310,h:100,label:"M → 除氧器"}] },
+  drK:          { zone:"一级再热与 6 号高加", major:true, anchors:[{x:1040,y:1040,w:360,h:100,label:"K 再热器端"},{x:560,y:760,w:310,h:100,label:"K → 6号"}] },
+  drL:          { zone:"二级再热与 7 号高加", major:true, anchors:[{x:1040,y:1165,w:360,h:100,label:"L 再热器端"},{x:560,y:570,w:310,h:100,label:"L → 7号"}] },
+  drJ:          { zone:"主汽阀与除氧器", anchors:[{x:1040,y:1000,w:300,h:90,label:"J 漏汽端"},{x:560,y:980,w:300,h:100,label:"J → 除氧器"}] },
+  drHH:         { zone:"左上·高加疏水", anchors:[{x:300,y:500,w:280,h:400,label:"7号 → 6号"},{x:300,y:700,w:280,h:420,label:"6号 → 除氧器"}] },
+  drLH:         { zone:"左中下·低加疏水", anchors:[{x:230,y:1140,w:680,h:430,label:"4、3号疏水泵回主流"},{x:230,y:1480,w:680,h:500,label:"2、1号逐级回凝汽器"}] },
+  feedwater:    { zone:"左侧·给水主线", anchors:[{x:220,y:470,w:430,h:660,label:"给水泵后至高加"},{x:180,y:300,w:450,h:300,label:"最终给水至 SG"}] }
+};
+
+/* ============ 原图数字对照：原图直读、格式整理、推导、合并与省略分开记录 ============ */
+const NUMBER_RELATIONS = {
+  direct: "原图直读",
+  format: "格式整理",
+  derived: "计算得到",
+  merged: "多处合并",
+  omitted: "教学省略"
+};
+
+const nr = (label, original, teaching, relation = "direct", note = "") => ({
+  label, original, teaching, relation, note
+});
+
+const nc = (title, what, formula, substitution, result, meaning, boundary) => ({
+  title, what, formula, substitution, result, meaning, boundary
+});
+
+function numberEntry(key, lead, rows, calculations = [], omissions = [], blocks = null) {
+  const anchors = SOURCE_REGIONS[key]?.anchors || [];
+  return {
+    lead,
+    blocks: blocks || anchors.map((anchor,index) => ({ anchor:index, title:anchor.label })),
+    rows,
+    calculations,
+    omissions
+  };
+}
+
+const NUMBER_MAP = {
+  sg: numberEntry("sg",
+    "先分别读蒸汽发生器入口给水与出口主蒸汽。两组四格代表两个位置，不能拼成同一个状态。",
+    [
+      nr("反应堆热功率","2903785 kWth","2903.785 MWth","format","标题中的 kWth 是热功率，不是发电机电功率。"),
+      nr("入口给水四格","226.0｜972.62 / 77.23｜1613.400","T=226.0 ℃；h=972.62 kJ/kg；P=77.23 bar(a)；G=1613.400 kg/s"),
+      nr("出口主蒸汽四格","280.1｜2772.42 / 64.30｜1613.400","T=280.1 ℃；h=2772.42 kJ/kg；P=64.30 bar(a)；G=1613.400 kg/s"),
+      nr("教学图显示","原图分散在给水入口和主汽出口","SG 入口 226.0 ℃；出口 64.3 bar、280.1 ℃、1613.4 kg/s","merged")
+    ],
+    [
+      nc("把原图量级换成熟悉单位",
+        "2903785 kWth 是三台蒸汽发生器合计承担的热功率；1613.400 kg/s 是二回路总产汽量。",
+        "MW = kW ÷ 1000；t/h = kg/s × 3.6",
+        "2903785 ÷ 1000；1613.400 × 3.6",
+        "2903.785 MWth；5808.24 t/h",
+        "这说明机组每秒产生约 1.613 t 蒸汽，每小时约 5808 t。",
+        "产汽量换算是单位整理；不能仅凭入口、出口两个主状态忽略排污等小流股去反算精确 SG 热负荷。")
+    ]),
+
+  mainsteam: numberEntry("mainsteam",
+    "主汽总量先在高压缸前分流，所以原图的 1613.400 kg/s 不能直接当作高压缸入口流量。",
+    [
+      nr("主蒸汽四格","280.1｜2772.42 / 64.30｜1613.400","280.1 ℃；2772.42 kJ/kg；64.30 bar(a)；1613.400 kg/s"),
+      nr("二级再热支流","80.806；2772.42","从主汽管分出 80.806 kg/s，焓仍按 2772.42 kJ/kg 记"),
+      nr("两股小流量","0.196；0.370","在高压缸前另行分出","direct"),
+      nr("高压缸入口","原图没有单独打印","约 1532.028 kg/s","derived")
+    ],
+    [
+      nc("为什么教学图写 1532.028 kg/s",
+        "从蒸汽发生器出口到高压缸入口画一个控制体，入口是总主汽，出口是高压缸进汽和三股缸前分流。",
+        "G_HP,in = G_MS - G_RH2 - G_1 - G_2",
+        "1613.400 - 80.806 - 0.196 - 0.370",
+        "1532.028 kg/s",
+        "这是质量守恒推导值，解释了为什么高压缸实际进汽少于总主汽。",
+        "原图只显示到三位小数；若配套系统图还有未展开流股，应以受控设计计算为准。")
+    ]),
+
+  controlvalve: numberEntry("controlvalve",
+    "第 6 页用阀门符号表示调门，重点是它所在的位置；VWO 数字并不来自这一页。",
+    [
+      nr("原图符号","主蒸汽进入 HP 前的阀门符号","教学图在主汽管与高压缸之间画“调门”"),
+      nr("附近小流股","0.196、0.370 kg/s","作为缸前分流参与入口流量核算"),
+      nr("VWO 数字","第 6 页没有","1664.5 kg/s、1121.641 MW 来自第 12 页","omitted","教学图跨页对照时必须注明来源。")
+    ],
+    [
+      nc("调门全开为什么不是“所有阀门都开”",
+        "调门只指汽轮机进汽调节阀。它改变有效通流面积和节流压降。",
+        "VWO = Valve Wide Open",
+        "第 12 页在规定主汽参数、背压和设备限制下计算",
+        "它是能力校核工况，不是第 6 页 TMCR 数字的计算结果",
+        "开度更大通常允许更多蒸汽通过，但不自动意味着效率最高。",
+        "不能把 VWO 理解为全厂阀门失控、保护阀开启或无条件最大功率。")
+    ]),
+
+  hp: numberEntry("hp",
+    "高压缸没有把入口总流量印成一个四格；要用缸前分流算入口，再把所有缸内出口相加复核。",
+    [
+      nr("入口流量","未单列","1532.028 kg/s","derived"),
+      nr("A / 一级再热 / B / C","80.241 / 69.864 / 78.114 / 51.578 kg/s","教学图按功能分别画出","merged"),
+      nr("主排汽","1242.363 kg/s","去 MSR 的高压缸主排汽"),
+      nr("辅助出口","9.229、0.641 kg/s","教学简图按辅助小流股合并","omitted")
+    ],
+    [
+      nc("高压缸质量账怎样闭合",
+        "稳态时，高压缸入口总质量流量应等于全部出口之和。",
+        "G_out = ΣG_each outlet",
+        "80.241 + 69.864 + 78.114 + 51.578 + 1242.363 + 9.229 + 0.641",
+        "1532.030 kg/s；比入口 1532.028 kg/s 多 0.002 kg/s",
+        "相对残差约 0.00013%，符合图面三位小数取整的量级。",
+        "汽缸功率还必须给每个出口配对应焓；第 6 页信息不足以唯一计算精确 HP 轴功。")
+    ],
+    ["9.229、0.641 kg/s 等辅助流股未在教学简图逐根展开。"]),
+
+  hpexhaust: numberEntry("hpexhaust",
+    "这一组是标准四格，左上不是温度而是干度 X，因为高压缸排汽已经是湿蒸汽。",
+    [
+      nr("原图四格","X=.857｜2486.59 / 9.636｜1242.363","X=0.857；h=2486.59 kJ/kg；P=9.636 bar(a)；G=1242.363 kg/s","format"),
+      nr("教学图简写","X=.857","X=0.857，即汽相质量分数 85.7%","format")
+    ],
+    [
+      nc("X=0.857 为什么等于含水 14.3%",
+        "干度 X 是湿蒸汽中汽相质量占比，不是温度百分数。",
+        "液态水质量分数 = 1 - X",
+        "1 - 0.857",
+        "0.143 = 14.3%",
+        "每 100 kg 汽水混合物约含 85.7 kg 蒸汽和 14.3 kg 液态水。",
+        "分离器出口仍为 X=0.995，并非绝对无水，所以 M=172.454 kg/s 不应机械地写成 1242.363×14.3%。")
+    ]),
+
+  msr: numberEntry("msr",
+    "MSR 周围同时有被加热的工作蒸汽、一级加热汽、二级加热汽和三股疏水，必须按管线分别读。",
+    [
+      nr("湿排汽入口","X=.857｜2486.59 / 9.636｜1242.363","HP 排汽 1242.363 kg/s、X=0.857"),
+      nr("分离疏水 M","177.9｜754.01 / 9.556｜172.454","分离器甩水 172.454 kg/s"),
+      nr("分离后工作蒸汽","X=.995｜2765.27 / —｜1069.907","近干蒸汽 1069.907 kg/s"),
+      nr("两级出口","218.1｜2873.77；268.8｜2986.52 / 9.356｜1069.907","177.9→218.1→268.8 ℃")
+    ],
+    [
+      nc("分离器质量账为什么差 0.002",
+        "用入口湿排汽减去原图打印的 M 疏水，可估算继续再热的工作蒸汽。",
+        "G_work = G_HP exhaust - G_M",
+        "1242.363 - 172.454",
+        "1069.909 kg/s；原图打印 1069.907 kg/s，差 0.002 kg/s",
+        "两者在显示精度下相符，残差来自各节点分别取整。",
+        "应写“约闭合”或“取整残差 0.002”，不能声称无残差精确闭合。")
+    ]),
+
+  rh1heat: numberEntry("rh1heat",
+    "一级再热用与 A 同一压力等级的抽汽支路供热；它与 A 管不是同一股流量。",
+    [
+      nr("HP 侧支路","69.864；2640.29","从第 1 压力级抽往一级再热器"),
+      nr("再热器热源端 K","227.5｜978.67 / 26.73｜70.206","热源流量按 70.206 kg/s 记"),
+      nr("工作蒸汽升温","177.9 → 218.1 ℃","一级再热温升 40.2 K"),
+      nr("教学图关系","抽汽与工作蒸汽分开画","两者隔着管壁传热，不混合","merged")
+    ],
+    [
+      nc("为什么一级到 218.1 ℃就停",
+        "热量要从约 227.5 ℃热源传给工作蒸汽，出口必须低于热源并保留温差。",
+        "末端温差 = T_hot - T_work,out",
+        "227.5 - 218.1",
+        "9.4 K",
+        "这股抽汽适合完成低温预热，但不可能把工作蒸汽加热到 268.8 ℃。",
+        "69.864 与 70.206 kg/s 的差额说明两处是不同控制位置；原图未在局部唯一说明中间小流股来源。")
+    ]),
+
+  rh2heat: numberEntry("rh2heat",
+    "二级再热热源从主蒸汽分出 80.806 kg/s；原图又把凝成 L 的部分和一股 2.344 kg/s 小流股分别列出。",
+    [
+      nr("主汽分支","80.806；2772.42","进入二级再热热源系统"),
+      nr("L 疏水","278.1｜1226.97 / 62.38｜78.462","放热凝结的主疏水 L"),
+      nr("另一小流股","2781.90 / 2.344","原图另列 h=2781.90 kJ/kg、G=2.344 kg/s","omitted"),
+      nr("工作蒸汽升温","218.1 → 268.8 ℃","二级再热温升 50.7 K")
+    ],
+    [
+      nc("80.806 kg/s 在原图上怎样分开",
+        "把二级再热主汽支流与原图列出的两个出口量做质量核对。",
+        "G_branch = G_L + G_small",
+        "78.462 + 2.344",
+        "80.806 kg/s",
+        "这解释了为什么不能只把 L=78.462 kg/s 当成全部二级再热主汽支流。",
+        "2.344 kg/s 的具体系统名称仅凭第 6 页不能唯一判断，教学图按辅助流股省略。"),
+      nc("为什么新蒸汽只负责第二级",
+        "二级出口必须低于约 278.1 ℃热源，保留换热温差。",
+        "末端温差 = 278.1 - 268.8",
+        "278.1 - 268.8",
+        "9.3 K",
+        "较高品质新汽只完成最后升温，可避免整段都消耗尚未做功的主蒸汽。",
+        "这是温度匹配的工程解释，不是原图文字说明。")
+    ],
+    ["2.344 kg/s 辅助流股未在教学简图单独画出。"]),
+
+  hotreheat: numberEntry("hotreheat",
+    "二级再热后的四格是中压缸入口状态；这里的 1069.907 kg/s 是工作蒸汽，不含两级加热汽。",
+    [
+      nr("原图四格","268.8｜2986.52 / 9.356｜1069.907","T=268.8 ℃；h=2986.52 kJ/kg；P=9.356 bar(a)；G=1069.907 kg/s"),
+      nr("教学图显示","268.8 ℃ 过热；2986.5 kJ/kg","保留一位小数用于主图可读性","format")
+    ],
+    [
+      nc("由分离器怎样得到再热流量",
+        "再热器不与加热汽混合，工作蒸汽质量流量基本由分离器质量账决定。",
+        "1242.363 - 172.454",
+        "1242.363 - 172.454",
+        "1069.909 kg/s ≈ 原图 1069.907 kg/s",
+        "0.002 kg/s 是取整残差；再热改变温度和焓，不凭空增加工作蒸汽质量。",
+        "若考虑泄漏和排气等完整小流股，应回到设计计算书。")
+    ]),
+
+  ip: numberEntry("ip",
+    "中压缸入口、D/E 抽汽和主排汽是不同出口；教学图保留主关系，原图还列有辅助小流股。",
+    [
+      nr("入口","268.8｜2986.52 / 9.356｜1069.907","再热蒸汽进入 IP"),
+      nr("D、E 抽汽","D 44.089；E 68.098 kg/s","分别去 4、3 号低加"),
+      nr("主排汽","152.7｜2766.19 / 3.098｜962.034","IP 主排汽去低压缸"),
+      nr("辅助小流股","4.356、0.273、0.367 kg/s 等","教学图合并处理","omitted")
+    ],
+    [
+      nc("为什么不能直接算中压缸精确功率",
+        "稳流能量方程需要每一股入口、出口的流量和焓。",
+        "W_IP = Σ(Gh)_in - Σ(Gh)_out",
+        "第 6 页主口状态可读，但辅助流股的完整边界和全部焓值未充分展开",
+        "不能仅凭本页唯一得到精确 IP 轴功",
+        "正确做法是先画控制体，再逐股配对 G 与 h。",
+        "把 1069.907 kg/s 全部乘一个全缸焓降会把中途抽汽也假装成走到末端。")
+    ],
+    ["4.356、0.273、0.367 kg/s 等辅助流股按教学目的合并。"]),
+
+  crossover: numberEntry("crossover",
+    "原图的 962.034 kg/s 标在 IP 主排汽线上；E 已在缸末端另行抽出，不能从 962.034 中再次重复扣除。",
+    [
+      nr("IP 主排汽四格","152.7｜2766.19 / 3.098｜962.034","连通管主流 962.034 kg/s"),
+      nr("教学图标签","3.1 bar；962.0 kg/s","四舍五入后用于主图标注","format"),
+      nr("E 支路位置","3.087 bar；68.098 kg/s","教学图将其画在 IP/LP 连通区以便追踪","format")
+    ],
+    [
+      nc("为什么这里不再做 962.034-68.098",
+        "先看原图连接位置：E 是从 IP 缸末端引出的独立支路，962.034 写在剩余主排汽线上。",
+        "后续主流 = 原图已给出的 962.034 kg/s",
+        "不重复扣除 E=68.098 kg/s",
+        "仍按 962.034 kg/s 追踪到 LP 主流程",
+        "控制位置比算术更重要：同一股抽汽不能扣两次。",
+        "低压缸前后还有 H、I 等辅助连接，完整 LP 入口账需配套图。")
+    ]),
+
+  lp: numberEntry("lp",
+    "低压缸区域除 F、G 外还有 H、I 和若干小流股；教学图只保留主流程及 F、G。",
+    [
+      nr("主入口","152.7｜2766.19 / 3.098｜962.034","两台双流 LP 的上游主流"),
+      nr("F 抽汽","X=.964｜2599.12 / .9603｜65.526","第 6 段抽汽 F"),
+      nr("G 抽汽","X=.939｜2481.58 / .2395｜38.558","第 7 段抽汽 G"),
+      nr("主排汽","X=.904｜2327.92 / .0510｜820.445","四流主排汽合计"),
+      nr("H、I 与小流股","原图另列 H、I、11.561、16.450、0.742 等","教学简图省略或按功能合并","omitted")
+    ],
+    [
+      nc("为什么本页不能唯一算低压缸功率",
+        "低压缸有多个抽汽、辅助流股和四流排汽，必须把全部入口出口逐股列齐。",
+        "W_LP = Σ(Gh)_in - Σ(Gh)_out",
+        "本教程只保留主流、F、G；H、I 等未建立完整控制体",
+        "不能把 962.034×(2766.19-2327.92) 当成精确 LP 功率",
+        "该乘积只是忽略所有中途分流后的假想上界。",
+        "需要精确缸功率时应使用制造厂热力计算或完整轴封、抽汽系统资料。")
+    ],
+    ["H、I、轴封及 11.561、16.450、0.742 kg/s 等辅助流股未逐根绘制。"]),
+
+  lpexhaust: numberEntry("lpexhaust",
+    "汽轮机出口主排汽为 820.445 kg/s；到凝汽器入口附近原图又显示 820.554 kg/s，说明途中还有约 0.109 kg/s 小流股汇入。",
+    [
+      nr("LP 出口四格","X=.904｜2327.92 / .0510｜820.445","X=0.904；h=2327.92；P=0.0510 bar(a)；G=820.445 kg/s","format"),
+      nr("凝汽器入口附近","X=.904｜2327.92 / .0510｜820.554","凝汽器附近总流量 820.554 kg/s"),
+      nr("教学图取值","820.445 kg/s","明确标作“低压缸主排汽”而非凝汽器全部入口")
+    ],
+    [
+      nc("两个排汽流量为什么不相同",
+        "比较原图在 LP 出口和凝汽器入口附近打印的两个流量。",
+        "ΔG = G_cond,in - G_LP,exhaust",
+        "820.554 - 820.445",
+        "0.109 kg/s",
+        "少量辅助流股在两测点之间汇入；两处数字都可能正确。",
+        "第 6 页未在该局部唯一标明 0.109 kg/s 的具体来源，不能擅自命名。"),
+      nc("主排汽流股的单位焓差",
+        "把 LP 主排汽降到所取凝结水状态，使用两个状态的比焓差。",
+        "Δh = h_exhaust - h_condensate",
+        "2327.92 - 141.34",
+        "2186.58 kJ/kg",
+        "它包含凝结及液相降温等总焓差，不应全部简称为潜热。",
+        "这是主排汽流股口径，不是含全部疏水、漏汽的精确凝汽器总负荷。")
+    ]),
+
+  gen: numberEntry("gen",
+    "发电机符号在轴系末端，而毛出力和毛热耗率打印在页面上方；数字对照把两个原图位置合在同一对象里。",
+    [
+      nr("毛出力","W(GENER)=1089075 KW","1089.075 MW","format"),
+      nr("毛热耗率","GR.H.R.=9598.6 KJ/KWH","9598.6 kJ/kWh","format"),
+      nr("转速","标题 1500 RPM","1500 r/min","format"),
+      nr("净上网出力","第 6 页未给","教学页明确标注无法由本页计算","omitted")
+    ],
+    [
+      nc("毛热耗率怎样验算",
+        "毛热耗率表示发电机端每发 1 kWh 电需要多少输入热量。",
+        "HR = Q_reactor / W_gener × 3600",
+        "2903785 / 1089075 × 3600",
+        "9598.6 kJ/kWh",
+        "与原图 GR.H.R. 一致。",
+        "这是发电机端毛边界，没有扣给水泵等厂用电和变压器损耗。"),
+      nc("毛效率怎样由热耗率得到",
+        "1 kWh=3600 kJ，效率等于有用电能除以输入热量。",
+        "η_gross = 3600 / HR",
+        "3600 / 9598.6",
+        "0.3751 ≈ 37.5%",
+        "约 37.5% 的反应堆热功率在毛边界成为电功率。",
+        "不能把 37.5% 直接称为净上网效率。")
+    ],
+    ["净上网出力、厂用电率和变压器损耗不在第 6 页边界内。"]),
+
+  cond: numberEntry("cond",
+    "凝汽器周围有 LP 主排汽、辅助入口、热井凝结水和海水。计算前必须先说清选择哪一条边界。",
+    [
+      nr("饱和温度","33.2 ℃","0.051 bar(a) 对应约 33.2 ℃"),
+      nr("凝汽器入口附近","X=.904｜2327.92 / .0510｜820.554","含途中小流股后的局部入口状态"),
+      nr("热井凝结水","33.4｜141.34 / —｜963.283","33.4 ℃；141.34 kJ/kg；963.283 kg/s"),
+      nr("教学图冷端负荷","原图未直接打印 1794 MW","低压缸主排汽流股约 1793.97 MW","derived")
+    ],
+    [
+      nc("主排汽流股向冷端放热多少",
+        "只取 LP 主排汽 820.445 kg/s，并把终态近似取热井凝结水 h=141.34 kJ/kg。",
+        "Q = G(h_in-h_out) / 1000",
+        "820.445×(2327.92-141.34)/1000",
+        "1793.969 MW",
+        "这是主排汽流股的量级核算。",
+        "凝汽器还接收疏水、漏汽等，故它不是精确总凝汽器负荷。"),
+      nc("为什么全机差额约 1814.71 MW",
+        "从反应堆热功率扣除发电机毛出力，得到毛边界未变成电的总差额。",
+        "Q_gap = Q_reactor - W_gross",
+        "(2903785-1089075)/1000",
+        "1814.710 MW",
+        "它包含冷端排热以及设备散热、机械电气损失和未拆分小流股影响。",
+        "1793.969 与 1814.710 MW 的边界不同，差值不能全部命名为某一种损失。")
+    ]),
+
+  seawater: numberEntry("seawater",
+    "第 6 页只给海水入口 21.0 ℃，没有给出口温度或质量流量，因此能说明方向和作用，不能唯一算海水流量。",
+    [
+      nr("海水入口","21.0 ℃","教学图以灰点线表示 21 ℃ 海水进入"),
+      nr("海水出口温度","第 6 页未给","不显示具体温度","omitted"),
+      nr("海水流量","第 6 页未给","明确标注原图信息不足","omitted")
+    ],
+    [
+      nc("若要算海水流量还缺什么",
+        "冷却水吸热可近似用质量流量、定压比热和温升计算。",
+        "G_sw = Q_cond / [c_p(T_out-T_in)]",
+        "已知 T_in=21.0 ℃；但 T_out 和精确 Q_cond 边界未给全",
+        "仅凭第 6 页不能唯一求 G_sw",
+        "公式说明还需海水出口温度或温升。",
+        "不能用 1.79 GW 除以 21 ℃；温度本身不是温差。")
+    ],
+    ["海水出口温度和循环水流量未在第 6 页打印。"]),
+
+  cp: numberEntry("cp",
+    "凝结水泵前后各有一组水状态；教学主图只突出泵的位置和主流量，数字对照补上焓升。",
+    [
+      nr("泵入口","33.4｜141.34 / —｜963.283","33.4 ℃、141.34 kJ/kg、963.283 kg/s"),
+      nr("泵出口","33.7｜142.65 / —｜963.283","33.7 ℃、142.65 kJ/kg、963.283 kg/s"),
+      nr("教学图卡片","入口水 33.4 ℃、963.283 kg/s","简图未把 1.31 kJ/kg 焓升写在线上","omitted")
+    ],
+    [
+      nc("凝结水泵给水增加了多少流体功率",
+        "泵前后质量流量相同，可用流量乘比焓升估算流体获得的功率。",
+        "P_fluid = G(h_out-h_in)/1000",
+        "963.283×(142.65-141.34)/1000",
+        "1.262 MW",
+        "这是流体获得的能量率，解释了出口温度略升。",
+        "不是电机输入功率；若求电耗还需泵和电机效率。")
+    ]),
+
+  condensate: numberEntry("condensate",
+    "凝结水从凝汽器热井出发，经凝结水泵和 1、2 号低加升温，流量在这一段保持 963.283 kg/s。",
+    [
+      nr("热井出口","33.4｜141.34 / —｜963.283","33.4 ℃、963.283 kg/s"),
+      nr("凝结水泵后","33.7｜142.65 / —｜963.283","33.7 ℃、963.283 kg/s"),
+      nr("1 号低加后","60.2｜253.81 / —｜963.283","60.2 ℃、963.283 kg/s"),
+      nr("2 号低加后","95.5｜401.17 / —｜963.283","95.5 ℃、963.283 kg/s"),
+      nr("教学图","33.4→60.2→95.5 ℃","把分散的水侧四格合并为温度路线","merged")
+    ],
+    [
+      nc("为什么这一段流量不变",
+        "1、2 号低加是表面式换热器，抽汽在壳侧凝结，不直接混入管内凝结水。",
+        "G_water,out = G_water,in",
+        "963.283 → 963.283 → 963.283",
+        "按原图显示值保持不变",
+        "温度和焓增加，但主凝结水质量流量不因隔壁换热而增加。",
+        "后续 3 号低加处有疏水泵回流汇入，流量才会跳增。")
+    ]),
+
+  condensate2: numberEntry("condensate2",
+    "3 号低加后流量从 963.283 增到 1075.470 kg/s，不是水被加热后“变多”，而是 D、E 两股凝结疏水被泵回主流。",
+    [
+      nr("汇入前","95.5｜401.17 / —｜963.283","3 号低加前 963.283 kg/s"),
+      nr("D 疏水","44.089 kg/s","4 号低加加热汽凝结量"),
+      nr("E 疏水","68.098 kg/s","3 号低加加热汽凝结量"),
+      nr("汇入后","132.3｜556.70 / —｜1075.470","3 号低加后 1075.470 kg/s"),
+      nr("4 号低加后","154.4｜651.69 / —｜1075.470","继续升温，流量不再变化")
+    ],
+    [
+      nc("1075.470 kg/s 怎样算出",
+        "先把 D、E 疏水相加，再加到原凝结水主流。",
+        "G_after = G_before + G_D + G_E",
+        "963.283 + 44.089 + 68.098",
+        "1075.470 kg/s",
+        "这一局部质量账按图示三位小数闭合。",
+        "增量来自疏水泵回流，不是热胀冷缩造成质量增加。")
+    ]),
+
+  lh1: numberEntry("lh1",
+    "1 号低加用最低压力的 G 抽汽加热最冷的凝结水；原图还画有 H 等辅助流股，教学图未展开。",
+    [
+      nr("水侧","33.7｜142.65 → 60.2｜253.81；G=963.283","33.7→60.2 ℃"),
+      nr("G 抽汽用户端","63.6｜2481.58 / .2350｜38.558","0.2350 bar(a)、38.558 kg/s"),
+      nr("饱和温度","63.6 (T.SAT.)","壳侧凝结温度 63.6 ℃"),
+      nr("上端差","ΔT 3.4K","63.6-60.2=3.4 K"),
+      nr("辅助流股","H 等多组数字","教学简图省略","omitted")
+    ],
+    [
+      nc("1 号低加上端差",
+        "上端差 TTD 是壳侧饱和温度减去给水出口温度。",
+        "TTD = T_sat - T_water,out",
+        "63.6 - 60.2",
+        "3.4 K",
+        "保留温差才能持续传热；越接近零通常需要越大的换热面积。",
+        "TTD 与疏水出口温度无关，不能和 DCA 公式混用。")
+    ],
+    ["H 等辅助流股在教学图按功能合并。"]),
+
+  lh2: numberEntry("lh2",
+    "2 号低加用 F 抽汽把凝结水从 60.2 ℃ 加热到 95.5 ℃；I 小流股在原图存在但教学图省略。",
+    [
+      nr("水侧","60.2｜253.81 → 95.5｜401.17；G=963.283","60.2→95.5 ℃"),
+      nr("F 用户端","97.9｜2599.01 / .9600｜65.526","0.9600 bar(a)、65.526 kg/s"),
+      nr("饱和温度","97.9 (T.SAT.)","壳侧凝结温度 97.9 ℃"),
+      nr("上端差","ΔT 2.4K","97.9-95.5=2.4 K"),
+      nr("I 小流股","412.69 / 5.730","教学简图省略","omitted")
+    ],
+    [
+      nc("2 号低加上端差",
+        "仍使用上端差定义。",
+        "TTD = T_sat - T_water,out",
+        "97.9 - 95.5",
+        "2.4 K",
+        "F 的凝结温度只比水出口高 2.4 K，体现末端温度匹配。",
+        "I=5.730 kg/s 的具体完整路径需配套系统图，不能从教学简图反推。")
+    ],
+    ["I=5.730 kg/s 及相关辅助连接未逐根画出。"]),
+
+  lh3: numberEntry("lh3",
+    "3 号低加不仅升温，还接收 D、E 疏水泵回主流，所以出口质量流量发生跳变。",
+    [
+      nr("水侧入口","95.5｜401.17 / —｜963.283","95.5 ℃、963.283 kg/s"),
+      nr("水侧出口","132.3｜556.70 / —｜1075.470","132.3 ℃、1075.470 kg/s"),
+      nr("E 用户端","152.3｜2766.19 / 2.995｜68.098","E 抽汽进入 3 号低加"),
+      nr("饱和温度","133.5 (T.SAT.)","壳侧凝结温度 133.5 ℃"),
+      nr("上端差","ΔT 1.2K","133.5-132.3=1.2 K")
+    ],
+    [
+      nc("3 号低加上端差",
+        "用壳侧饱和温度减水侧出口温度。",
+        "TTD = 133.5 - 132.3",
+        "133.5 - 132.3",
+        "1.2 K",
+        "这是很小但仍为正的末端推动温差。",
+        "出口流量增加另由疏水泵汇入解释，不能归因于加热本身。")
+    ]),
+
+  lh4: numberEntry("lh4",
+    "4 号低加的 D 抽汽是再热后的过热蒸汽；端差仍以其压力对应的饱和温度 155.8 ℃ 为准，不直接拿 214.5 ℃ 过热温度算 TTD。",
+    [
+      nr("水侧","132.3｜556.70 → 154.4｜651.69；G=1075.470","132.3→154.4 ℃"),
+      nr("D 用户端","214.5｜2884.19 / 5.550｜44.089","过热蒸汽 44.089 kg/s"),
+      nr("饱和温度","155.8 (T.SAT.)","5.550 bar(a) 对应的壳侧凝结温度"),
+      nr("上端差","ΔT 1.4K","155.8-154.4=1.4 K"),
+      nr("疏水出口","135.5｜570.67 / —｜44.089","用于下端差")
+    ],
+    [
+      nc("4 号低加的 TTD 与 DCA",
+        "TTD 看热端饱和温度与水出口；DCA 看疏水出口与水入口。",
+        "TTD=T_sat-T_w,out；DCA=T_drain,out-T_w,in",
+        "155.8-154.4；135.5-132.3",
+        "TTD=1.4 K；DCA=3.2 K",
+        "两个端差分别检查凝结段与疏水冷却段的温度接近程度。",
+        "不能用 214.5-154.4 代替 TTD；214.5 ℃ 是过热蒸汽入口温度。")
+    ]),
+
+  dea: numberEntry("dea",
+    "除氧器是混合式设备，五股可见汽水在这里真正汇合；由于各数字独立取整，显示值不会毫无残差地相等。",
+    [
+      nr("凝结水","154.4｜651.69 / —｜1075.470","1075.470 kg/s"),
+      nr("高加疏水","185.3｜786.91 / —｜311.901","311.901 kg/s"),
+      nr("C 抽汽","177.0｜2486.59 / 9.344｜51.578","51.578 kg/s"),
+      nr("M 疏水","177.9｜754.01 / —｜172.454","172.454 kg/s"),
+      nr("J 漏汽","2802.70 / 2.002","2.002 kg/s"),
+      nr("出口给水","177.0｜749.77 / —｜1613.400","1613.400 kg/s")
+    ],
+    [
+      nc("五股可见流量相加",
+        "混合式除氧器稳态质量账是所有入口相加等于出口。",
+        "G_sum = G_cond + G_HH + G_C + G_M + G_J",
+        "1075.470+311.901+51.578+172.454+2.002",
+        "1613.405 kg/s；比出口 1613.400 kg/s 多 0.005 kg/s",
+        "相对残差约 0.00031%，属于图面取整或未展开微小流股量级。",
+        "应写“约闭合”，不能写“精确闭合 ✓”。")
+    ]),
+
+  fp: numberEntry("fp",
+    "给水泵把除氧器出口水升压，原图通过泵前后焓值直接给出了流体获得的能量。",
+    [
+      nr("泵入口","177.0｜749.77 / —｜1613.400","177.0 ℃、749.77 kJ/kg"),
+      nr("泵出口","178.3｜759.14 / 81.23｜1613.400","178.3 ℃、759.14 kJ/kg、81.23 bar(a)"),
+      nr("教学图耗功","原图未直接打印 MW","约 15.118 MW 流体功率","derived")
+    ],
+    [
+      nc("给水泵焓升与流体功率",
+        "同一股给水通过泵，单位质量焓升乘质量流量得到流体能量增加率。",
+        "P_fluid = G(h_out-h_in)/1000",
+        "1613.400×(759.14-749.77)/1000",
+        "15.118 MW",
+        "泵功还使水温由 177.0 ℃ 升到 178.3 ℃。",
+        "15.118 MW 是流体获得的功率；电机输入还要除以泵组效率，因此会更大。")
+    ]),
+
+  hh6: numberEntry("hh6",
+    "6 号高加壳侧接收三股热源：7 号高加疏水、B 抽汽和 K 疏水；管内高压给水与它们不混合。",
+    [
+      nr("管内给水","178.3｜759.14 → 202.3｜865.13；G=1613.400","178.3→202.3 ℃"),
+      nr("B 用户端","207.3｜2578.36 / 18.05｜78.990","B=78.990 kg/s"),
+      nr("K 疏水","978.67 / 70.206","K=70.206 kg/s"),
+      nr("7 号来疏水","208.2｜889.78 / —｜162.696","162.696 kg/s"),
+      nr("6 号疏水出口","185.3｜786.91 / —｜311.901","311.901 kg/s"),
+      nr("端差","ΔT 5.0K；ΔT 7.0K","TTD=5.0 K；DCA=7.0 K","format")
+    ],
+    [
+      nc("6 号高加可见质量账",
+        "将三股可见壳侧入口相加，与疏水出口比较。",
+        "G_in,visible = G_7drain + G_B + G_K",
+        "162.696+78.990+70.206",
+        "311.892 kg/s；比原图出口 311.901 少 0.009 kg/s",
+        "0.009 kg/s 是显示取整或未展开小流股造成的微小残差。",
+        "不能为了强行闭合而擅自修改任一原图数字。"),
+      nc("6 号高加两个端差",
+        "上端差和下端差看换热器不同端。",
+        "TTD=207.3-202.3；DCA=185.3-178.3",
+        "207.3-202.3；185.3-178.3",
+        "TTD=5.0 K；DCA=7.0 K",
+        "前者看凝结温度与给水出口，后者看疏水出口与给水入口。",
+        "两个公式不能互换。")
+    ]),
+
+  hh7: numberEntry("hh7",
+    "7 号高加是给水回热最高温一级，壳侧接收 A 抽汽和更热的 L 疏水。",
+    [
+      nr("管内给水","202.3｜865.13 → 226.0｜972.62；G=1613.400","202.3→226.0 ℃"),
+      nr("A 用户端","228.1｜2640.29 / 27.00｜84.234","A=84.234 kg/s"),
+      nr("L 疏水","1226.97 / 78.462","L=78.462 kg/s"),
+      nr("疏水出口","208.2｜889.78 / —｜162.696","去 6 号高加"),
+      nr("端差","ΔT 2.1K；ΔT 5.9K","TTD=2.1 K；DCA=5.9 K","format")
+    ],
+    [
+      nc("7 号高加质量账",
+        "壳侧两股入口凝结并汇成一股疏水。",
+        "G_drain = G_A + G_L",
+        "84.234 + 78.462",
+        "162.696 kg/s",
+        "与原图疏水出口完全一致到显示位数。",
+        "这里的闭合只针对 7 号高加可见壳侧质量账。"),
+      nc("7 号高加两个端差",
+        "按各自定义代入。",
+        "TTD=228.1-226.0；DCA=208.2-202.3",
+        "228.1-226.0；208.2-202.3",
+        "TTD=2.1 K；DCA=5.9 K",
+        "数值小而为正，说明热源温度与给水温度匹配紧密。",
+        "TTD 使用饱和温度 228.1 ℃，不是 L 的 278.1 ℃。")
+    ]),
+
+  feedwater: numberEntry("feedwater",
+    "“给水”是除氧并由给水泵升压后送回蒸汽发生器的水；最终给水温度量在 7 号高加出口、SG 入口。",
+    [
+      nr("给水泵后","178.3｜759.14 / 81.23｜1613.400","178.3 ℃、81.23 bar(a)"),
+      nr("6 号高加后","202.3｜865.13 / —｜1613.400","202.3 ℃"),
+      nr("最终给水","226.0｜972.62 / 77.23｜1613.400","226.0 ℃、77.23 bar(a)"),
+      nr("教学图路线","原图沿左侧竖排","178.3→202.3→226.0 ℃","merged")
+    ],
+    [
+      nc("给水沿程升温和压降",
+        "给水泵先升压，高加再升温；到 SG 入口前管道和设备产生压降。",
+        "ΔT_heaters=226.0-178.3；ΔP=81.23-77.23",
+        "226.0-178.3；81.23-77.23",
+        "升温 47.7 K；压降 4.00 bar",
+        "226 ℃ 是液态高压给水，不是主蒸汽温度。",
+        "仅用温差不能精确算加热量；高压水应使用对应焓差。")
+    ]),
+
+  exA: numberEntry("exA",
+    "A 是同一管线的连接符。汽轮机取汽端与 7 号高加用户端是两个测点，中途有小流股汇入和管道压损。",
+    [
+      nr("取汽端四格","X=.910｜2640.29 / 27.55｜80.241","X=0.910；h=2640.29 kJ/kg；P=27.55 bar(a)；G=80.241 kg/s","format"),
+      nr("辅助小流股","3.995；2738.80","G=3.995 kg/s；h=2738.80 kJ/kg"),
+      nr("7 号高加端","228.1｜2640.29 / 27.00｜84.234","T_sat=228.1 ℃；P=27.00 bar(a)；G=84.234 kg/s"),
+      nr("教学图","一条 A 虚线连接 HP 与 7 号高加","同一管线两端分开解释","merged")
+    ],
+    [
+      nc("A 取汽端的含水量",
+        "X=0.910 表示汽相占 91.0%。",
+        "液态水比例 = 1-X",
+        "1-0.910",
+        "0.090 = 9.0%",
+        "这是湿蒸汽状态，不是 0.910 ℃或 91% 温度。",
+        "干度只适用于湿蒸汽两相区。"),
+      nc("为什么流量从 80.241 变成约 84.234",
+        "中途有 3.995 kg/s 辅助流股汇入 A 管。",
+        "G_after = 80.241 + 3.995",
+        "80.241 + 3.995",
+        "84.236 kg/s ≈ 原图 84.234 kg/s；残差 0.002 kg/s",
+        "两处都是正确测点，差异不是抄错。",
+        "辅助流股具体来源仅凭第 6 页不能唯一确定。"),
+      nc("若严格混合，焓应是多少",
+        "两股不同焓的蒸汽混合，出口焓取质量加权平均。",
+        "h_mix=(G1h1+G2h2)/(G1+G2)",
+        "(80.241×2640.29+3.995×2738.80)/84.236",
+        "约 2644.96 kJ/kg",
+        "原图在设备入口仍沿用 2640.29 kJ/kg，属于设计图简化或取值口径。",
+        "做严格设备能量账时应遵循原图指定边界，并记录这种状态简化。")
+    ]),
+
+  exB: numberEntry("exB",
+    "B 同样有汽轮机取汽端、辅助流股和 6 号高加用户端三个位置。",
+    [
+      nr("取汽端四格","X=.885｜2578.36 / 18.46｜78.114","X=0.885；h=2578.36；P=18.46；G=78.114","format"),
+      nr("辅助小流股","0.878；2738.80","0.878 kg/s、2738.80 kJ/kg"),
+      nr("6 号高加端","207.3｜2578.36 / 18.05｜78.990","18.05 bar(a)、78.990 kg/s"),
+      nr("教学图","B 连接 HP 与 6 号高加","两端状态用设备卡补充","merged")
+    ],
+    [
+      nc("B 管质量与压力变化",
+        "质量因小流股汇入增加，压力因管道阻力下降。",
+        "G_calc=78.114+0.878；ΔP=18.46-18.05",
+        "78.114+0.878；18.46-18.05",
+        "G_calc=78.992≈78.990 kg/s；ΔP=0.41 bar",
+        "0.002 kg/s 是显示取整残差；0.41 bar 是两测点间压降。",
+        "不要把用户端较低压力解释成蒸汽在管内额外做了汽轮机功。")
+    ]),
+
+  exC: numberEntry("exC",
+    "C 从高压缸排汽端去混合式除氧器，途中没有图示汇入流股，所以两端流量相同。",
+    [
+      nr("取汽端四格","X=.856｜2486.59 / 9.733｜51.578","X=0.856；P=9.733 bar(a)；G=51.578 kg/s","format"),
+      nr("除氧器端","177.0｜2486.59 / 9.344｜51.578","P=9.344 bar(a)；G=51.578 kg/s"),
+      nr("教学图","C 连接 HP 与除氧器","突出直接混合和除氧用途","merged")
+    ],
+    [
+      nc("C 管两端为什么流量相同、压力不同",
+        "没有图示支流汇入或分出，质量流量守恒；管道存在压降。",
+        "ΔP = 9.733 - 9.344",
+        "9.733 - 9.344",
+        "0.389 bar；G 均为 51.578 kg/s",
+        "除氧器端温度 177.0 ℃接近该压力饱和温度，适合直接接触加热。",
+        "C 在低负荷工况可能改由其他汽源供汽；本项只对应第 6 页 TMCR。")
+    ]),
+
+  exD: numberEntry("exD",
+    "D 位于再热后的中压缸，取汽端与 4 号低加端的流量、焓相同，压力和打印温度略有差别。",
+    [
+      nr("IP 取汽端","213.4｜2884.19 / 5.722｜44.089","213.4 ℃、5.722 bar(a)、44.089 kg/s"),
+      nr("4 号低加端","214.5｜2884.19 / 5.550｜44.089","214.5 ℃、5.550 bar(a)、44.089 kg/s"),
+      nr("教学图","主要显示用户端 5.550 bar、214.5 ℃","取汽端差异在数字对照中保留","format")
+    ],
+    [
+      nc("D 管压降与温度差怎样理解",
+        "先比较同一管线两端打印值。",
+        "ΔP=5.722-5.550；ΔT=214.5-213.4",
+        "5.722-5.550；214.5-213.4",
+        "压降 0.172 bar；打印温差 1.1 K",
+        "两端焓同为 2884.19 kJ/kg，温度小差异来自压力变化和状态值取整，不表示管道主动加热。",
+        "精确状态应由同一套蒸汽性质计算与设计口径复核。")
+    ]),
+
+  exE: numberEntry("exE",
+    "E 位于中压缸末端附近，去 3 号低加；两端状态的微小差异主要反映压降和图面取整。",
+    [
+      nr("IP 取汽端","150.3｜2766.26 / 3.087｜68.098","150.3 ℃、2766.26 kJ/kg、3.087 bar(a)"),
+      nr("3 号低加端","152.3｜2766.19 / 2.995｜68.098","152.3 ℃、2766.19 kJ/kg、2.995 bar(a)"),
+      nr("教学图","使用用户端 152.3 ℃、2.995 bar","流量保持 68.098 kg/s","format")
+    ],
+    [
+      nc("E 管两端差值",
+        "流量不变，比较压力和焓的显示值。",
+        "ΔP=3.087-2.995；Δh=2766.19-2766.26",
+        "3.087-2.995；2766.19-2766.26",
+        "压降 0.092 bar；焓差 -0.07 kJ/kg",
+        "0.07 kJ/kg 远小于主焓值，属于显示精度量级。",
+        "温度从 150.3 到 152.3 ℃不能孤立解释为吸热；压力变化会改变同一焓附近的状态温度。")
+    ]),
+
+  exF: numberEntry("exF",
+    "F 是低压缸抽往 2 号低加的湿蒸汽，两端流量相同，原图压力只差 0.0003 bar。",
+    [
+      nr("LP 取汽端","X=.964｜2599.12 / .9603｜65.526","X=0.964；P=0.9603 bar(a)；G=65.526","format"),
+      nr("2 号低加端","97.9｜2599.01 / .9600｜65.526","T_sat=97.9 ℃；P=0.9600 bar(a)"),
+      nr("教学图","0.960 bar、X=0.964、65.526 kg/s","合并两端显示精度","format")
+    ],
+    [
+      nc("F 的含水比例与压降",
+        "干度给出液态水比例，两端压力相减给出图示压降。",
+        "water=1-0.964；ΔP=0.9603-0.9600",
+        "1-0.964；0.9603-0.9600",
+        "含水 3.6%；压降 0.0003 bar",
+        "流量保持 65.526 kg/s，说明没有图示支流汇入。",
+        "极小压差与焓差处在打印精度附近，不宜过度解读。")
+    ]),
+
+  exG: numberEntry("exG",
+    "G 是压力最低的给水回热抽汽，用于加热最冷的凝结水。",
+    [
+      nr("LP 取汽端","X=.939｜2481.58 / .2395｜38.558","X=0.939；P=0.2395 bar(a)；G=38.558","format"),
+      nr("1 号低加端","63.6｜2481.58 / .2350｜38.558","T_sat=63.6 ℃；P=0.2350 bar(a)"),
+      nr("教学图","0.235 bar、X=0.939、38.558 kg/s","以用户端压力标注","format")
+    ],
+    [
+      nc("G 的含水比例与压降",
+        "同样按干度和两端压力计算。",
+        "water=1-0.939；ΔP=0.2395-0.2350",
+        "1-0.939；0.2395-0.2350",
+        "含水 6.1%；压降 0.0045 bar",
+        "最低压力抽汽已经足够把水加热到 60.2 ℃，无需浪费高压抽汽。",
+        "这是温度等级匹配的工程解释；原图只直接给状态和连接。")
+    ]),
+
+  drM: numberEntry("drM",
+    "M 是从 HP 湿排汽中机械分出的液态水，汽轮机侧和除氧器侧都用 M 连接符表示。",
+    [
+      nr("分离器端","177.9｜754.01 / 9.556｜172.454","177.9 ℃、754.01 kJ/kg、172.454 kg/s"),
+      nr("除氧器端","177.9｜754.01 / —｜172.454","同一股 M 疏水进入除氧器"),
+      nr("教学图","M 从 MSR 直接去除氧器","绿色虚线表示疏水","format")
+    ],
+    [
+      nc("M 与 MSR 主流的质量关系",
+        "入口湿排汽减 M，得到继续再热的工作蒸汽。",
+        "G_work=1242.363-172.454",
+        "1242.363-172.454",
+        "1069.909≈1069.907 kg/s",
+        "M 不是排往环境的废水，而是回到给水系统继续利用质量和热量。",
+        "分离后工作蒸汽仍有 X=0.995 的微量水分，因此 M 不等于入口全部液相的简单乘积。")
+    ]),
+
+  drK: numberEntry("drK",
+    "K 是一级再热加热汽放热后凝成的高温水，送 6 号高加继续回收余热。",
+    [
+      nr("一级再热端","227.5｜978.67 / 26.73｜70.206","K=70.206 kg/s、227.5 ℃"),
+      nr("6 号高加端","978.67 / 70.206","同一股 K 进入 6 号高加壳侧"),
+      nr("教学图","K → 6 号高加","与管内给水隔壁换热","merged")
+    ],
+    [
+      nc("为什么 K 适合去 6 号而不是直接去凝汽器",
+        "K 温度 227.5 ℃，而 6 号给水从 178.3 ℃升到 202.3 ℃。",
+        "最低热端温差量级 = 227.5-202.3",
+        "227.5-202.3",
+        "25.2 K",
+        "K 仍有足够温差给 6 号高加放热，能减少蒸汽发生器外部供热。",
+        "这是温度量级说明；精确换热量应使用壳侧进出口焓，不用温差直接代替。")
+    ]),
+
+  drL: numberEntry("drL",
+    "L 是二级再热新蒸汽放热后凝成的更高温疏水，先去最高温的 7 号高加。",
+    [
+      nr("二级再热端","278.1｜1226.97 / 62.38｜78.462","L=78.462 kg/s、278.1 ℃"),
+      nr("7 号高加端","1226.97 / 78.462","同一股 L 进入 7 号高加壳侧"),
+      nr("教学图","L → 7 号高加","先利用最高等级余热，再随疏水去 6 号","merged")
+    ],
+    [
+      nc("L 与二级再热主汽支流的关系",
+        "原图把凝结成 L 的 78.462 kg/s 与另一股 2.344 kg/s 分开。",
+        "78.462 + 2.344",
+        "78.462 + 2.344",
+        "80.806 kg/s",
+        "正好对应高压缸前分出的二级再热主汽支流。",
+        "2.344 kg/s 的具体功能未在教学图命名，不能把 78.462 当作全部主汽支流。")
+    ],
+    ["2.344 kg/s 小流股在教学简图中省略。"]),
+
+  drJ: numberEntry("drJ",
+    "J 是主汽阀门杆处回收的少量漏汽，原图在汽轮机侧和除氧器侧都标 J。",
+    [
+      nr("原图两端","2802.70 / 2.002","h=2802.70 kJ/kg；G=2.002 kg/s"),
+      nr("教学图","J → 除氧器","按漏汽回收支路绘制","merged"),
+      nr("具体阀杆结构","第 6 页未展开","需阀门或轴封系统图","omitted")
+    ],
+    [
+      nc("J 在总给水量中有多大",
+        "用 J 流量除以总给水流量，只用于量级理解。",
+        "share = 2.002/1613.400×100%",
+        "2.002/1613.400×100%",
+        "约 0.124%",
+        "流量虽小，回收后仍可把质量和热量带回循环。",
+        "不能因为比例小就从除氧器精细质量账中任意删除。")
+    ]),
+
+  drHH: numberEntry("drHH",
+    "高加疏水按压力从 7 号流向 6 号，再进入除氧器；只有到混合式除氧器才真正并入给水主流。",
+    [
+      nr("7 号疏水","208.2｜889.78 / —｜162.696","162.696 kg/s → 6 号"),
+      nr("6 号疏水","185.3｜786.91 / —｜311.901","311.901 kg/s → 除氧器"),
+      nr("教学图","7→6→除氧器","绿色虚线表示逐级疏水","merged")
+    ],
+    [
+      nc("两级高加疏水量怎样增长",
+        "7 号先由 A 与 L 汇成 162.696；到 6 号再接收 B 与 K。",
+        "G_7=84.234+78.462；G_6,visible=162.696+78.990+70.206",
+        "84.234+78.462；162.696+78.990+70.206",
+        "162.696；311.892≈原图 311.901 kg/s",
+        "第二级可见账差 0.009 kg/s，属于取整或未展开小流股。",
+        "疏水逐级放热不等于每一级都与管内给水混合。")
+    ]),
+
+  drLH: numberEntry("drLH",
+    "低加疏水有两种去向：4、3 号疏水经泵打回凝结水主流；2、1 号疏水继续逐级流回凝汽器。",
+    [
+      nr("D 疏水","44.089 kg/s","4 号低加凝结量"),
+      nr("E 疏水","68.098 kg/s","3 号低加凝结量"),
+      nr("泵回主流","44.089+68.098","112.187 kg/s 汇入凝结水","derived"),
+      nr("2、1 号疏水","原图含 F、G、H、I 等多股","教学图只画逐级回凝汽器","omitted")
+    ],
+    [
+      nc("低加主流为何增加 112.187 kg/s",
+        "4、3 号低加的两股主要疏水由疏水泵送入凝结水。",
+        "G_return=G_D+G_E",
+        "44.089+68.098",
+        "112.187 kg/s",
+        "加到 963.283 kg/s 后得到 1075.470 kg/s。",
+        "2、1 号低加支路还含 H、I 等辅助流股，本教程不据简图构造完整小账。")
+    ],
+    ["H、I 及低加辅助疏水未逐根展开。"])
+};
+
+/* ============ 速查卡片（配套文字详解的屏幕版） ============ */
+const QUICK_CARDS = [
+  { t:"读图顺序", html:`<p><strong>边界条件</strong> → 主蒸汽 → HP/MSR/IP/LP 主线 → 凝汽器 → 回热加热器 → 热耗总账 → 抽汽疏水小账。</p><p>先看主线，后看虚线；先让总账闭合，再追每一股小流量。</p>` },
+  { t:"热平衡图的使用边界", html:`<p>这是一张<strong>指定工况下的稳态设计计算图</strong>，不是实时监视画面。</p><table><tr><th>能看</th><td>流向、设计状态、质量账和能量账</td></tr><tr><th>不能替代</th><td>管道及仪表流程图（P&amp;ID）、控制逻辑、操作规程和现场仪表</td></tr></table><p>网页教学简图还合并了部分辅助流股；需要工程引用时，应回到原图并确认受控版次。</p>` },
+  { t:"图示、推导和工程解释", html:`<table><tr><th>图示</th><td>原热平衡图直接给出的数值或连接。</td></tr><tr><th>推导</th><td>用图示值按质量或能量守恒算出的结果。</td></tr><tr><th>工程解释</th><td>用通用原理说明原因，不代表原图写明了具体设计意图。</td></tr></table><p>例如 1613.400 kg/s 是图示总主汽量；1532.028 kg/s 是扣除缸前分流后的高压缸入口推导值。标签用于防止把网页计算或通用机理误当成原图原文；精确引用仍应回到原图核对。</p>` },
+  { t:"第 6 页四格参数怎样读", html:`<table><tr><th>左上</th><td>温度 T；湿蒸汽时常改写为干度 X</td></tr><tr><th>右上</th><td>比焓 H，kJ/kg</td></tr><tr><th>左下</th><td>压力 P，bar</td></tr><tr><th>右下</th><td>流量 G，kg/s</td></tr></table><p>以 A 为例：<strong>X=.910 / 2640.29 / 27.55 / 80.241</strong>，依次表示干度、焓、压力和缸口抽汽流量。下方小箭头旁的 3.995 kg/s 与 2738.80 kJ/kg 属于另一股汇入 A 管的辅助流，不是第五、第六个主流状态参数。</p>` },
+  { t:"绝对压力与凝汽器真空", html:`<p>热平衡图压力按<strong>绝对压力</strong>理解，零点是真空。大气压约 1.013 bar(a)，凝汽器只有 0.051 bar(a)，所以处在深真空环境，但绝对压力仍是正数。</p><p>蒸汽表和饱和温度必须使用绝对压力，不能把 0.051 bar(a) 当成 -0.051 bar(g)。</p>` },
+  { t:"给水是什么", html:`<p><strong>凝结水</strong>是乏汽在凝汽器里冷凝回来的低压水；经过除氧器、准备由给水泵送回蒸汽发生器后，称为<strong>给水</strong>。</p><table><tr><th>给水泵后</th><td>178.3 ℃ · 81.23 bar</td></tr><tr><th>最终给水</th><td>226.0 ℃ · 蒸汽发生器入口</td></tr><tr><th>主蒸汽</th><td>280.1 ℃ · 蒸汽发生器出口</td></tr></table><p>226 ℃给水在约 77 bar 下仍未达到沸点，所以仍是液态水。</p>` },
+  { t:"高加、TTD 与 DCA", html:`<p><strong>高加 = 高压给水加热器。</strong>它不是电加热器，而是用抽汽和高温疏水预热给水泵之后约 80 bar 的高压给水。</p><table><tr><th>管内</th><td>高压给水依次通过 6、7 号高加</td></tr><tr><th>管外</th><td>抽汽和 K/L 疏水放热，不与给水混合</td></tr><tr><th>上端差 TTD</th><td>壳侧饱和温度 − 给水出口；7 号为 2.1 K</td></tr><tr><th>下端差 DCA</th><td>疏水出口温度 − 给水入口；7 号为 5.9 K</td></tr></table><div class="formula">178.3 ℃ → 6 号高加 → 202.3 ℃ → 7 号高加 → 226.0 ℃</div><p>上下两个 ΔT 处在换热器不同端，不能用同一个定义解释。</p>` },
+  { t:"回热和再热", html:`<table><tr><th>给水回热</th><td>加热返回蒸汽发生器的液态水，降低外部供热和热耗。</td></tr><tr><th>蒸汽再热</th><td>加热高压缸排汽，降低湿度并增加后续做功。</td></tr></table><p>回热看蓝色水线；再热看橙色蒸汽主线和 MSR。</p>` },
+  { t:"给水回热的核心账", html:`<p>不回热时，每千克蒸汽的汽轮机后续功略多，但给水更冷、蒸汽发生器供热更多、凝汽器排热也更多。</p><p>回热是放弃一小部分后续功，把更多热量留在循环内预热给水；按热力循环边界，<strong>（汽轮机功 − 泵功）÷ 加入循环的热量</strong>提高。原图报告的则是发电机毛出力和毛热耗，边界不要混用。</p>` },
+  { t:"七段温度接力", html:`<table><tr><th>水侧顺序</th><th>用户</th><th>水温</th></tr><tr><td>G</td><td>1 号低加</td><td>33.4→60.2 ℃</td></tr><tr><td>F</td><td>2 号低加</td><td>60.2→95.5 ℃</td></tr><tr><td>E</td><td>3 号低加</td><td>95.5→132.3 ℃</td></tr><tr><td>D</td><td>4 号低加</td><td>132.3→154.4 ℃</td></tr><tr><td>C</td><td>除氧器</td><td>154.4→177.0 ℃</td></tr><tr><td>B</td><td>6 号高加</td><td>178.3→202.3 ℃</td></tr><tr><td>A</td><td>7 号高加</td><td>202.3→226.0 ℃</td></tr></table><p>汽轮机按压力从高到低读 A→G；水侧回程正好按 G→A 接力。</p>` },
+  { t:"MSR 为什么两级再热", html:`<table><tr><th>工作蒸汽</th><td>177.9 → 218.1 → 268.8 ℃</td></tr><tr><th>一级热源</th><td>227.5 ℃ 第 1 段抽汽</td></tr><tr><th>二级热源</th><td>278.1 ℃ 新蒸汽</td></tr></table><p>抽汽温度适合预热，却不可能把工作蒸汽加热到高于自身的 268.8 ℃；新蒸汽只负责最后升温，可少消耗高品质主蒸汽。</p><p>两股加热汽与工作蒸汽隔壁换热、不相混，放热后分别成为 K、L 疏水。</p>` },
+  { t:"单位换算", html:`<table><tr><th>打印版</th><td class="v">P=bar，G=kg/s</td></tr><tr><th>扫描版</th><td class="v">P=MPa，G=kg/h</td></tr><tr><th>换算</th><td class="v">1 MPa=10 bar；kg/h ÷ 3600 = kg/s</td></tr></table><p>第 10 页的 738720G 就是 738720 kg/h，即 205.2 kg/s。</p>` },
+  { t:"TMCR 与 VWO", html:`<p><strong>调门</strong>是高压缸前调节主蒸汽流量的阀门，作用类似蒸汽水龙头。</p><table><tr><th>100% TMCR</th><td>额定连续保证点：1613.4 kg/s，1089.075 MW。</td></tr><tr><th>VWO</th><td>调门达到设计最大开度：1664.5 kg/s，1121.641 MW。</td></tr></table><p>VWO 只指进汽调节阀全开，不是所有阀门失控；它是在规定主汽参数、背压和设备限制下的能力校核点。</p>` },
+  { t:"毛出力、循环净功、净上网", html:`<table><tr><th>W(GENER)</th><td>主发电机端毛出力，用于本图毛热耗计算。</td></tr><tr><th>循环净功</th><td>热力循环中汽轮机功减泵功，用于解释循环效率。</td></tr><tr><th>净上网出力</th><td>毛出力再减厂用电和变压器等损耗；本图未给出。</td></tr></table><p>37.5% 是本图毛边界效率，不能直接称为上网效率。</p>` },
+  { t:"教学简图省略了什么", html:`<p>主流程、A~G、M/K/L 和 J 保留；H、I、轴封及部分加热器小流股按功能合并，以免第一次阅读被小账淹没。</p><p>这不表示原设备没有这些管线。仅凭字母和局部状态通常不能唯一确定完整来源，还需要轴封、疏水等配套系统图。</p>` },
+  { t:"几个容易误判的因果", html:`<table><tr><th>凝汽器真空</th><td>主要由蒸汽冷凝、体积骤缩形成；抽气设备负责排不凝气。</td></tr><tr><th>除氧</th><td>水越热越难溶解气体，直接接触蒸汽可把氧气带走。</td></tr><tr><th>端差</th><td>传热必须留温差；端差越小，换热器通常越大。</td></tr><tr><th>低负荷</th><td>真空虽好，仍抵不过节流、回热停用和固定损耗。</td></tr></table>` },
+  { t:"常见误区", html:`<p>字母旗标首先表示管线连接，不保证每个工况里汽源完全相同；低负荷 C 管可能改接新蒸汽减压补汽。</p><p>工程引用通常看最新版次，但仍要核对图内数据是否自洽。第 12 页凝汽器压力标题与图内数据不一致，应以图内 0.0518 bar 为准。</p><p>图上的热耗是发电机端毛热耗，没有扣厂用电和主变损耗。</p>` },
+];
+
+/* ============ 抽汽实验：先比较两种账，再按水侧 G→A 逐级看 ============ */
+const EXTRACTION_LEVELS = [
+  { code:"G", key:"exG", sourceKey:"lp", heater:"lh1", water:"condensate", target:"1 号低加", source:"低压缸末段", pressure:"0.235 bar", rise:"33.4 → 60.2 ℃", why:"最低压力抽汽已经足够加热最冷的凝结水；若改用高压汽，会白白损失更多做功能力。", after:"在 1 号低加凝结后进入冷端，最终随主凝结水回到循环。" },
+  { code:"F", key:"exF", sourceKey:"lp", heater:"lh2", water:"condensate", target:"2 号低加", source:"低压缸", pressure:"0.960 bar", rise:"60.2 → 95.5 ℃", why:"水温已经高于第一级，因此需要凝结温度更高一档的 F 抽汽。", after:"先流向 1 号低加继续放热，最后回到凝汽器。" },
+  { code:"E", key:"exE", sourceKey:"crossover", heater:"lh3", water:"condensate2", target:"3 号低加", source:"中低压缸连通管", pressure:"2.995 bar", rise:"95.5 → 132.3 ℃", why:"低压抽汽已经达不到 132 ℃ 的目标，E 用更高压力维持传热温差。", after:"与 4 号低加疏水汇合后，由疏水泵打回凝结水主流。" },
+  { code:"D", key:"exD", sourceKey:"ip", heater:"lh4", water:"condensate2", target:"4 号低加", source:"再热后的中压缸", pressure:"5.550 bar", rise:"132.3 → 154.4 ℃", why:"D 是再热后的过热蒸汽，适合完成低压加热器的最高温度段。", after:"先去 3 号低加继续放热，再由疏水泵回到凝结水主流。" },
+  { code:"C", key:"exC", sourceKey:"hp", heater:"dea", water:"condensate2", target:"除氧器", source:"高压缸排汽端", pressure:"约 9.7 bar", rise:"154.4 → 177.0 ℃", why:"C 的压力既能把水加热到接近饱和，又能在直接接触时把氧气和二氧化碳赶走。", after:"C 与给水直接混合，不再形成单独疏水；它的质量和热量都进入给水主流。" },
+  { code:"B", key:"exB", sourceKey:"hp", heater:"hh6", water:"feedwater", target:"6 号高加", source:"高压缸", pressure:"约 18.1 bar", rise:"178.3 → 202.3 ℃", why:"给水已接近 180 ℃，只有更高压力的高压缸抽汽才能继续保持有效温差。", after:"凝结后与一级再热疏水 K、7 号高加疏水一起去除氧器。" },
+  { code:"A", key:"exA", sourceKey:"hp", heater:"hh7", water:"feedwater", target:"7 号高加", source:"高压缸最高抽汽档", pressure:"约 27.0 bar", rise:"202.3 → 226.0 ℃", why:"这是给水回热的最高温段，需要七段抽汽中温度最高的一档完成。", after:"凝结成 7 号高加疏水，先去 6 号高加继续回收热量，再进入除氧器。" },
+];
+
+const WATER_JOURNEY_HTML = `
+  <div class="water-journey" aria-label="二回路水和蒸汽的温度路线">
+    <div class="water-stage"><b>33.4 ℃</b><span>凝汽器出口 · 凝结水</span></div>
+    <div class="water-stage"><b>154.4 ℃</b><span>4 号低加出口 · 凝结水</span></div>
+    <div class="water-stage"><b>177.0 ℃</b><span>除氧器出口 · 开始称给水</span></div>
+    <div class="water-stage"><b>178.3 ℃</b><span>给水泵后 · 高压给水</span></div>
+    <div class="water-stage"><b>226.0 ℃</b><span>最终给水 · 蒸汽发生器入口</span></div>
+    <div class="water-stage"><b>280.1 ℃</b><span>蒸汽发生器出口 · 主蒸汽</span></div>
+  </div>`;
+
+const EXTRACTION_STEPS = [
+  {
+    t:"先认清：凝结水、给水、主蒸汽是同一批工质",
+    keys:["cond","cp","condensate","condensate2","dea","fp","feedwater","sg"],
+    centerKey:"dea",
+    html:`<p>二回路里的水一直循环，只因所在位置和状态不同而换名字：乏汽在凝汽器里凝成水后叫<strong>凝结水</strong>；进入除氧器并准备由给水泵送回蒸汽发生器后，工程上叫<strong>给水</strong>；在蒸汽发生器里吸热沸腾，出口才叫<strong>主蒸汽</strong>。</p>${WATER_JOURNEY_HTML}<p>海水只在凝汽器管内带走热量，和二回路水隔着管壁，<strong>不是给水的一部分</strong>。</p><p class="takeaway"><strong>一句话：</strong>“凝结水”和“给水”不是两种水，而是同一批循环水走到不同路段后的名称。</p>`
+  },
+  {
+    t:"最终给水温度 226 ℃ 到底量在哪里",
+    keys:["hh7","feedwater","sg"],
+    centerKey:"hh7",
+    html:`<p><strong>最终给水温度</strong>量在 7 号高压加热器之后、蒸汽发生器入口之前。图上的 TMCR 数值是 <strong>226.0 ℃、77.23 bar</strong>，表示已经预热好的高压液态水即将进入蒸汽发生器。</p>${WATER_JOURNEY_HTML}<p>226 ℃ 很热，但在 77.23 bar 高压下仍低于该压力对应的沸腾温度，所以它仍是水，不是主蒸汽。进入蒸汽发生器后还要继续吸收显热和汽化潜热，出口才变成约 280.1 ℃ 的主蒸汽。</p><p class="takeaway"><strong>不要混淆：</strong>226 ℃ 是蒸汽发生器入口的水温；280.1 ℃ 才是蒸汽发生器出口的主蒸汽温度。</p>`
+  },
+  {
+    t:"先假想关闭 A–G 回热抽汽",
+    keys:["mainsteam","hp","hpexhaust","msr","hotreheat","ip","crossover","lp","lpexhaust","cond"],
+    centerKey:"lp",
+    html:`<p>这里只假想关闭<strong>给水回热的 A–G 管线</strong>，MSR 再热系统仍保留。全部工作蒸汽继续向后膨胀，每千克主蒸汽能多得到一些汽轮机功。</p><table class="compare-table"><tr><th></th><th>不抽汽</th><th>有抽汽</th></tr><tr><td>后续做功</td><td>较多</td><td>较少</td></tr><tr><td>给水温度</td><td>较低</td><td>226 ℃</td></tr><tr><td>外部供热</td><td>更多</td><td>更少</td></tr><tr><td>冷端排热</td><td>更多</td><td>更少</td></tr></table><p class="takeaway"><strong>关键：</strong>多出来的蒸汽能量只有一部分变成轴功，大部分最终仍在凝汽器交给海水。</p>`
+  },
+  {
+    t:"打开回热：少做一点，少供更多热",
+    keys:[...new Set(EXTRACTION_LEVELS.flatMap(l => [l.key,l.heater,l.water]))],
+    centerKey:"dea",
+    html:`<p>抽出一小部分蒸汽以后，它不再完成后续全部膨胀，所以汽轮机功有所减少；但它在加热器里把热量交给给水，使水从约 33 ℃ 逐级升到 226 ℃。</p><div class="formula">热力循环效率 η =（汽轮机功 − 泵功）÷ 加入循环的热量</div><p>按同一千克主蒸汽比较，循环净功略降，而蒸汽发生器供热按更大的比例下降，所以效率提高。原图使用的是发电机毛出力和毛热耗边界，两种口径趋势一致但不能把名称混用。</p><p class="takeaway"><strong>抽汽不是免费余热，也不是排放。</strong>它是用较小的后续做功机会，交换较大的内部回热收益。</p>`
+  },
+  ...EXTRACTION_LEVELS.map(level => ({
+    t:`${level.code} 段：${level.target}`,
+    keys:[level.sourceKey,level.key,level.heater,level.water],
+    centerKey:level.heater,
+    level:level.code,
+    html:`<p><strong>${level.source}</strong>分出 ${level.code} 段抽汽，经 ${level.pressure} 管线进入<strong>${level.target}</strong>，把水从 <strong>${level.rise}</strong>。</p><p>${level.why}</p><details><summary>这股蒸汽最后去了哪里</summary><p>${level.after}</p></details>`
+  }))
+];
+
+const EXTRACTION_LEVEL_OFFSET = EXTRACTION_STEPS.length - EXTRACTION_LEVELS.length;
+
+/* ============ 导览步骤 ============ */
+const STEPS = [
+  { t:"这张图是什么", keys:[], html:`<p>这是宁德核电站 <strong>100% 额定工况（TMCR）</strong>的二回路热平衡图，项目数值取自制造厂图纸第 6 页。它表示指定边界条件下的<strong>稳态设计计算结果</strong>，不是实时监视画面，也不能代替管道及仪表流程图（P&amp;ID）、控制逻辑或运行规程。</p><p>看图三件套：<strong style="color:var(--steam)">橙色=蒸汽</strong>（虚线是抽汽）、<strong style="color:var(--water-hot)">蓝色=水</strong>（浅蓝凝结水、深蓝给水）、<strong style="color:var(--drain)">青绿虚线=疏水</strong>。箭头给出流向；字母小旗 A~G 是七段抽汽管线连接符，M/K/L 是 MSR 的疏水。</p><p>教学简图重新排过设备位置，并把 H/I、轴封和部分辅助小流股按功能合并；原图视图保留制造厂竖版布局。粉色框只是网页定位层，不属于制造厂图纸。</p><div class="navrow"><button class="tbtn" id="openSourceView">打开第 6 页原图</button></div>` },
+  { t:"先会读一组参数", keys:["mainsteam","exA","cond"], centerKey:"exA", html:`<p>第 6 页打印版的四格通常是：<strong>左上温度 T（湿蒸汽时改为干度 X）、右上焓 H、左下绝对压力 P、右下流量 G</strong>。</p><div class="formula">A：X=.910 ｜ 2640.29 kJ/kg<br>27.55 bar(a) ｜ 80.241 kg/s</div><p>焓可暂时理解为每公斤流动工质的“能量余额”，但它是状态量，不是装在蒸汽里的热量。凝汽器 0.051 bar(a) 远低于约 1.013 bar(a) 的大气压，所以称为真空；绝对压力本身仍是正数。</p><p><span class="evidence derived">推导</span> 表示网页用图示值计算的结果；一般机理会标为 <span class="evidence explain">工程解释</span>。</p>` },
+  { t:"起点：蒸汽发生器", keys:["sg","mainsteam"], html:`<p>反应堆的 <strong>2903.8 MW</strong> 热量在 3 台蒸汽发生器里变成 <strong>1613.4 kg/s</strong>（每小时 5808 吨）的近饱和蒸汽：<strong>64.3 bar(a)、280 ℃</strong>，带着约 0.5% 水雾出发。</p><p>一回路 155 bar 热水走传热管内，二回路给水在管外沸腾。正常、传热管完整的边界下，两侧只换热不混合；蒸汽发生器因此是核岛与常规岛的重要隔离边界。</p>` },
+  { t:"主蒸汽进入高压缸前先分流", keys:["mainsteam","rh2heat","controlvalve","hp"], centerKey:"controlvalve", html:`<p><strong>1613.400 kg/s 是蒸汽发生器出口总量，不是高压缸入口。</strong>进入高压缸前，80.806 kg/s 先分给二级再热器，另有 0.196 和 0.370 kg/s 两股小流量。</p><div class="formula">1613.400 − 80.806 − 0.196 − 0.370<br>= 1532.028 kg/s 进入高压缸</div><p>这也是为什么不能让全部 1613.4 kg/s 去乘高压缸全焓降。原图没有单独打印 1532.028，它是质量守恒得到的 <span class="evidence derived">推导</span>。</p>` },
+  { t:"调门：主蒸汽进入汽轮机前的水龙头", keys:["mainsteam","controlvalve","hp"], centerKey:"controlvalve", html:`<p>主蒸汽进入高压缸前，要先通过<strong>汽轮机进汽调节阀</strong>，简称调门。它像水龙头：开度变小，有效流通面积变小，进汽流量减少，阀门节流损失也会增大。</p><p><strong>调门全开（VWO）</strong>是把这些进汽调节阀开到设计允许的最大开度，用来检查机组在给定边界条件下的通流能力。它不是全厂所有阀门都打开，也不等于汽轮机失控超速。</p><p>配套图册的升版数据中，TMCR 为 <strong>1613.4 kg/s、1089.075 MW</strong>；VWO 为 <strong>1664.5 kg/s、1121.641 MW</strong>。VWO 是能力校核点，不代表任何条件下都效率最高。</p>` },
+  { t:"高压缸：第一程膨胀", keys:["hp","mainsteam","hpexhaust","exA","exB","exC"], html:`<p>约 1532 kg/s 蒸汽进入高压缸后膨胀，焓降低并推动转子；途中又分出 A、B、C 以及一级再热汽源等流股。主排汽到约 <strong>9.6 bar(a)</strong> 时，含水已达约 <strong>14%</strong>（X=0.857）。</p><details><summary>质量账：入口和多个出口怎样闭合</summary><p>出口合计：80.241（A→7号高加）+ 69.864（同压力级→一级再热）+ 78.114（B）+ 51.578（C）+ 1242.363（主排汽）+ 9.229 + 0.641 = <strong>1532.030 kg/s</strong>，与入口 1532.028 只差 0.002。</p><p>实际轴功必须按每股不同焓计算 <strong>Σṁh入口 − Σṁh出口</strong>；<code>1613.4 × 全缸焓降 = 461 MW</code> 只是错误地忽略全部分流的假想上界。</p></details>` },
+  { t:"为什么宁可少做功也要抽汽", keys:["hp","exC","dea","condensate2"], html:`<p>若 C 蒸汽不抽走，它还能继续膨胀做一部分功，但大部分剩余热量最终仍会进入凝汽器。现在让它在除氧器里把水从 154.4 ℃ 加热到 177.0 ℃，等于放弃较小的后续功，换取较大的外部供热减少。</p><p><strong>固定 1 kg 主蒸汽：</strong>汽轮机功略降，蒸汽发生器供热下降得更多，效率提高。<br><strong>固定发电量：</strong>表现为每发 1 kWh 电所需反应堆热量下降。</p><p>A/B/C 只是七段抽汽中的前三档；完整温度接力按水侧方向是 G→F→E→D→C→B→A。</p><div class="navrow"><button class="tbtn" id="openExtract">进入给水回热</button></div><details><summary>为什么 A、B 两端流量不同</summary><p>A 在缸口是 80.241 kg/s，原图另有 3.995 kg/s、2738.80 kJ/kg 的辅助小流股汇入，7 号高加入口为 84.234 kg/s；B 同理由 78.114 增至 78.990 kg/s。原图没有在这里标明辅助流股的具体来源，管道压损还会让两端压力略降。</p></details>` },
+  { t:"MSR ①：为什么必须先甩水", keys:["msr","hpexhaust","drM"], html:`<p>高压缸排汽的 <strong>X=0.857</strong> 表示每 100 kg 混合物里约有 14.3 kg 液态水。分离器先机械甩出 <strong>172.5 kg/s</strong> 水 M，余下 1069.9 kg/s 工作蒸汽的干度回到 0.995。</p><p>若不先分离，再热器就要把每小时约 620 t 水重新汽化，既耗掉大量潜热，也难保证水滴清除干净。水滴高速撞击后续叶片还会造成冲蚀。</p><p>但 X=0.995 只是接近干饱和，仍没有过热余量；一进入中压缸膨胀就会再次凝结，所以还必须再热。</p>` },
+  { t:"MSR ②：为什么分两级、用两种汽", keys:["msr","hotreheat","rh1heat","rh2heat","drK","drL"], html:`<p>工作蒸汽按 <strong>177.9 → 218.1 → 268.8 ℃</strong> 两级升温。一级用约 227.5 ℃ 的第 1 段抽汽预热，出口比热源低约 9.4 ℃；二级再用约 278.1 ℃ 的新蒸汽完成最后升温，出口仍低约 9.3 ℃。</p><p>抽汽不可能把工作蒸汽加热到高于自身的 268.8 ℃；若全程都用新蒸汽，又会让本可进入高压缸做功的高品质蒸汽过早用于低温加热。分两级是在做温度匹配。</p><details><summary>三股蒸汽会混在一起吗</summary><p>不会。工作蒸汽走换热器一侧，两股加热汽走另一侧，隔着金属管壁传热。</p></details><details><summary>“高加”是什么，K/L 为什么去那里</summary><p><strong>高加就是高压给水加热器</strong>，负责预热给水泵之后约 80 bar 的高压给水。K/L 进入高加壳侧放余热，管内给水与它们不直接混合。</p><table><tr><th>K → 6 号</th><td>227.6 ℃，适合把给水加热到 202.3 ℃</td></tr><tr><th>L → 7 号</th><td>278.1 ℃，适合把给水加热到 226.0 ℃</td></tr></table><p>若直接把 K/L 送入凝汽器，余热就会交给海水；送去高加则能减少蒸汽发生器供热。</p></details>` },
+  { t:"中压缸", keys:["ip","hotreheat","crossover","exD","exE"], html:`<p>269 ℃ 的过热蒸汽在中压缸膨胀，主流到出口约 <strong>3.1 bar(a)、152.7 ℃</strong>。D 从再热后的中压缸抽出，E 位于中压缸排汽/连通管附近，两者都是过热蒸汽。</p><p>由于 D、E 等流股中途离开，计算整个中压缸功率也必须逐股列能量账，不能让进口流量都经历同一个全缸焓降。</p>` },
+  { t:"低压缸：四流排汽", keys:["lp","crossover","lpexhaust","exF","exG"], html:`<p>蒸汽分进两个双流低压缸，从<strong>四个排汽口</strong>膨胀到 <strong>0.051 bar(a)</strong> 深真空，X=0.904。</p><p>排汽体积流量约<strong>两万 m³/s</strong>，这解释了 1500 r/min 半速、长末级叶片和四流排汽的必要性。原图没有直接给出各缸实际功率分配，本教程不再用全流量上界冒充它。</p>` },
+  { t:"凝汽器：真空是怎样来的", keys:["cond","lpexhaust","seawater"], html:`<p>820.4 kg/s 低压缸主排汽在此降到 33.4 ℃ 的凝结水状态，绝大部分热量交给 <strong>21 ℃ 海水</strong>。蒸汽变成水后体积骤缩上万倍，空间压力自然降到 33.2 ℃ 对应的 <strong>0.051 bar(a)</strong>。</p><p>真空不是靠真空泵抽走全部排汽；抽气设备主要排走漏入的空气等不凝气体。</p><details><summary>1794 MW 与 1815 MW 为什么不同</summary><p>主排汽流股核算：820.445 × (2327.92 − 141.34) ≈ <strong>1794 MW</strong>。全机毛边界差额：2903785 − 1089075 ≈ <strong>1815 MW</strong>。</p><p>前者只算主排汽流股；凝汽器还有疏水和漏汽入口，后者又包含设备散热及机械电气损失。因此两者只能用于量级交叉检查，不能把差值全部命名为机械电气损失。</p></details>` },
+  { t:"回程：低加与疏水为什么逐级走", keys:["cp","lh1","lh2","lh3","lh4","condensate","condensate2","exD","exE","exF","exG","drLH"], html:`<p>凝结水被抽汽 G、F、E、D 逐级加热：<strong>33 → 60 → 96 → 132 → 154 ℃</strong>。每一级都用温度刚好够用的抽汽，避免高品质蒸汽过早用于低温水。</p><p>加热汽凝结后的疏水仍很热，会先流向更低压力设备继续放热；有经济压头时再由疏水泵打回主流。直接排入凝汽器会浪费热量并增加冷端负担。</p><details><summary>端差为什么不能为零</summary><p>热量流动必须有温差。出口越接近壳侧凝结温度，最后一段传热推动力越小；若要求完全相等，理论上需要无限大的换热面积。</p></details>` },
+  { t:"除氧器：为什么加热就能除氧", keys:["dea","exC","drM","drJ","drHH","condensate2"], html:`<p>水温越高，氧气和二氧化碳越难溶解。除氧器用蒸汽直接接触水滴，把水加热到接近饱和温度，析出的气体随少量蒸汽从顶部排走。</p><p>这些汽水最终本来就属于给水回路，所以这里允许直接混合；普通加热器则隔着管壁换热。除氧器还兼作水箱，为给水泵稳定供水。</p><details><summary>动手验算：五股水的汇合</summary><p>凝结水 1075.470 + 高加疏水 311.901 + 抽汽 C 51.578 + 分离器疏水 M 172.454 + 门杆漏汽 J 2.002 = <strong>1613.405 kg/s</strong>，比图示出口 1613.400 kg/s 多 0.005 kg/s。</p><p>相对残差约 0.00031%，属于各节点独立取整或未展开微小流股的量级，应写“约闭合”，不能写成没有残差的精确等式。</p></details>` },
+  { t:"给水泵：15 MW 的一口气", keys:["fp","feedwater"], html:`<p>给水泵把 1613.4 kg/s 的水一口气压到 <strong>81.2 bar</strong>。</p><p>泵功也写在图上：焓从 749.77 升到 759.14 kJ/kg，乘流量 ≈ <strong>15.1 MW</strong>，顺带把水温抬高 1.3 ℃。焓差 × 流量，在泵上同样适用。</p>` },
+  { t:"高加：给水回程的最后两级预热", keys:["hh6","hh7","exA","exB","drK","drL","drHH","feedwater"], html:`<p><strong>高加是高压给水加热器的简称。</strong>管外抽汽和疏水隔着金属壁，把热量交给约 80 bar 的管内给水。</p><div class="formula">178.3 ℃ → 6 号高加 202.3 ℃ → 7 号高加 226.0 ℃</div><p>加热器上下两个 ΔT 定义不同：7 号上端差 TTD = 228.1 − 226.0 = <strong>2.1 K</strong>；下端差 DCA = 208.2 − 202.3 = <strong>5.9 K</strong>。</p><p>6 号接收 B、K 和 7 号疏水；7 号接收 A 和更热的 L。它们最后沿 <strong>7 号 → 6 号 → 除氧器</strong> 回流。</p><details><summary>动手验算：7 号高加的收支账</summary><p>质量：84.234 + 78.462 = <strong>162.696 kg/s</strong>。能量：按原图设备入口口径，壳侧净放热约 173.9 MW，管侧吸热约 173.4 MW；约 0.3% 差值来自图面取整和辅助流股状态简化。</p></details>` },
+  { t:"收官：先说清总账边界", keys:["gen","sg","cond"], html:`<p><strong>毛热耗率 = 2903785 ÷ 1089075 × 3600 = 9598.6 kJ/kWh</strong>，毛效率约 37.5%。这里的 W(GENER) 是发电机端毛出力，还没有扣给水泵等厂用电和变压器损耗。</p><p>页面底部条形图是量级分账：37.5% 成为毛电，约 61.8% 对应低压缸主排汽流股的冷端放热，其余约 0.7% 是未逐项拆开的差额；它不是一张精确的机械损失清单。</p><p>配套 Markdown 的附录三提供分级练习和折叠答案；“数字对照”可逐项比较原图与教学图并查看公式，“自由探索”保留简洁设备卡。</p>` },
+];
+
+/* ============ 交互 ============ */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const panel = $("#panel");
+const dia = $("#dia");
+const diagramWrap = $("#diagramWrap");
+const diagramInner = $("#diagramInner");
+const sourceStage = $("#sourceStage");
+const sourceInner = $("#sourceInner");
+const sourceImage = $("#sourceImage");
+const sourceOverlay = $("#sourceOverlay");
+const sourceTools = $("#sourceTools");
+const sourceRegion = $("#sourceRegion");
+const sourceMarkers = $("#sourceMarkers");
+const mobileFocus = $("#mobileFocus");
+const mobileFocusTitle = $("#mobileFocusTitle");
+const mobilePrev = $("#mobilePrev");
+const mobileNext = $("#mobileNext");
+const mobileExplain = $("#mobileExplain");
+const announcer = $("#announce");
+const motionLayer = $("#motionLayer");
+const reduceMotionQuery = matchMedia("(prefers-reduced-motion: reduce)");
+let mode = "tour";
+let diagramView = "teaching";
+let step = 0;
+let extractionStep = 0;
+let animOn = !reduceMotionQuery.matches;
+let activeKeys = [];
+let activeCenterKey = null;
+let selectedKey = null;
+let selectedSourceAnchor = 0;
+let numberKey = null;
+let numberAnchor = 0;
+
+const prefersReducedMotion = () => reduceMotionQuery.matches;
+const ICON_MAP = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/></svg>`;
+const ICON_BOOK = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>`;
+const NUMBER_KEYS = ELEMENT_GROUPS.flatMap(group => group.keys);
+const NUMBER_GROUP_LABELS = ["主流程","回热设备","A～G 抽汽","疏水漏汽"];
+
+function announce(message) {
+  announcer.textContent = "";
+  requestAnimationFrame(() => { announcer.textContent = message; });
+}
+
+function buildMotionLayer() {
+  motionLayer.replaceChildren();
+  $$("#dia .flowanim:not(.motion-flow)").forEach(path => {
+    const clone = path.cloneNode(false);
+    clone.removeAttribute("id");
+    clone.removeAttribute("style");
+    clone.classList.remove("flowanim","multi-arrow");
+    clone.classList.add("motion-flow");
+    clone.dataset.k = path.closest("[data-k]")?.dataset.k || "";
+    clone.setAttribute("aria-hidden","true");
+    clone.removeAttribute("marker-end");
+    clone.removeAttribute("marker-mid");
+    motionLayer.append(clone);
+  });
+}
+
+function elementPickerHtml(selected = "") {
+  const groups = ELEMENT_GROUPS.map(group => {
+    const options = group.keys.map(key =>
+      `<option value="${key}" ${key === selected ? "selected" : ""}>${DATA[key].name}</option>`
+    ).join("");
+    return `<optgroup label="${group.label}">${options}</optgroup>`;
+  }).join("");
+  return `<select class="element-select" id="elementPicker"><option value="">按名称选择设备或管线…</option>${groups}</select>`;
+}
+
+function bindElementPicker() {
+  const picker = $("#elementPicker");
+  if (!picker) return;
+  picker.onchange = () => {
+    const key = picker.value;
+    if (!key) return;
+    activateDiagramItem(key);
+    requestAnimationFrame(() => centerDiagram([key]));
+  };
+}
+
+function returnToDiagram() {
+  diagramWrap.scrollIntoView({ behavior:prefersReducedMotion() ? "auto" : "smooth", block:"center" });
+  requestAnimationFrame(() => centerDiagram(activeCenterKey ? [activeCenterKey] : activeKeys));
+}
+
+function mobileReturnHtml() {
+  return `<button class="tbtn mobile-return" id="returnDiagram">${ICON_MAP}<span>返回图</span></button>`;
+}
+
+function bindMobileReturn() {
+  const button = $("#returnDiagram");
+  if (button) button.onclick = returnToDiagram;
+}
+
+function escapeSvgText(value) {
+  return String(value).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
+}
+
+function numberGroupIndex(key) {
+  return ELEMENT_GROUPS.findIndex(group => group.keys.includes(key));
+}
+
+function renderNumberGroupTabs(key = "") {
+  const activeGroup = numberGroupIndex(key);
+  return `<div class="number-group-tabs" role="group" aria-label="数字对照分组">${
+    ELEMENT_GROUPS.map((group,index) =>
+      `<button type="button" data-number-group="${index}" class="${index===activeGroup?"on":""}" aria-pressed="${index===activeGroup}">${NUMBER_GROUP_LABELS[index]}</button>`
+    ).join("")
+  }</div>`;
+}
+
+function sourceCropHtml(key, anchorIndex) {
+  const map = NUMBER_MAP[key];
+  const source = SOURCE_REGIONS[key];
+  if (!map || !source || !source.anchors.length) return "";
+  const block = map.blocks.find(item => item.anchor === anchorIndex) || map.blocks[0];
+  const index = Math.max(0,Math.min(block?.anchor || 0,source.anchors.length-1));
+  const anchor = source.anchors[index];
+  const padX = Math.max(18,anchor.w * 0.06);
+  const padY = Math.max(18,anchor.h * 0.08);
+  const x = Math.max(0,anchor.x-padX);
+  const y = Math.max(0,anchor.y-padY);
+  const w = Math.min(SOURCE_SIZE.width-x,anchor.w+padX*2);
+  const h = Math.min(SOURCE_SIZE.height-y,anchor.h+padY*2);
+  return `<figure class="number-source-figure">
+    <div class="number-source-frame">
+      <svg viewBox="${x} ${y} ${w} ${h}" role="img" aria-label="${escapeHtml(DATA[key].name)}原图局部：${escapeHtml(anchor.label)}" preserveAspectRatio="xMidYMid meet">
+        <image href="pages/p06-100tmcr.jpg" x="0" y="0" width="${SOURCE_SIZE.width}" height="${SOURCE_SIZE.height}"/>
+        <rect x="${anchor.x}" y="${anchor.y}" width="${anchor.w}" height="${anchor.h}" rx="5" fill="none" stroke="var(--source-map)" stroke-width="3" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+    <figcaption>第 6 页原图局部 · 粉色细框仅用于定位，不属于制造厂图纸</figcaption>
+  </figure>`;
+}
+
+function relationLegendHtml() {
+  return `<div class="number-legend" aria-label="对应关系图例">${
+    Object.entries(NUMBER_RELATIONS).map(([key,label]) =>
+      `<span class="relation-tag ${key}">${label}</span>`
+    ).join("")
+  }</div>`;
+}
+
+function renderNumberMapping(key, anchorIndex = 0) {
+  const map = NUMBER_MAP[key];
+  const source = SOURCE_REGIONS[key];
+  if (!map) return `<p class="number-limit">该对象尚无数字对照数据。</p>`;
+  const validAnchor = source
+    ? Math.max(0,Math.min(anchorIndex,source.anchors.length-1))
+    : 0;
+  const anchorTabs = map.blocks.length > 1
+    ? `<div class="number-anchor-tabs" role="group" aria-label="切换原图测点">${
+        map.blocks.map(block => `<button type="button" data-number-anchor="${block.anchor}" class="${block.anchor===validAnchor?"on":""}" aria-pressed="${block.anchor===validAnchor}">${escapeHtml(block.title)}</button>`).join("")
+      }</div>`
+    : "";
+  const rows = map.rows.map(row => `<div class="number-row">
+    <div class="number-row-head">
+      <strong>${escapeHtml(row.label)}</strong>
+      <span class="relation-tag ${row.relation}">${NUMBER_RELATIONS[row.relation] || escapeHtml(row.relation)}</span>
+    </div>
+    <div class="number-pair">
+      <div><span>原图写法</span><b>${escapeHtml(row.original)}</b></div>
+      <div><span>教学图 / 本教程</span><b>${escapeHtml(row.teaching)}</b></div>
+    </div>
+    ${row.note ? `<p class="number-row-note">${escapeHtml(row.note)}</p>` : ""}
+  </div>`).join("");
+  const calculations = map.calculations.length
+    ? `<section class="number-calculations">
+        <h3>从零开始算一遍</h3>
+        ${map.calculations.map(calc => `<article class="number-calc">
+          <h4>${escapeHtml(calc.title)}</h4>
+          <p><span class="calc-layer">1 · 数字是什么</span><br>${escapeHtml(calc.what)}</p>
+          <p><span class="calc-layer">2 · 公式与代入</span></p>
+          <div class="formula">${escapeHtml(calc.formula)}<br>${escapeHtml(calc.substitution)}<br><strong>${escapeHtml(calc.result)}</strong></div>
+          <p><span class="calc-layer">3 · 工程意义</span><br>${escapeHtml(calc.meaning)}</p>
+          <p class="number-row-note"><strong>边界：</strong>${escapeHtml(calc.boundary)}</p>
+        </article>`).join("")}
+      </section>`
+    : `<p class="number-limit">这一对象只需按原图直读和定位，不应为了“有公式”而强行计算。</p>`;
+  const omissions = map.omissions.length
+    ? `<div class="number-limit"><strong>教学简化：</strong>${map.omissions.map(escapeHtml).join("；")}</div>`
+    : "";
+  return `<div class="number-map" data-number-map="${key}">
+    <p class="number-lead">${escapeHtml(map.lead)}</p>
+    ${sourceCropHtml(key,validAnchor)}
+    ${anchorTabs}
+    ${relationLegendHtml()}
+    <div class="number-rows">${rows}</div>
+    ${calculations}
+    ${omissions}
+    <div class="navrow">
+      <button class="tbtn" type="button" data-number-teaching>${ICON_MAP}<span>教学图定位</span></button>
+      <button class="tbtn" type="button" data-number-source>${ICON_BOOK}<span>原图定位</span></button>
+    </div>
+  </div>`;
+}
+
+function bindNumberMapping(key, reopenInCard = false) {
+  const root = panel.querySelector(`[data-number-map="${key}"]`);
+  if (!root) return;
+  root.querySelectorAll("[data-number-anchor]").forEach(button => {
+    button.onclick = () => {
+      const anchor = Number(button.dataset.numberAnchor);
+      selectedSourceAnchor = anchor;
+      numberAnchor = anchor;
+      if (mode === "numbers") renderNumberDetail(key,anchor);
+      else renderCard(key,anchor,reopenInCard);
+    };
+  });
+  const teachingButton = root.querySelector("[data-number-teaching]");
+  const sourceButton = root.querySelector("[data-number-source]");
+  teachingButton.onclick = () => {
+    setDiagramView("teaching");
+    requestAnimationFrame(() => {
+      centerTeachingDiagram([key]);
+      diagramWrap.scrollIntoView({ behavior:prefersReducedMotion() ? "auto" : "smooth", block:"center" });
+    });
+  };
+  sourceButton.onclick = () => {
+    const activeAnchor = Number(root.querySelector("[data-number-anchor].on")?.dataset.numberAnchor ?? selectedSourceAnchor);
+    selectedSourceAnchor = activeAnchor;
+    setDiagramView("source");
+    requestAnimationFrame(() => {
+      locateSourceKey(key,activeAnchor,true);
+      diagramWrap.scrollIntoView({ behavior:prefersReducedMotion() ? "auto" : "smooth", block:"center" });
+    });
+  };
+}
+
+function bindNumberGroupTabs() {
+  $$("[data-number-group]").forEach(button => {
+    button.onclick = () => {
+      const group = ELEMENT_GROUPS[Number(button.dataset.numberGroup)];
+      if (!group?.keys.length) return;
+      numberKey = group.keys[0];
+      numberAnchor = 0;
+      renderNumberDetail(numberKey,0);
+    };
+  });
+}
+
+function validateTutorialData() {
+  const issues = [];
+  const dataKeys = Object.keys(DATA);
+  const sourceKeys = Object.keys(SOURCE_REGIONS);
+  const numberKeys = Object.keys(NUMBER_MAP);
+  const groupedKeys = ELEMENT_GROUPS.flatMap(group => group.keys);
+  const svgKeys = [...new Set($$("#dia [data-k]").map(element => element.dataset.k))];
+  const compareSet = (label,left,right) => {
+    const missing = left.filter(key => !right.includes(key));
+    const extra = right.filter(key => !left.includes(key));
+    if (missing.length || extra.length) issues.push(`${label}：missing=${missing.join(",")} extra=${extra.join(",")}`);
+  };
+  compareSet("DATA ↔ SOURCE_REGIONS",dataKeys,sourceKeys);
+  compareSet("DATA ↔ NUMBER_MAP",dataKeys,numberKeys);
+  compareSet("DATA ↔ ELEMENT_GROUPS",dataKeys,groupedKeys);
+  compareSet("DATA ↔ SVG data-k",dataKeys,svgKeys);
+  const duplicateGroups = groupedKeys.filter((key,index) => groupedKeys.indexOf(key) !== index);
+  if (duplicateGroups.length) issues.push(`ELEMENT_GROUPS 重复：${[...new Set(duplicateGroups)].join(",")}`);
+  const allowedRelations = new Set(Object.keys(NUMBER_RELATIONS));
+  Object.entries(NUMBER_MAP).forEach(([key,map]) => {
+    map.rows.forEach((row,index) => {
+      if (!allowedRelations.has(row.relation)) issues.push(`${key}.rows[${index}] 关系类型无效：${row.relation}`);
+    });
+    map.blocks.forEach((block,index) => {
+      if (!Number.isInteger(block.anchor) || !SOURCE_REGIONS[key]?.anchors[block.anchor]) {
+        issues.push(`${key}.blocks[${index}] 原图锚点无效`);
+      }
+    });
+    map.calculations.forEach((calc,index) => {
+      ["title","what","formula","substitution","result","meaning","boundary"].forEach(field => {
+        if (!calc[field]) issues.push(`${key}.calculations[${index}].${field} 为空`);
+      });
+    });
+  });
+  window.__TUTORIAL_DIAGNOSTICS__ = {
+    issues,
+    counts: {
+      data:dataKeys.length,
+      source:sourceKeys.length,
+      number:numberKeys.length,
+      grouped:groupedKeys.length,
+      svg:svgKeys.length
+    }
+  };
+  if (issues.length) console.error("教程数据一致性检查失败",issues);
+}
+
+function renderSourceOverlay() {
+  const missing = Object.keys(DATA).filter(key => !SOURCE_REGIONS[key]);
+  const extra = Object.keys(SOURCE_REGIONS).filter(key => !DATA[key]);
+  if (missing.length || extra.length) {
+    console.error("原图定位映射不完整", { missing, extra });
+  }
+  sourceOverlay.innerHTML = Object.entries(SOURCE_REGIONS).flatMap(([key,config]) =>
+    config.anchors.map((anchor,index) => {
+      const label = escapeSvgText(anchor.label);
+      const labelWidth = Math.max(100, Array.from(anchor.label).length * 29 + 24);
+      const labelX = anchor.x + 8;
+      const labelY = anchor.y + 8;
+      return `<g class="hot source-hot ${config.major ? "major" : "detail"}" data-k="${key}" data-anchor="${index}">
+        <rect class="source-hit" x="${anchor.x}" y="${anchor.y}" width="${anchor.w}" height="${anchor.h}" rx="8"/>
+        <rect class="source-label-bg" x="${labelX}" y="${labelY}" width="${labelWidth}" height="42" rx="6"/>
+        <text class="source-label" x="${labelX + 12}" y="${labelY + 30}">${label}</text>
+      </g>`;
+    })
+  ).join("");
+}
+
+function clearFx() {
+  $$("#dia .hot, #dia .bg, #motionLayer .motion-flow, #sourceOverlay .source-hot").forEach(el => el.classList.remove("dimmed","lit","sel"));
+}
+
+function litKeys(keys) {
+  activeKeys = keys || [];
+  selectedKey = null;
+  clearFx();
+  if (!keys || !keys.length) return;
+  const set = new Set(keys);
+  $$("#dia .hot, #sourceOverlay .source-hot").forEach(g => g.classList.add(set.has(g.dataset.k) ? "lit" : "dimmed"));
+  $$("#motionLayer .motion-flow").forEach(path => path.classList.add(set.has(path.dataset.k) ? "lit" : "dimmed"));
+  $$("#dia .bg").forEach(el => el.classList.add("dimmed"));
+}
+
+function centerTeachingDiagram(keys) {
+  if (!keys || !keys.length) return;
+  const elements = keys.flatMap(k => $$(`#dia [data-k="${k}"]`));
+  if (!elements.length) return;
+  let x1 = Infinity;
+  let x2 = -Infinity;
+  elements.forEach(el => {
+    const box = el.getBBox();
+    x1 = Math.min(x1, box.x);
+    x2 = Math.max(x2, box.x + box.width);
+  });
+  if (!Number.isFinite(x1) || !Number.isFinite(x2)) return;
+  const scale = diagramInner.getBoundingClientRect().width / 1240;
+  const left = ((x1 + x2) / 2) * scale - diagramWrap.clientWidth / 2;
+  diagramWrap.scrollTo({ left: Math.max(0,left), behavior: prefersReducedMotion() ? "auto" : "smooth" });
+}
+
+function centerDiagram(keys, anchorIndex = 0) {
+  if (!keys || !keys.length) return;
+  if (diagramView === "source") {
+    const key = keys.find(item => SOURCE_REGIONS[item]);
+    if (key) locateSourceKey(key, anchorIndex, true);
+    return;
+  }
+  centerTeachingDiagram(keys);
+}
+
+function focusAfterRender(keys, centerKey) {
+  activeCenterKey = centerKey || (keys && keys[0]) || null;
+  if (diagramView !== "source" && window.innerWidth > 720 && !["extract","numbers"].includes(mode)) return;
+  requestAnimationFrame(() => centerDiagram(activeCenterKey ? [activeCenterKey] : keys));
+}
+
+function setMobileFocus(label, onPrev, onNext) {
+  mobileFocus.hidden = false;
+  mobileFocusTitle.textContent = label;
+  mobilePrev.disabled = !onPrev;
+  mobileNext.disabled = !onNext;
+  mobilePrev.onclick = onPrev || null;
+  mobileNext.onclick = onNext || null;
+  mobileExplain.onclick = () => {
+    panel.scrollIntoView({ behavior:prefersReducedMotion() ? "auto" : "smooth", block:"start" });
+    requestAnimationFrame(() => panel.focus({ preventScroll:true }));
+  };
+}
+
+function hideMobileFocus() {
+  mobileFocus.hidden = true;
+  mobilePrev.onclick = null;
+  mobileNext.onclick = null;
+  mobileExplain.onclick = null;
+}
+
+function renderStep() {
+  const s = STEPS[step];
+  litKeys(s.keys);
+  const dots = STEPS.map((item,i)=>`<button type="button" class="${i===step?'on':''}" data-i="${i}" aria-label="导览 ${i+1}：${item.t}" ${i===step?'aria-current="step"':""}></button>`).join("");
+  panel.innerHTML = `
+    <div class="stepno">导览 ${step+1} / ${STEPS.length}</div>
+    <h2>${s.t}</h2>
+    ${s.html}
+    <div class="navrow">
+      <button class="tbtn" id="prev" ${step===0?"disabled":""}>← 上一步</button>
+      <button class="tbtn" id="next" ${step===STEPS.length-1?"disabled":""}>下一步 →</button>
+      ${mobileReturnHtml()}
+      <span class="dots">${dots}</span>
+    </div>`;
+  const p = $("#prev"), n = $("#next");
+  if (p) p.onclick = () => { if (step>0){ step--; renderStep(); } };
+  if (n) n.onclick = () => { if (step<STEPS.length-1){ step++; renderStep(); } };
+  $$(".dots button").forEach(d => d.onclick = () => { step = +d.dataset.i; renderStep(); });
+  const openExtract = $("#openExtract");
+  if (openExtract) openExtract.onclick = () => setMode("extract");
+  const openSourceView = $("#openSourceView");
+  if (openSourceView) {
+    const sourceOn = diagramView === "source";
+    openSourceView.textContent = sourceOn ? "返回教学简图" : "打开第 6 页原图";
+    openSourceView.onclick = () => setDiagramView(sourceOn ? "teaching" : "source",true);
+  }
+  bindMobileReturn();
+  setMobileFocus(
+    `导览 ${step+1}/${STEPS.length} · ${s.t}`,
+    step > 0 ? () => { step--; renderStep(); } : null,
+    step < STEPS.length-1 ? () => { step++; renderStep(); } : null
+  );
+  focusAfterRender(s.keys, s.centerKey);
+  announce(`导览第 ${step+1} 步，共 ${STEPS.length} 步：${s.t}`);
+  updateHash();
+}
+
+function renderExtraction() {
+  const s = EXTRACTION_STEPS[extractionStep];
+  litKeys(s.keys);
+  const ladder = EXTRACTION_LEVELS.map((level,index) => {
+    const targetStep = index + EXTRACTION_LEVEL_OFFSET;
+    return `<button type="button" data-extraction-step="${targetStep}" class="${extractionStep===targetStep?'on':''}" aria-label="${level.code} 段，${level.target}" ${extractionStep===targetStep?'aria-current="step"':""}>${level.code}</button>`;
+  }).join("");
+  const selfCheck = extractionStep === EXTRACTION_STEPS.length - 1
+    ? `<details><summary>检查自己是否真正理解</summary><p>现在应能回答八件事：凝结水何时开始叫给水；最终给水温度量在哪里；226 ℃ 为什么仍是水；高加的“高压”指谁；K/L 为什么分别去 6、7 号高加；回热牺牲了什么、节省了什么；为什么要分七个压力等级；抽出的蒸汽最后去了哪里。</p></details>`
+    : "";
+  panel.innerHTML = `
+    <div class="stepno">给水回热 ${extractionStep+1} / ${EXTRACTION_STEPS.length}</div>
+    <h2>${s.t}</h2>
+    ${s.html}
+    <h3>水侧温度接力 G → A</h3>
+    <div class="extract-ladder" role="group" aria-label="选择抽汽级">${ladder}</div>
+    ${selfCheck}
+    <div class="navrow">
+      <button class="tbtn" id="extractPrev" ${extractionStep===0?"disabled":""}>← 上一步</button>
+      <button class="tbtn" id="extractNext" ${extractionStep===EXTRACTION_STEPS.length-1?"disabled":""}>下一步 →</button>
+      ${mobileReturnHtml()}
+    </div>`;
+  $("#extractPrev").onclick = () => { if (extractionStep>0) { extractionStep--; renderExtraction(); } };
+  $("#extractNext").onclick = () => { if (extractionStep<EXTRACTION_STEPS.length-1) { extractionStep++; renderExtraction(); } };
+  $$("[data-extraction-step]").forEach(button => {
+    button.onclick = () => {
+      extractionStep = Number(button.dataset.extractionStep);
+      renderExtraction();
+    };
+  });
+  bindMobileReturn();
+  setMobileFocus(
+    `回热 ${extractionStep+1}/${EXTRACTION_STEPS.length} · ${s.t}`,
+    extractionStep > 0 ? () => { extractionStep--; renderExtraction(); } : null,
+    extractionStep < EXTRACTION_STEPS.length-1 ? () => { extractionStep++; renderExtraction(); } : null
+  );
+  focusAfterRender(s.keys, s.centerKey);
+  announce(`给水回热第 ${extractionStep+1} 步，共 ${EXTRACTION_STEPS.length} 步：${s.t}`);
+  updateHash();
+}
+
+function renderNumbersIntro() {
+  numberKey = null;
+  numberAnchor = 0;
+  litKeys(["exA"]);
+  activeCenterKey = "exA";
+  panel.innerHTML = `
+    <div class="stepno">数字对照 · 先学会读一个数字块</div>
+    <h2>原图四格怎样对应教学图</h2>
+    <div class="number-overview">
+      <p>第 6 页左下角统一给出四格单位：<strong>DEG C｜KJ/KG / BAR｜KG/S</strong>。沿管线遇到标准四格时，按下面位置读；湿蒸汽的左上角会把温度改写成干度 <strong>X</strong>。</p>
+      <div class="parameter-key" aria-label="A 抽汽四格参数示例">
+        <div class="parameter-cell"><small>左上 · 温度 T 或干度 X</small><b>X=.910</b><span>整理为 X=0.910</span></div>
+        <div class="parameter-cell"><small>右上 · 比焓 H</small><b>2640.29</b><span>kJ/kg</span></div>
+        <div class="parameter-cell"><small>左下 · 绝对压力 P</small><b>27.55</b><span>bar(a)</span></div>
+        <div class="parameter-cell"><small>右下 · 质量流量 G</small><b>80.241</b><span>kg/s</span></div>
+      </div>
+      <p><strong>最重要的规则：</strong>先认清数字属于哪一个测点，再计算。同一字母在汽轮机端和加热器端可能因管道压降、小流股汇入而不同；这不是两套互相冲突的数据。</p>
+      ${sourceCropHtml("exA",0)}
+      ${relationLegendHtml()}
+      <p>常用整理：<strong>.910=0.910</strong>；<strong>kg/s×3.6=t/h</strong>；<strong>kW÷1000=MW</strong>。只有“计算得到”的项目不是原图直接打印值。</p>
+    </div>
+    <label class="field-label" for="elementPicker">选择 41 个设备或管线之一</label>
+    ${renderNumberGroupTabs()}
+    ${elementPickerHtml()}
+    <div class="navrow">
+      <button class="tbtn" id="numberStart">${ICON_BOOK}<span>从蒸汽发生器开始</span></button>
+      ${mobileReturnHtml()}
+    </div>`;
+  bindElementPicker();
+  bindNumberGroupTabs();
+  $("#numberStart").onclick = () => renderNumberDetail(NUMBER_KEYS[0],0);
+  bindMobileReturn();
+  setMobileFocus(
+    "数字对照 · 四格参数说明",
+    null,
+    () => renderNumberDetail(NUMBER_KEYS[0],0)
+  );
+  focusAfterRender(["exA"],"exA");
+  announce("数字对照：先学习原图四格参数");
+  updateHash();
+}
+
+function moveNumber(delta) {
+  if (!numberKey) {
+    if (delta > 0) renderNumberDetail(NUMBER_KEYS[0],0);
+    return;
+  }
+  const index = NUMBER_KEYS.indexOf(numberKey);
+  const next = index + delta;
+  if (next < 0 || next >= NUMBER_KEYS.length) return;
+  renderNumberDetail(NUMBER_KEYS[next],0);
+}
+
+function renderNumberDetail(key, anchorIndex = 0) {
+  const index = NUMBER_KEYS.indexOf(key);
+  if (index < 0 || !NUMBER_MAP[key]) return;
+  numberKey = key;
+  numberAnchor = anchorIndex;
+  selectedSourceAnchor = anchorIndex;
+  litKeys([key]);
+  selectedKey = key;
+  activeCenterKey = key;
+  const groupIndex = numberGroupIndex(key);
+  panel.innerHTML = `
+    <div class="stepno">数字对照 ${index+1} / ${NUMBER_KEYS.length} · ${ELEMENT_GROUPS[groupIndex].label}</div>
+    <h2>${DATA[key].name}</h2>
+    <label class="field-label" for="elementPicker">切换对象</label>
+    ${renderNumberGroupTabs(key)}
+    ${elementPickerHtml(key)}
+    ${renderNumberMapping(key,anchorIndex)}
+    <div class="navrow">
+      <button class="tbtn" id="numberPrev" ${index===0?"disabled":""}>← 上一项</button>
+      <button class="tbtn" id="numberNext" ${index===NUMBER_KEYS.length-1?"disabled":""}>下一项 →</button>
+      <button class="tbtn" id="numberIntro">四格说明</button>
+      ${mobileReturnHtml()}
+    </div>`;
+  bindElementPicker();
+  bindNumberGroupTabs();
+  bindNumberMapping(key);
+  $("#numberPrev").onclick = () => moveNumber(-1);
+  $("#numberNext").onclick = () => moveNumber(1);
+  $("#numberIntro").onclick = renderNumbersIntro;
+  bindMobileReturn();
+  setMobileFocus(
+    `数字 ${index+1}/${NUMBER_KEYS.length} · ${DATA[key].name}`,
+    index > 0 ? () => moveNumber(-1) : null,
+    index < NUMBER_KEYS.length-1 ? () => moveNumber(1) : null
+  );
+  focusAfterRender([key],key);
+  announce(`数字对照第 ${index+1} 项，共 ${NUMBER_KEYS.length} 项：${DATA[key].name}`);
+  updateHash();
+}
+
+function renderCard(k, sourceAnchor = 0, mappingOpen = false) {
+  const d = DATA[k];
+  if (!d) return;
+  selectedKey = k;
+  selectedSourceAnchor = sourceAnchor;
+  activeKeys = [k];
+  activeCenterKey = k;
+  clearFx();
+  $$("#dia .hot, #motionLayer .motion-flow, #sourceOverlay .source-hot").forEach(g => {
+    g.classList.add(g.dataset.k === k ? "sel" : "dimmed");
+  });
+  const source = SOURCE_REGIONS[k];
+  const sourcePosition = source
+    ? `<tr><th>原图位置</th><td>${source.zone}；${source.anchors.map(anchor => anchor.label).join("；")}</td></tr>`
+    : "";
+  const rows = d.params.map(([a,b,evidence]) => {
+    const badge = evidence
+      ? `<span class="evidence ${evidence}">${EVIDENCE_LABELS[evidence] || evidence}</span>`
+      : "";
+    return `<tr><th>${a}</th><td class="v">${b}${badge}</td></tr>`;
+  }).join("") + sourcePosition;
+  const sourceButtons = source
+    ? source.anchors.map((anchor,index) => `<button class="tbtn" data-source-anchor="${index}">原图：${anchor.label}</button>`).join("")
+    : "";
+  panel.innerHTML = `
+    <div class="stepno">自由探索 · 点击图上其他元素继续</div>
+    <h2>${d.name}</h2>
+    <label class="field-label" for="elementPicker">定位设备或管线</label>
+    ${elementPickerHtml(k)}
+    <table>${rows}</table>
+    ${d.note ? `<p>${d.note}</p>` : ""}
+    <details class="number-details" ${mappingOpen?"open":""}>
+      <summary>原图数字怎样对应</summary>
+      ${renderNumberMapping(k,sourceAnchor)}
+    </details>
+    <div class="navrow">
+      <button class="tbtn" id="locateTeaching">教学图定位</button>
+      ${sourceButtons}
+      ${/^ex[A-G]$/.test(k) ? `<button class="tbtn" id="cardExtract">给水回热</button>` : ""}
+      <button class="tbtn" id="cardNumbers">数字对照</button>
+      <button class="tbtn" id="backTour">回到导览</button>
+    </div>`;
+  bindElementPicker();
+  bindNumberMapping(k,true);
+  $("#locateTeaching").onclick = () => {
+    setDiagramView("teaching");
+    requestAnimationFrame(() => {
+      centerTeachingDiagram([k]);
+      diagramWrap.scrollIntoView({ behavior:prefersReducedMotion() ? "auto" : "smooth", block:"center" });
+    });
+  };
+  $$("[data-source-anchor]").forEach(button => {
+    button.onclick = () => {
+      selectedSourceAnchor = Number(button.dataset.sourceAnchor);
+      setDiagramView("source");
+      requestAnimationFrame(() => {
+        locateSourceKey(k, selectedSourceAnchor, true);
+        diagramWrap.scrollIntoView({ behavior:prefersReducedMotion() ? "auto" : "smooth", block:"center" });
+      });
+    };
+  });
+  const cardExtract = $("#cardExtract");
+  if (cardExtract) cardExtract.onclick = () => {
+    const index = EXTRACTION_LEVELS.findIndex(level => level.key === k);
+    extractionStep = index >= 0 ? index + EXTRACTION_LEVEL_OFFSET : 0;
+    setMode("extract");
+  };
+  $("#cardNumbers").onclick = () => {
+    numberKey = k;
+    numberAnchor = selectedSourceAnchor;
+    setMode("numbers");
+  };
+  $("#backTour").onclick = () => { setMode("tour"); };
+  hideMobileFocus();
+  announce(`自由探索：${d.name}`);
+  updateHash();
+}
+
+function renderFreeIntro() {
+  clearFx();
+  selectedKey = null;
+  activeKeys = [];
+  activeCenterKey = null;
+  panel.innerHTML = `
+    <div class="stepno">自由探索</div>
+    <h2>设备与管线数据</h2>
+    <p>选择设备或管线，可同时在教学简图与第 6 页原图中定位。图示参数以原图为准；网页自行计算的关键结果标为“推导”，需要特别提醒边界的机理标为“工程解释”。其他说明是教学转述，不是原图原文。</p>
+    <label class="field-label" for="elementPicker">定位设备或管线</label>
+    ${elementPickerHtml()}`;
+  bindElementPicker();
+  hideMobileFocus();
+  announce("自由探索：请选择设备或管线");
+  updateHash();
+}
+
+function renderQuick() {
+  clearFx();
+  selectedKey = null;
+  activeKeys = [];
+  activeCenterKey = null;
+  const cards = QUICK_CARDS.map((c,index) => `<details class="quick-item" ${index===0?"open":""}><summary>${c.t}</summary><div class="quick-body">${c.html}</div></details>`).join("");
+  panel.innerHTML = `
+    <div class="stepno">速查卡片</div>
+    <h2>核心概念速查</h2>
+    <div class="quick-grid">${cards}</div>
+    <div class="navrow">
+      <button class="tbtn" id="quickTour">回到导览</button>
+      <button class="tbtn" id="quickExtract">给水回热</button>
+      <button class="tbtn" id="quickNumbers">数字对照</button>
+      <button class="tbtn" id="quickFree">自由探索</button>
+    </div>`;
+  $("#quickTour").onclick = () => setMode("tour");
+  $("#quickExtract").onclick = () => setMode("extract");
+  $("#quickNumbers").onclick = () => setMode("numbers");
+  $("#quickFree").onclick = () => setMode("free");
+  hideMobileFocus();
+  announce("核心概念速查");
+  updateHash();
+}
+
+const MODE_TABS = [
+  { mode:"tour", button:$("#btnTour") },
+  { mode:"extract", button:$("#btnExtract") },
+  { mode:"numbers", button:$("#btnNumbers") },
+  { mode:"free", button:$("#btnFree") },
+  { mode:"quick", button:$("#btnQuick") }
+];
+
+const VIEW_TABS = [$("#btnTeachingView"),$("#btnSourceView")];
+
+function bindTabKeyboard(buttons) {
+  buttons.forEach((button,index) => {
+    button.addEventListener("keydown",event => {
+      if (!["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) return;
+      event.preventDefault();
+      let nextIndex = index;
+      if (event.key === "ArrowLeft") nextIndex = (index - 1 + buttons.length) % buttons.length;
+      if (event.key === "ArrowRight") nextIndex = (index + 1) % buttons.length;
+      if (event.key === "Home") nextIndex = 0;
+      if (event.key === "End") nextIndex = buttons.length - 1;
+      buttons[nextIndex].focus();
+      buttons[nextIndex].click();
+    });
+  });
+}
+
+function updateModeButtons(m) {
+  MODE_TABS.forEach(item => {
+    const active = m === item.mode;
+    item.button.classList.toggle("on",active);
+    item.button.setAttribute("aria-selected",String(active));
+    item.button.tabIndex = active ? 0 : -1;
+    if (active) panel.setAttribute("aria-labelledby",item.button.id);
+  });
+}
+
+function setMode(m) {
+  mode = m;
+  updateModeButtons(m);
+  if (m === "tour") renderStep();
+  else if (m === "extract") renderExtraction();
+  else if (m === "numbers") {
+    if (numberKey) renderNumberDetail(numberKey,numberAnchor);
+    else renderNumbersIntro();
+  }
+  else if (m === "free") renderFreeIntro();
+  else if (m === "quick") renderQuick();
+}
+
+$("#btnTour").onclick = () => setMode("tour");
+$("#btnExtract").onclick = () => setMode("extract");
+$("#btnNumbers").onclick = () => setMode("numbers");
+$("#btnFree").onclick = () => setMode("free");
+$("#btnQuick").onclick = () => setMode("quick");
+bindTabKeyboard(MODE_TABS.map(item => item.button));
+
+function activateDiagramItem(k, sourceAnchor = 0) {
+  if (mode === "numbers") {
+    numberKey = k;
+    numberAnchor = sourceAnchor;
+    renderNumberDetail(k,sourceAnchor);
+    if (window.innerWidth <= 720) {
+      requestAnimationFrame(() => panel.scrollIntoView({ behavior:prefersReducedMotion() ? "auto" : "smooth", block:"start" }));
+    }
+    return;
+  }
+  mode = "free";
+  updateModeButtons("free");
+  renderCard(k, sourceAnchor);
+  if (window.innerWidth <= 720) {
+    requestAnimationFrame(() => panel.scrollIntoView({ behavior:prefersReducedMotion() ? "auto" : "smooth", block:"start" }));
+  }
+}
+
+function bindDiagramItems() {
+  $$("#dia .hot, #sourceOverlay .source-hot").forEach(g => {
+    if (g.dataset.bound === "true") return;
+    g.dataset.bound = "true";
+    const k = g.dataset.k;
+    const d = DATA[k];
+    const sourceAnchor = Number(g.dataset.anchor || 0);
+    const sourceLabel = SOURCE_REGIONS[k]?.anchors[sourceAnchor]?.label;
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", "button");
+    g.setAttribute("aria-label", sourceLabel ? `${d?.name || k}，${sourceLabel}` : (d ? d.name : k));
+    g.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        activateDiagramItem(k, sourceAnchor);
+      }
+    });
+    g.addEventListener("click", (e) => {
+      e.stopPropagation();
+      activateDiagramItem(k, sourceAnchor);
+    });
+  });
+}
+document.addEventListener("keydown", (e) => {
+  if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.target instanceof Element && e.target.closest("button,summary,select,input,textarea,a,[role='button'],[role='tab'],#diagramWrap")) return;
+  if (mode === "tour") {
+    if (e.key === "ArrowRight" && step < STEPS.length-1) { step++; renderStep(); }
+    if (e.key === "ArrowLeft"  && step > 0) { step--; renderStep(); }
+  } else if (mode === "extract") {
+    if (e.key === "ArrowRight" && extractionStep < EXTRACTION_STEPS.length-1) { extractionStep++; renderExtraction(); }
+    if (e.key === "ArrowLeft"  && extractionStep > 0) { extractionStep--; renderExtraction(); }
+  } else if (mode === "numbers") {
+    if (e.key === "ArrowRight") moveNumber(1);
+    if (e.key === "ArrowLeft") moveNumber(-1);
+  }
+});
+
+const ICON_PAUSE = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect width="4" height="16" x="6" y="4" rx="1"/><rect width="4" height="16" x="14" y="4" rx="1"/></svg>`;
+const ICON_PLAY = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9z"/></svg>`;
+const ICON_SUN = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.42"/></svg>`;
+const ICON_MOON = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9"/></svg>`;
+
+function updateAnimButton() {
+  const button = $("#btnAnim");
+  if (prefersReducedMotion()) {
+    button.innerHTML = `${ICON_PLAY}<span>系统已减少动效</span>`;
+    button.setAttribute("aria-pressed","false");
+    button.disabled = true;
+    return;
+  }
+  button.innerHTML = `${animOn ? ICON_PAUSE : ICON_PLAY}<span>${animOn ? "暂停流动" : "恢复流动"}</span>`;
+  button.setAttribute("aria-pressed",String(animOn));
+  button.disabled = diagramView === "source";
+}
+
+$("#btnAnim").onclick = () => {
+  if (prefersReducedMotion()) return;
+  animOn = !animOn;
+  dia.classList.toggle("noanim", !animOn);
+  updateAnimButton();
+};
+
+reduceMotionQuery.addEventListener?.("change",event => {
+  animOn = !event.matches;
+  dia.classList.toggle("noanim",!animOn);
+  updateAnimButton();
+});
+
+const THEME_KEY = "ningde-hbd-theme";
+/* 首帧前的主题恢复已移至 <head> 内联脚本；这里只负责在用户未显式选择时跟随系统切换 */
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", event => {
+  let stored = null;
+  try { stored = localStorage.getItem(THEME_KEY); } catch {}
+  if (stored !== "light" && stored !== "dark") {
+    document.documentElement.dataset.theme = event.matches ? "dark" : "light";
+    updateThemeButton();
+  }
+});
+
+function currentTheme() {
+  return document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+
+function updateThemeButton() {
+  const dark = currentTheme() === "dark";
+  $("#btnTheme").innerHTML = dark ? ICON_SUN : ICON_MOON;
+  const label = dark ? "切换为浅色" : "切换为深色";
+  $("#btnTheme").setAttribute("aria-label", label);
+  $("#btnTheme").title = label;
+}
+
+$("#btnTheme").onclick = () => {
+  const r = document.documentElement;
+  const cur = currentTheme();
+  r.dataset.theme = (cur === "dark") ? "light" : "dark";
+  try { localStorage.setItem(THEME_KEY, r.dataset.theme); } catch {}
+  updateThemeButton();
+};
+
+const TEACHING_ZOOM_VALUES = [0.85,1,1.25,1.5];
+const TEACHING_MIN_FIT = 0.85;   /* “适应”档的缩放下限：再窄就改用横向滚动，保证中文标签可读 */
+const SOURCE_ZOOM_VALUES = [0.25,0.35,0.5,0.75,1,1.25,1.5,2];
+function defaultTeachingZoom() {
+  if (window.innerWidth <= 720) return 0.85;
+  return diagramWrap.clientWidth < 1180 ? 1 : "fit";
+}
+let teachingZoomState = defaultTeachingZoom();
+let sourceZoomState = "fit";
+let sourceScale = 1;
+const viewScroll = {
+  teaching:{ left:0, top:0 },
+  source:{ left:0, top:0 }
+};
+
+function sourceFitScale() {
+  const width = Math.max(diagramWrap.clientWidth - 24,240);
+  const height = Math.max(diagramWrap.clientHeight - 24,320);
+  return Math.min(width / SOURCE_SIZE.width, height / SOURCE_SIZE.height);
+}
+
+function layoutSource(scale) {
+  sourceScale = scale;
+  sourceStage.classList.toggle("zoomed",scale > 0.8);
+  const innerWidth = SOURCE_SIZE.width * scale;
+  const innerHeight = SOURCE_SIZE.height * scale;
+  const stageWidth = Math.max(diagramWrap.clientWidth, innerWidth + 24);
+  const stageHeight = Math.max(diagramWrap.clientHeight, innerHeight + 24);
+  sourceStage.style.width = `${stageWidth}px`;
+  sourceStage.style.height = `${stageHeight}px`;
+  sourceInner.style.width = `${innerWidth}px`;
+  sourceInner.style.height = `${innerHeight}px`;
+  sourceInner.style.left = `${Math.max(0,(stageWidth - innerWidth) / 2)}px`;
+  sourceInner.style.top = `${Math.max(0,(stageHeight - innerHeight) / 2)}px`;
+}
+
+function layoutTeaching() {
+  diagramInner.style.minWidth = "0";
+  if (teachingZoomState === "fit") {
+    const minWidth = 1240 * TEACHING_MIN_FIT;
+    diagramInner.style.width = diagramWrap.clientWidth > 0 && diagramWrap.clientWidth < minWidth ? `${minWidth}px` : "100%";
+  } else {
+    diagramInner.style.width = `${1240 * teachingZoomState}px`;
+  }
+}
+
+function updateZoomButtons() {
+  if (diagramView === "teaching") {
+    $("#zoomReadout").textContent = teachingZoomState === "fit" ? "适应" : `${Math.round(teachingZoomState * 100)}%`;
+    $("#btnZoomOut").disabled = teachingZoomState === "fit";
+    $("#btnZoomIn").disabled = teachingZoomState === TEACHING_ZOOM_VALUES.at(-1);
+    $("#btnZoomFit").disabled = teachingZoomState === "fit";
+    return;
+  }
+  const fit = sourceFitScale();
+  const current = sourceZoomState === "fit" ? fit : sourceZoomState;
+  $("#zoomReadout").textContent = sourceZoomState === "fit" ? "全页" : `${Math.round(current * 100)}%`;
+  $("#btnZoomOut").disabled = sourceZoomState === "fit" || current <= fit * 1.02;
+  $("#btnZoomIn").disabled = current >= SOURCE_ZOOM_VALUES.at(-1);
+  $("#btnZoomFit").disabled = sourceZoomState === "fit";
+}
+
+function applyTeachingZoom(next, resetScroll = false) {
+  const oldWidth = Math.max(diagramWrap.scrollWidth,1);
+  const centerRatio = (diagramWrap.scrollLeft + diagramWrap.clientWidth / 2) / oldWidth;
+  teachingZoomState = next;
+  layoutTeaching();
+  updateZoomButtons();
+  requestAnimationFrame(() => {
+    diagramWrap.scrollLeft = resetScroll
+      ? 0
+      : Math.max(0,centerRatio * diagramWrap.scrollWidth - diagramWrap.clientWidth / 2);
+  });
+}
+
+function applySourceZoom(next, resetScroll = false) {
+  const oldLeft = parseFloat(sourceInner.style.left) || 0;
+  const oldTop = parseFloat(sourceInner.style.top) || 0;
+  const sourceX = (diagramWrap.scrollLeft + diagramWrap.clientWidth / 2 - oldLeft) / Math.max(sourceScale,0.0001);
+  const sourceY = (diagramWrap.scrollTop + diagramWrap.clientHeight / 2 - oldTop) / Math.max(sourceScale,0.0001);
+  sourceZoomState = next;
+  const nextScale = next === "fit" ? sourceFitScale() : next;
+  layoutSource(nextScale);
+  updateZoomButtons();
+  requestAnimationFrame(() => {
+    if (resetScroll || next === "fit") {
+      diagramWrap.scrollTo({ left:0, top:0, behavior:"auto" });
+      return;
+    }
+    const innerLeft = parseFloat(sourceInner.style.left) || 0;
+    const innerTop = parseFloat(sourceInner.style.top) || 0;
+    diagramWrap.scrollTo({
+      left:Math.max(0,innerLeft + sourceX * nextScale - diagramWrap.clientWidth / 2),
+      top:Math.max(0,innerTop + sourceY * nextScale - diagramWrap.clientHeight / 2),
+      behavior:"auto"
+    });
+  });
+}
+
+function applyZoom(next, resetScroll = false) {
+  if (diagramView === "source") applySourceZoom(next, resetScroll);
+  else applyTeachingZoom(next, resetScroll);
+}
+
+function scrollToSourceRegion(region, behavior = "smooth") {
+  const innerLeft = parseFloat(sourceInner.style.left) || 0;
+  const innerTop = parseFloat(sourceInner.style.top) || 0;
+  diagramWrap.scrollTo({
+    left:Math.max(0,innerLeft + (region.x + region.w / 2) * sourceScale - diagramWrap.clientWidth / 2),
+    top:Math.max(0,innerTop + (region.y + region.h / 2) * sourceScale - diagramWrap.clientHeight / 2),
+    behavior:prefersReducedMotion() ? "auto" : behavior
+  });
+}
+
+function focusSourceRegion(region, maxScale = 1.5) {
+  const fit = sourceFitScale();
+  const target = Math.min(
+    (diagramWrap.clientWidth * 0.76) / Math.max(region.w,1),
+    (diagramWrap.clientHeight * 0.62) / Math.max(region.h,1)
+  );
+  sourceZoomState = Math.max(fit,Math.min(maxScale,target));
+  layoutSource(sourceZoomState);
+  updateZoomButtons();
+  requestAnimationFrame(() => scrollToSourceRegion(region));
+}
+
+function locateSourceKey(key, anchorIndex = 0, autoZoom = true) {
+  const config = SOURCE_REGIONS[key];
+  if (!config || !config.anchors.length) return;
+  const index = Math.max(0,Math.min(anchorIndex,config.anchors.length - 1));
+  selectedSourceAnchor = index;
+  if (autoZoom) focusSourceRegion(config.anchors[index]);
+  else scrollToSourceRegion(config.anchors[index]);
+}
+
+function focusSourceZone(name) {
+  const region = SOURCE_ZONES[name] || SOURCE_ZONES.full;
+  if (name === "full") {
+    applySourceZoom("fit",true);
+    return;
+  }
+  focusSourceRegion(region,0.9);
+}
+
+function setDiagramView(next, locateCurrent = false) {
+  if (next !== "teaching" && next !== "source") return;
+  viewScroll[diagramView] = { left:diagramWrap.scrollLeft, top:diagramWrap.scrollTop };
+  diagramView = next;
+  const sourceOn = next === "source";
+  diagramInner.hidden = sourceOn;
+  sourceStage.hidden = !sourceOn;
+  sourceTools.hidden = !sourceOn;
+  $("#sourceLegend").hidden = !sourceOn;
+  diagramWrap.classList.toggle("source-mode",sourceOn);
+  diagramWrap.setAttribute("aria-label",sourceOn ? "可缩放浏览的第6页原始热平衡图" : "可横向浏览的教学简图");
+  $("#diagramTitle").textContent = sourceOn
+    ? "100% TMCR · 第 6 页原图 · RL0107001001"
+    : "100% TMCR · 教学简图";
+  $("#btnTeachingView").classList.toggle("on",!sourceOn);
+  $("#btnTeachingView").setAttribute("aria-selected",String(!sourceOn));
+  $("#btnTeachingView").tabIndex = sourceOn ? -1 : 0;
+  $("#btnSourceView").classList.toggle("on",sourceOn);
+  $("#btnSourceView").setAttribute("aria-selected",String(sourceOn));
+  $("#btnSourceView").tabIndex = sourceOn ? 0 : -1;
+  updateAnimButton();
+  const viewCta = $("#openSourceView");
+  if (viewCta) {
+    viewCta.textContent = sourceOn ? "返回教学简图" : "打开第 6 页原图";
+    viewCta.onclick = () => setDiagramView(sourceOn ? "teaching" : "source",true);
+  }
+  requestAnimationFrame(() => {
+    if (sourceOn) {
+      layoutSource(sourceZoomState === "fit" ? sourceFitScale() : sourceZoomState);
+    } else {
+      layoutTeaching();
+    }
+    updateZoomButtons();
+    const currentKey = selectedKey || activeCenterKey || activeKeys[0];
+    if (locateCurrent && currentKey) {
+      if (sourceOn) locateSourceKey(currentKey,selectedSourceAnchor,true);
+      else centerTeachingDiagram([currentKey]);
+    } else {
+      const saved = viewScroll[next];
+      diagramWrap.scrollTo({ left:saved.left, top:saved.top, behavior:"auto" });
+    }
+  });
+  updateHash(true);
+}
+
+$("#btnTeachingView").onclick = () => setDiagramView("teaching",true);
+$("#btnSourceView").onclick = () => setDiagramView("source",true);
+bindTabKeyboard(VIEW_TABS);
+sourceMarkers.onchange = () => sourceStage.classList.toggle("show-markers",sourceMarkers.checked);
+sourceRegion.onchange = () => focusSourceZone(sourceRegion.value);
+sourceImage.addEventListener("error",() => { $("#sourceError").hidden = false; });
+sourceImage.addEventListener("load",() => { $("#sourceError").hidden = true; });
+$("#sourceErrorBack").onclick = () => setDiagramView("teaching");
+
+$("#btnZoomOut").onclick = () => {
+  if (diagramView === "teaching") {
+    if (teachingZoomState === "fit") return;
+    const index = TEACHING_ZOOM_VALUES.indexOf(teachingZoomState);
+    applyTeachingZoom(index <= 0 ? "fit" : TEACHING_ZOOM_VALUES[index - 1]);
+    return;
+  }
+  const fit = sourceFitScale();
+  const current = sourceZoomState === "fit" ? fit : sourceZoomState;
+  const lower = SOURCE_ZOOM_VALUES.filter(value => value < current * 0.98 && value > fit * 1.02);
+  applySourceZoom(lower.length ? lower.at(-1) : "fit");
+};
+
+$("#btnZoomIn").onclick = () => {
+  if (diagramView === "teaching") {
+    if (teachingZoomState === "fit") {
+      const next = TEACHING_ZOOM_VALUES.find(value => 1240 * value > diagramWrap.clientWidth * 1.02) || TEACHING_ZOOM_VALUES.at(-1);
+      applyTeachingZoom(next);
+      return;
+    }
+    const index = TEACHING_ZOOM_VALUES.indexOf(teachingZoomState);
+    if (index < TEACHING_ZOOM_VALUES.length - 1) applyTeachingZoom(TEACHING_ZOOM_VALUES[index + 1]);
+    return;
+  }
+  const current = sourceZoomState === "fit" ? sourceFitScale() : sourceZoomState;
+  const next = SOURCE_ZOOM_VALUES.find(value => value > current * 1.02);
+  if (next) applySourceZoom(next);
+};
+
+$("#btnZoomFit").onclick = () => applyZoom("fit",true);
+$("#btnZoomReset").onclick = () => {
+  if (diagramView === "source") applySourceZoom("fit",true);
+  else applyTeachingZoom(defaultTeachingZoom(),true);
+};
+let resizeTimer = 0;
+window.addEventListener("resize",() => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (diagramView === "source" && sourceZoomState === "fit") applySourceZoom("fit",true);
+    if (diagramView === "teaching" && teachingZoomState === "fit") applyTeachingZoom("fit");
+  },150);
+});
+
+/* ============ 深链接与进度记忆 ============
+   hash 形如 #tour-9 / #extract-5 / #numbers / #num-hh7-1 / #free / #explore-msr / #quick，
+   查看原图时追加 ".src"。同一份编码也存入 localStorage 作为下次打开的续读进度（hash 优先）。 */
+const STATE_KEY = "ningde-hbd-state";
+let currentHash = "";
+let hashSyncEnabled = false;
+let initialStateHash = "";
+
+function stateHash() {
+  let core;
+  if (mode === "tour") core = `tour-${step+1}`;
+  else if (mode === "extract") core = `extract-${extractionStep+1}`;
+  else if (mode === "numbers") core = numberKey ? `num-${numberKey}${numberAnchor ? `-${numberAnchor}` : ""}` : "numbers";
+  else if (mode === "free") core = selectedKey ? `explore-${selectedKey}${selectedSourceAnchor ? `-${selectedSourceAnchor}` : ""}` : "free";
+  else core = "quick";
+  return diagramView === "source" ? `${core}.src` : core;
+}
+
+function updateHash(replace = false) {
+  const h = stateHash();
+  try { localStorage.setItem(STATE_KEY, h); } catch {}
+  if (!hashSyncEnabled || h === currentHash) { currentHash = h; return; }
+  currentHash = h;
+  if (replace) history.replaceState(null, "", `#${h}`);
+  else location.hash = h;
+}
+
+function applyHash(raw) {
+  /* 回放期间挂起 hash 写出，避免中间渲染态污染浏览历史 */
+  const wasEnabled = hashSyncEnabled;
+  hashSyncEnabled = false;
+  try {
+  const [core, viewFlag] = raw.split(".");
+  const parts = core.split("-");
+  const kind = parts[0];
+  let ok = false;
+  currentHash = raw;
+  if (kind === "tour" || kind === "extract") {
+    const total = kind === "tour" ? STEPS.length : EXTRACTION_STEPS.length;
+    const n = Number(parts[1]);
+    if (Number.isInteger(n) && n >= 1 && n <= total) {
+      mode = kind === "tour" ? "tour" : "extract";
+      if (kind === "tour") step = n - 1; else extractionStep = n - 1;
+      updateModeButtons(mode);
+      if (kind === "tour") renderStep(); else renderExtraction();
+      ok = true;
+    }
+  } else if (kind === "numbers") {
+    mode = "numbers"; numberKey = null; numberAnchor = 0;
+    updateModeButtons("numbers"); renderNumbersIntro(); ok = true;
+  } else if (kind === "num" && NUMBER_MAP[parts[1]]) {
+    mode = "numbers"; updateModeButtons("numbers");
+    renderNumberDetail(parts[1], Number(parts[2]) || 0); ok = true;
+  } else if (kind === "free") {
+    mode = "free"; updateModeButtons("free"); renderFreeIntro(); ok = true;
+  } else if (kind === "explore" && DATA[parts[1]]) {
+    mode = "free"; updateModeButtons("free");
+    renderCard(parts[1], Number(parts[2]) || 0); ok = true;
+  } else if (kind === "quick") {
+    mode = "quick"; updateModeButtons("quick"); renderQuick(); ok = true;
+  }
+  if (!ok) return false;
+  const wantSource = viewFlag === "src";
+  if (wantSource !== (diagramView === "source")) setDiagramView(wantSource ? "source" : "teaching", true);
+  currentHash = raw;
+  return true;
+  } finally {
+    hashSyncEnabled = wasEnabled;
+  }
+}
+
+window.addEventListener("hashchange", () => {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h === currentHash) return;
+  if (!h) {
+    /* 回退到进入页面时的无 hash 历史项：回放加载完成时的初始状态 */
+    if (initialStateHash) { applyHash(initialStateHash); currentHash = ""; }
+    return;
+  }
+  if (!applyHash(h)) currentHash = h;
+});
+
+validateTutorialData();
+renderSourceOverlay();
+buildMotionLayer();
+bindDiagramItems();
+dia.classList.toggle("noanim",!animOn);
+updateAnimButton();
+updateThemeButton();
+layoutTeaching();
+updateZoomButtons();
+(function restoreOrStart() {
+  const fromUrl = decodeURIComponent(location.hash.slice(1));
+  let restored = fromUrl ? applyHash(fromUrl) : false;
+  if (!restored) {
+    let saved = null;
+    try { saved = localStorage.getItem(STATE_KEY); } catch {}
+    if (saved) restored = applyHash(saved);
+  }
+  if (!restored) renderStep();
+  initialStateHash = stateHash();
+  hashSyncEnabled = true;
+})();
+</script>
+</body>
+</html>
