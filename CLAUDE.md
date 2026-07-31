@@ -12,6 +12,18 @@
 
 ## 一、日常更新流程（改完代码后执行）
 
+### 推荐：一键部署脚本
+
+```powershell
+$env:OSS_AK = "<AK 见主站 DEPLOYMENT.md>"
+$env:OSS_SK = "<SK 见主站 DEPLOYMENT.md>"
+pnpm deploy      # = pwsh scripts/deploy.ps1
+```
+
+脚本完成：构建（base=/tutorial/）→ 404.html 复制 → ossutil 上传（自动跳过 downloads/ 的 221MB 大文件）→ 两个无扩展名对象的 Content-Type 修复 → Cloudflare 清缓存（需另设 `$env:CF_API_TOKEN` + `$env:CF_ZONE_ID`，否则打印手动清单）→ 线上 HEAD 验证。
+
+以下手动步骤仅作备份参考。注意 `pnpm run build` 现在就是纯 `vite build`（旧的 esbuild server 步骤已移除，`pnpm start` 随之弃用——本站是纯静态部署，从未用到那个 server bundle）。
+
 ### 第 1 步：构建
 
 ```bash
@@ -32,9 +44,11 @@ cp dist/public/index.html dist/public/404.html
 MSYS_NO_PATHCONV=1 \
 OSS_ACCESS_KEY_ID=$OSS_AK \
 OSS_ACCESS_KEY_SECRET=$OSS_SK \
-/tmp/ossutil2/ossutil-2.2.1-windows-amd64/ossutil.exe cp dist/public/ oss://whu-atmes-hk/tutorial/ \
-  --recursive --force --region cn-hongkong
+"$HOME/tools/ossutil2/ossutil.exe" cp dist/public/ oss://whu-atmes-hk/tutorial/ \
+  --recursive --force --region cn-hongkong --exclude "downloads/*"
 ```
+
+> `--exclude "downloads/*"`：`client/public/downloads/` 里 221MB 的安装包和案例文件线上已有且从不变动，重复上传纯属浪费。首次部署或 downloads 内容变动时去掉此参数补传一次。
 
 ### 第 3 步：修复无扩展名入口对象的 Content-Type（两个）
 
@@ -92,7 +106,7 @@ MSYS_NO_PATHCONV=1 \
 OSS_ACCESS_KEY_ID=$OSS_AK \
 OSS_ACCESS_KEY_SECRET=$OSS_SK \
 "$HOME/tools/ossutil2/ossutil.exe" cp dist/public/ oss://whu-atmes-hk/tutorial/ \
-  --recursive --force --region cn-hongkong && \
+  --recursive --force --region cn-hongkong --exclude "downloads/*" && \
 MSYS_NO_PATHCONV=1 \
 OSS_ACCESS_KEY_ID=$OSS_AK \
 OSS_ACCESS_KEY_SECRET=$OSS_SK \
@@ -153,15 +167,19 @@ curl -sI "https://www.whu-atmes.com/tutorial/pages/p06-100tmcr.jpg" | head -1
 
 ```
 lammps-tutorial/
+├── scripts/deploy.ps1            ← 一键部署脚本（pnpm deploy）
 ├── client/
-│   ├── index.html                ← HTML 入口
+│   ├── index.html                ← HTML 入口（含 SEO/OG 元信息、非阻塞字体加载）
 │   ├── public/
+│   │   ├── favicon.svg           ← 站点图标
+│   │   ├── images/               ← 自托管配图（LAMMPS 页 5 张 webp + og-hub.png 分享图）
 │   │   ├── heat-balance.html     ← 汽轮机热平衡图互动教程（独立单文件，源在 Dropbox 学习文件夹）
-│   │   └── pages/p06-100tmcr.jpg ← 热平衡图教程的唯一配图（386 KB）
+│   │   └── pages/                ← 热平衡图配图 p06-100tmcr.jpg + og-heat-balance.png 分享图
 │   └── src/
+│       ├── lib/siteStats.ts      ← 访客统计（App 层触发，整页只计一次）
 │       ├── pages/
 │       │   ├── TutorialHub.tsx   ← 教程中心落地页
-│       │   └── Home.tsx          ← LAMMPS 主页面（所有章节内容，约 2800 行）
+│       │   └── Home.tsx          ← LAMMPS 主页面（React.lazy 懒加载，约 2800 行）
 │       ├── components/
 │       │   ├── Sidebar.tsx       ← 左侧导航栏（章节目录 + 案例序号）
 │       │   ├── CodeBlock.tsx     ← 终端代码块（含 LAMMPS/Bash/Python 语法高亮）

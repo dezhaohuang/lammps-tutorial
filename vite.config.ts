@@ -155,9 +155,17 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+export default defineConfig(({ command }) => {
+  // Manus 运行时/jsx-loc/调试收集器只在 dev 有用；进生产会把 366KB 运行时内联进
+  // index.html（阻塞首屏）并向 bundle 注入 data-loc 源码路径，必须按 command 门控
+  const dev = command === "serve";
+  const plugins = [
+    react(),
+    tailwindcss(),
+    ...(dev ? [jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()] : []),
+  ];
 
-export default defineConfig({
+  return {
   base: process.env.VITE_BASE_PATH || (process.env.GITHUB_ACTIONS ? "/lammps-tutorial/" : "/"),
   plugins,
   resolve: {
@@ -191,4 +199,5 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
+  };
 });

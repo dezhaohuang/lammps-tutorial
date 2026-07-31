@@ -61,12 +61,15 @@ import ScrollReveal from "@/components/ScrollReveal";
 import ReadingProgress from "@/components/ReadingProgress";
 import BackToTop from "@/components/BackToTop";
 import { MoleculeDecoration } from "@/components/MoleculeDecoration";
+import { getTutorialStats } from "@/lib/siteStats";
 
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663272597490/GumAK5suDshv7oMR4rddNh/hero-bg-34aTB5CWHf69rctXpAKvad.webp";
-const WHY_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663272597490/GumAK5suDshv7oMR4rddNh/why-lammps-NWB5L39WPiUbBt8qeUizCM.webp";
-const HPC_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663272597490/GumAK5suDshv7oMR4rddNh/hpc-cluster-fzL6uT37FPhvPrfz6t9S2R.webp";
-const INPUT_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663272597490/GumAK5suDshv7oMR4rddNh/input-file-Crr9jDeiULLuhkTZx3FgAL.webp";
-const ROADMAP_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663272597490/GumAK5suDshv7oMR4rddNh/roadmap-B3gQsoseoUQijMDtVDAhMg.webp";
+// 自托管配图（原 Manus CDN 外链随其工作区失效风险大，已下载入库）
+const IMG_BASE = `${import.meta.env.BASE_URL}images/`;
+const HERO_BG = `${IMG_BASE}hero-bg.webp`;
+const WHY_IMG = `${IMG_BASE}why-lammps.webp`;
+const HPC_IMG = `${IMG_BASE}hpc-cluster.webp`;
+const INPUT_IMG = `${IMG_BASE}input-file.webp`;
+const ROADMAP_IMG = `${IMG_BASE}roadmap.webp`;
 
 /* ─── Inline code badge helper ─── */
 const IC = ({ children }: { children: React.ReactNode }) => (
@@ -194,13 +197,9 @@ export default function Home() {
   const [siteStats, setSiteStats] = useState({ pv: PV_BASE, uv: UV_BASE });
 
   useEffect(() => {
-    const STATS_API = "https://www.whu-atmes.com/api/tutorial-stats";
-    fetch(STATS_API, { method: "POST" })
-      .then((r) => r.json())
-      .then((data: { pv: number; uv: number }) => {
-        setSiteStats({ pv: PV_BASE + data.pv, uv: UV_BASE + data.uv });
-      })
-      .catch(() => {});
+    getTutorialStats().then((data) => {
+      if (data) setSiteStats({ pv: PV_BASE + data.pv, uv: UV_BASE + data.uv });
+    });
   }, []);
 
   useEffect(() => {

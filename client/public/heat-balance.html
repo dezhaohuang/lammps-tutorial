@@ -10,8 +10,14 @@
 <meta property="og:description" content="汽轮机热平衡图互动教程：五种学习模式逐设备解读热平衡图上的每一个数字。">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="zh_CN">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9f9f7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d0d0d">
+<meta property="og:url" content="https://www.whu-atmes.com/tutorial/heat-balance.html">
+<meta property="og:site_name" content="武汉大学 ATMES Lab 教程中心">
+<meta property="og:image" content="https://www.whu-atmes.com/tutorial/pages/og-heat-balance.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="628">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://www.whu-atmes.com/tutorial/heat-balance.html">
+<meta name="theme-color" id="themeColorMeta" content="#f9f9f7">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Crect%20width='100'%20height='100'%20rx='22'%20fill='%23b84a1f'/%3E%3Ctext%20x='50'%20y='74'%20font-size='62'%20text-anchor='middle'%20fill='%23fff'%20font-family='sans-serif'%3E%E6%B1%BD%3C/text%3E%3C/svg%3E">
 <title>宁德核电 100% TMCR · 跟着蒸汽走一圈</title>
 <script>
@@ -20,6 +26,8 @@
   try { theme = localStorage.getItem("ningde-hbd-theme"); } catch (e) {}
   if (theme !== "light" && theme !== "dark") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   document.documentElement.dataset.theme = theme;
+  var meta = document.getElementById("themeColorMeta");
+  if (meta) meta.content = theme === "dark" ? "#0d0d0d" : "#f9f9f7";
 })();
 </script>
 <style>
@@ -72,6 +80,13 @@
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
+  .skip { position: absolute; left: -9999px; }
+  .skip:focus {
+    position: fixed; left: 10px; top: 10px; z-index: 99;
+    background: var(--surface); color: var(--ink); border: 2px solid var(--steam);
+    border-radius: 8px; padding: 8px 12px; font-size: 13px; text-decoration: none;
+  }
+  .print-only { display: none; }
   html, body { margin: 0; padding: 0; max-width: 100%; overflow-x: hidden; }
   body {
     background: var(--page);
@@ -194,9 +209,11 @@
   .field-label { display: block; margin: 10px 0 4px; color: var(--muted); font-size: 11.5px; font-weight: 650; }
   .element-select { width: 100%; min-height: 38px; border: 1px solid var(--border); border-radius: 7px; background: var(--page); color: var(--ink); padding: 6px 30px 6px 9px; font-size: 13px; }
   .mobile-return { display: none; }
-  .dots { display: flex; gap: 4px; flex-wrap: wrap; }
-  .dots button { appearance: none; width: 9px; height: 9px; min-width: 9px; padding: 0; border: 0; border-radius: 50%; background: var(--grid); cursor: pointer; }
-  .dots button.on { background: var(--steam); }
+  /* 圆点视觉 9px、命中区 24px（WCAG 2.5.8） */
+  .dots { display: flex; gap: 0; flex-wrap: wrap; }
+  .dots button { appearance: none; width: 24px; height: 24px; min-width: 24px; padding: 0; border: 0; border-radius: 50%; background: none; position: relative; cursor: pointer; }
+  .dots button::before { content: ""; position: absolute; inset: 7.5px; border-radius: 50%; background: var(--grid); }
+  .dots button.on::before { background: var(--steam); }
   .extract-ladder { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 4px; margin: 10px 0; }
   .extract-ladder button { appearance: none; min-width: 0; height: 32px; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: var(--page); color: var(--ink-2); cursor: pointer; font-weight: 700; }
   .extract-ladder button.on { color: var(--page); background: var(--steam); border-color: var(--steam); }
@@ -413,9 +430,28 @@
     .ebar-wrap { padding: 10px 12px; }
     .src { overflow-wrap: anywhere; }
   }
+
+  /* ---------- 打印 ---------- */
+  @media print {
+    @page { margin: 14mm; }
+    :root { --page: #fff; --surface: #fff; --card-shadow: none; color-scheme: light; }
+    .skip, .toolbar, .view-seg, .view-controls, .source-tools, .mobile-focusbar,
+    .navrow, .dots, .element-select, .field-label, .number-group-tabs,
+    .number-anchor-tabs, #sourceLegend, .mobile-return { display: none !important; }
+    main { display: block; padding: 0 4px 8px; }
+    .diagram-wrap { overflow: visible !important; height: auto !important; border: 0; box-shadow: none; }
+    .diagram-inner { width: 100% !important; min-width: 0 !important; }
+    .panel { position: static !important; max-height: none !important; overflow: visible !important; border: 0; box-shadow: none; padding: 12px 0 0; }
+    .panel details, .quick-item { break-inside: avoid; }
+    .panel details > *:not(summary) { display: block !important; }
+    .motion-layer { display: none !important; }
+    .print-only { display: block !important; }
+  }
 </style>
 </head>
 <body>
+
+<a class="skip" href="#panel">跳到讲解面板</a>
 
 <noscript><p style="margin:16px 20px;padding:10px 14px;border:1px solid rgba(11,11,11,.2);border-radius:8px;font-size:14px;">本教程的讲解面板与互动图需要启用 JavaScript 才能显示。</p></noscript>
 
@@ -821,7 +857,8 @@
     </div>
     <div class="src">条形图用于量级理解：其余差额包含设备散热、机械电气损失以及未逐项列入的小流股影响，不是精确损失分项。</div>
   </div>
-  <div class="src">数据来源：宁德 1~4 号机组热平衡图册（东方汽轮机，(W2)H3-834K60300）。主图及设备卡的 TMCR 图示值采用第 6 页（RL0107001001）；VWO 对照采用第 12 页升版（RL0707001102）。原图图示值经交叉核对；关键推导和需强调边界的工程解释另有标签。配套文字详解见同文件夹《宁德核电站热平衡图_逐页详解.md》。</div>
+  <div class="src">数据来源：宁德 1~4 号机组热平衡图册（东方汽轮机，(W2)H3-834K60300）。主图及设备卡的 TMCR 图示值采用第 6 页（RL0107001001）；VWO 对照采用第 12 页升版（RL0707001102）。原图图示值经交叉核对；关键推导和需强调边界的工程解释另有标签。<span data-when="local" hidden>配套文字详解见同文件夹《宁德核电站热平衡图_逐页详解.md》。</span><span data-when="online" hidden>配套文字详解《宁德核电站热平衡图_逐页详解》为课题组内部资料。</span></div>
+  <div class="src print-only">在线版本：https://www.whu-atmes.com/tutorial/heat-balance.html</div>
   <div class="copyright">
     <strong>© 2026 武汉大学 黄德钊。版权所有，保留所有权利。</strong>
     <span>本教程的原创讲解、内容编排、独立验算、互动页面设计与代码受版权保护，未经版权所有者书面许可，不得复制、修改、转载或传播；原始热平衡图、图纸数据、企业标识及相关工程资料的权利归东方汽轮机有限公司及其他相关权利人所有。</span>
@@ -1899,7 +1936,7 @@ const STEPS = [
   { t:"除氧器：为什么加热就能除氧", keys:["dea","exC","drM","drJ","drHH","condensate2"], html:`<p>水温越高，氧气和二氧化碳越难溶解。除氧器用蒸汽直接接触水滴，把水加热到接近饱和温度，析出的气体随少量蒸汽从顶部排走。</p><p>这些汽水最终本来就属于给水回路，所以这里允许直接混合；普通加热器则隔着管壁换热。除氧器还兼作水箱，为给水泵稳定供水。</p><details><summary>动手验算：五股水的汇合</summary><p>凝结水 1075.470 + 高加疏水 311.901 + 抽汽 C 51.578 + 分离器疏水 M 172.454 + 门杆漏汽 J 2.002 = <strong>1613.405 kg/s</strong>，比图示出口 1613.400 kg/s 多 0.005 kg/s。</p><p>相对残差约 0.00031%，属于各节点独立取整或未展开微小流股的量级，应写“约闭合”，不能写成没有残差的精确等式。</p></details>` },
   { t:"给水泵：15 MW 的一口气", keys:["fp","feedwater"], html:`<p>给水泵把 1613.4 kg/s 的水一口气压到 <strong>81.2 bar</strong>。</p><p>泵功也写在图上：焓从 749.77 升到 759.14 kJ/kg，乘流量 ≈ <strong>15.1 MW</strong>，顺带把水温抬高 1.3 ℃。焓差 × 流量，在泵上同样适用。</p>` },
   { t:"高加：给水回程的最后两级预热", keys:["hh6","hh7","exA","exB","drK","drL","drHH","feedwater"], html:`<p><strong>高加是高压给水加热器的简称。</strong>管外抽汽和疏水隔着金属壁，把热量交给约 80 bar 的管内给水。</p><div class="formula">178.3 ℃ → 6 号高加 202.3 ℃ → 7 号高加 226.0 ℃</div><p>加热器上下两个 ΔT 定义不同：7 号上端差 TTD = 228.1 − 226.0 = <strong>2.1 K</strong>；下端差 DCA = 208.2 − 202.3 = <strong>5.9 K</strong>。</p><p>6 号接收 B、K 和 7 号疏水；7 号接收 A 和更热的 L。它们最后沿 <strong>7 号 → 6 号 → 除氧器</strong> 回流。</p><details><summary>动手验算：7 号高加的收支账</summary><p>质量：84.234 + 78.462 = <strong>162.696 kg/s</strong>。能量：按原图设备入口口径，壳侧净放热约 173.9 MW，管侧吸热约 173.4 MW；约 0.3% 差值来自图面取整和辅助流股状态简化。</p></details>` },
-  { t:"收官：先说清总账边界", keys:["gen","sg","cond"], html:`<p><strong>毛热耗率 = 2903785 ÷ 1089075 × 3600 = 9598.6 kJ/kWh</strong>，毛效率约 37.5%。这里的 W(GENER) 是发电机端毛出力，还没有扣给水泵等厂用电和变压器损耗。</p><p>页面底部条形图是量级分账：37.5% 成为毛电，约 61.8% 对应低压缸主排汽流股的冷端放热，其余约 0.7% 是未逐项拆开的差额；它不是一张精确的机械损失清单。</p><p>配套 Markdown 的附录三提供分级练习和折叠答案；“数字对照”可逐项比较原图与教学图并查看公式，“自由探索”保留简洁设备卡。</p>` },
+  { t:"收官：先说清总账边界", keys:["gen","sg","cond"], html:`<p><strong>毛热耗率 = 2903785 ÷ 1089075 × 3600 = 9598.6 kJ/kWh</strong>，毛效率约 37.5%。这里的 W(GENER) 是发电机端毛出力，还没有扣给水泵等厂用电和变压器损耗。</p><p>页面底部条形图是量级分账：37.5% 成为毛电，约 61.8% 对应低压缸主排汽流股的冷端放热，其余约 0.7% 是未逐项拆开的差额；它不是一张精确的机械损失清单。</p><p>接下来可以用“数字对照”逐项比较原图与教学图并查看公式推导，用“自由探索”查简洁设备卡，用“速查”复习核心概念；配套文字详解（《宁德核电站热平衡图_逐页详解》，课题组内部资料）另提供分级练习与折叠答案。</p>` },
 ];
 
 /* ============ 交互 ============ */
@@ -2299,8 +2336,8 @@ function renderStep() {
     <h2>${s.t}</h2>
     ${s.html}
     <div class="navrow">
-      <button class="tbtn" id="prev" ${step===0?"disabled":""}>← 上一步</button>
-      <button class="tbtn" id="next" ${step===STEPS.length-1?"disabled":""}>下一步 →</button>
+      <button class="tbtn" id="prev" title="也可用 ← 方向键" ${step===0?"disabled":""}>← 上一步</button>
+      <button class="tbtn" id="next" title="也可用 → 方向键" ${step===STEPS.length-1?"disabled":""}>下一步 →</button>
       ${mobileReturnHtml()}
       <span class="dots">${dots}</span>
     </div>`;
@@ -2345,8 +2382,8 @@ function renderExtraction() {
     <div class="extract-ladder" role="group" aria-label="选择抽汽级">${ladder}</div>
     ${selfCheck}
     <div class="navrow">
-      <button class="tbtn" id="extractPrev" ${extractionStep===0?"disabled":""}>← 上一步</button>
-      <button class="tbtn" id="extractNext" ${extractionStep===EXTRACTION_STEPS.length-1?"disabled":""}>下一步 →</button>
+      <button class="tbtn" id="extractPrev" title="也可用 ← 方向键" ${extractionStep===0?"disabled":""}>← 上一步</button>
+      <button class="tbtn" id="extractNext" title="也可用 → 方向键" ${extractionStep===EXTRACTION_STEPS.length-1?"disabled":""}>下一步 →</button>
       ${mobileReturnHtml()}
     </div>`;
   $("#extractPrev").onclick = () => { if (extractionStep>0) { extractionStep--; renderExtraction(); } };
@@ -2424,6 +2461,9 @@ function moveNumber(delta) {
 function renderNumberDetail(key, anchorIndex = 0) {
   const index = NUMBER_KEYS.indexOf(key);
   if (index < 0 || !NUMBER_MAP[key]) return;
+  /* 入口统一钳制：深链接可能携带越界测点号，越界值一旦存入状态会粘在 URL 和进度里 */
+  const anchorMax = (SOURCE_REGIONS[key]?.anchors.length || 1) - 1;
+  anchorIndex = Math.min(Math.max(0, anchorIndex | 0), anchorMax);
   numberKey = key;
   numberAnchor = anchorIndex;
   selectedSourceAnchor = anchorIndex;
@@ -2439,8 +2479,8 @@ function renderNumberDetail(key, anchorIndex = 0) {
     ${elementPickerHtml(key)}
     ${renderNumberMapping(key,anchorIndex)}
     <div class="navrow">
-      <button class="tbtn" id="numberPrev" ${index===0?"disabled":""}>← 上一项</button>
-      <button class="tbtn" id="numberNext" ${index===NUMBER_KEYS.length-1?"disabled":""}>下一项 →</button>
+      <button class="tbtn" id="numberPrev" title="也可用 ← 方向键" ${index===0?"disabled":""}>← 上一项</button>
+      <button class="tbtn" id="numberNext" title="也可用 → 方向键" ${index===NUMBER_KEYS.length-1?"disabled":""}>下一项 →</button>
       <button class="tbtn" id="numberIntro">四格说明</button>
       ${mobileReturnHtml()}
     </div>`;
@@ -2464,6 +2504,8 @@ function renderNumberDetail(key, anchorIndex = 0) {
 function renderCard(k, sourceAnchor = 0, mappingOpen = false) {
   const d = DATA[k];
   if (!d) return;
+  const cardAnchorMax = (SOURCE_REGIONS[k]?.anchors.length || 1) - 1;
+  sourceAnchor = Math.min(Math.max(0, sourceAnchor | 0), cardAnchorMax);
   selectedKey = k;
   selectedSourceAnchor = sourceAnchor;
   activeKeys = [k];
@@ -2680,7 +2722,9 @@ function bindDiagramItems() {
 }
 document.addEventListener("keydown", (e) => {
   if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
-  if (e.target instanceof Element && e.target.closest("button,summary,select,input,textarea,a,[role='button'],[role='tab'],#diagramWrap")) return;
+  /* 图内元素（含 role=button 热点）统一由 #diagramWrap 一项排除——方向键留给平移；
+     普通按钮（下一步/圆点/梯级）不再排除，点过按钮后方向键翻步依然可用 */
+  if (e.target instanceof Element && e.target.closest("select,input,textarea,a,[role='tab'],#diagramWrap")) return;
   if (mode === "tour") {
     if (e.key === "ArrowRight" && step < STEPS.length-1) { step++; renderStep(); }
     if (e.key === "ArrowLeft"  && step > 0) { step--; renderStep(); }
@@ -2745,6 +2789,8 @@ function updateThemeButton() {
   const label = dark ? "切换为浅色" : "切换为深色";
   $("#btnTheme").setAttribute("aria-label", label);
   $("#btnTheme").title = label;
+  const meta = document.getElementById("themeColorMeta");
+  if (meta) meta.content = dark ? "#0d0d0d" : "#f9f9f7";
 }
 
 $("#btnTheme").onclick = () => {
@@ -2755,11 +2801,12 @@ $("#btnTheme").onclick = () => {
   updateThemeButton();
 };
 
-const TEACHING_ZOOM_VALUES = [0.85,1,1.25,1.5];
+/* “fit” 档本身带 TEACHING_MIN_FIT 下限，故离散档从 1 起——否则窄屏上 0.85 档与 fit 像素相同，缩放按钮成为无效操作 */
+const TEACHING_ZOOM_VALUES = [1,1.25,1.5];
 const TEACHING_MIN_FIT = 0.85;   /* “适应”档的缩放下限：再窄就改用横向滚动，保证中文标签可读 */
 const SOURCE_ZOOM_VALUES = [0.25,0.35,0.5,0.75,1,1.25,1.5,2];
 function defaultTeachingZoom() {
-  if (window.innerWidth <= 720) return 0.85;
+  if (window.innerWidth <= 720) return "fit";
   return diagramWrap.clientWidth < 1180 ? 1 : "fit";
 }
 let teachingZoomState = defaultTeachingZoom();
@@ -2997,12 +3044,19 @@ window.addEventListener("resize",() => {
 });
 
 /* ============ 深链接与进度记忆 ============
-   hash 形如 #tour-9 / #extract-5 / #numbers / #num-hh7-1 / #free / #explore-msr / #quick，
-   查看原图时追加 ".src"。同一份编码也存入 localStorage 作为下次打开的续读进度（hash 优先）。 */
-const STATE_KEY = "ningde-hbd-state";
+   hash 形如 #tour-9 / #extract-5 / #numbers / #num-exA-1 / #free / #explore-msr / #quick，
+   查看原图时追加 ".src"。同一份编码在离开页面时写入 localStorage 作为续读进度（hash 优先）。 */
+const STATE_KEY = "whu-atmes:heat-balance:state:v1";
+try { localStorage.removeItem("ningde-hbd-state"); } catch {}   /* 清理 v1 之前的旧键 */
 let currentHash = "";
 let hashSyncEnabled = false;
-let initialStateHash = "";
+let lastHashMode = null;
+
+/* 残缺片段（如聊天软件截断的 "#%"）会让 decodeURIComponent 抛 URIError，必须容错 */
+function readHash() {
+  const raw = location.hash.slice(1);
+  try { return decodeURIComponent(raw); } catch { return raw; }
+}
 
 function stateHash() {
   let core;
@@ -3014,13 +3068,35 @@ function stateHash() {
   return diagramView === "source" ? `${core}.src` : core;
 }
 
+function persistState() {
+  try { localStorage.setItem(STATE_KEY, stateHash()); } catch {}
+}
+window.addEventListener("pagehide", persistState);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") persistState();
+  /* 后台标签页停掉 37 条流动动画（stroke-dashoffset 走主线程，白耗电） */
+  dia.classList.toggle("noanim", document.hidden || !animOn);
+});
+
+/* 模式切换才压历史条目，同一模式内的翻步只 replace——"按一次后退=退出一个板块"。
+   history 写入在 file:// 等不透明源下可能抛 SecurityError，静默放弃 URL 同步即可。 */
 function updateHash(replace = false) {
   const h = stateHash();
-  try { localStorage.setItem(STATE_KEY, h); } catch {}
-  if (!hashSyncEnabled || h === currentHash) { currentHash = h; return; }
+  if (!hashSyncEnabled) { currentHash = h; lastHashMode = mode; return; }
+  const sameMode = lastHashMode === mode;
+  lastHashMode = mode;
+  if (h === currentHash) return;
   currentHash = h;
-  if (replace) history.replaceState(null, "", `#${h}`);
-  else location.hash = h;
+  try {
+    if (replace || sameMode) history.replaceState(null, "", `#${h}`);
+    else location.hash = h;
+  } catch {}
+}
+
+/* 把地址栏改写为当前真实状态（无效或反归一化 hash 的纠正） */
+function syncUrlToState() {
+  currentHash = stateHash();
+  try { history.replaceState(null, "", `#${currentHash}`); } catch {}
 }
 
 function applyHash(raw) {
@@ -3032,7 +3108,6 @@ function applyHash(raw) {
   const parts = core.split("-");
   const kind = parts[0];
   let ok = false;
-  currentHash = raw;
   if (kind === "tour" || kind === "extract") {
     const total = kind === "tour" ? STEPS.length : EXTRACTION_STEPS.length;
     const n = Number(parts[1]);
@@ -3060,7 +3135,7 @@ function applyHash(raw) {
   if (!ok) return false;
   const wantSource = viewFlag === "src";
   if (wantSource !== (diagramView === "source")) setDiagramView(wantSource ? "source" : "teaching", true);
-  currentHash = raw;
+  currentHash = stateHash();
   return true;
   } finally {
     hashSyncEnabled = wasEnabled;
@@ -3068,15 +3143,17 @@ function applyHash(raw) {
 }
 
 window.addEventListener("hashchange", () => {
-  const h = decodeURIComponent(location.hash.slice(1));
-  if (h === currentHash) return;
-  if (!h) {
-    /* 回退到进入页面时的无 hash 历史项：回放加载完成时的初始状态 */
-    if (initialStateHash) { applyHash(initialStateHash); currentHash = ""; }
-    return;
-  }
-  if (!applyHash(h)) currentHash = h;
+  const h = readHash();
+  if (h === currentHash || !h) return;
+  applyHash(h);
+  if (readHash() !== currentHash) syncUrlToState();
 });
+
+/* 页脚"配套详解"措辞按部署环境切换：本地 file:// 指向同文件夹，线上说明为内部资料 */
+{
+  const localCopy = location.protocol === "file:";
+  $$("[data-when]").forEach(el => { el.hidden = el.dataset.when !== (localCopy ? "local" : "online"); });
+}
 
 validateTutorialData();
 renderSourceOverlay();
@@ -3088,16 +3165,23 @@ updateThemeButton();
 layoutTeaching();
 updateZoomButtons();
 (function restoreOrStart() {
-  const fromUrl = decodeURIComponent(location.hash.slice(1));
-  let restored = fromUrl ? applyHash(fromUrl) : false;
-  if (!restored) {
-    let saved = null;
-    try { saved = localStorage.getItem(STATE_KEY); } catch {}
-    if (saved) restored = applyHash(saved);
-  }
+  let restored = false;
+  try {
+    const fromUrl = readHash();
+    restored = fromUrl ? applyHash(fromUrl) : false;
+    if (!restored) {
+      let saved = null;
+      try { saved = localStorage.getItem(STATE_KEY); } catch {}
+      if (saved && applyHash(saved)) {
+        restored = true;
+        announce("已恢复上次学习进度");
+      }
+    }
+  } catch {}
   if (!restored) renderStep();
-  initialStateHash = stateHash();
   hashSyncEnabled = true;
+  /* 归一化：让地址栏总是携带当前状态，随手复制即是深链接 */
+  if (readHash() !== stateHash()) syncUrlToState();
 })();
 </script>
 </body>
